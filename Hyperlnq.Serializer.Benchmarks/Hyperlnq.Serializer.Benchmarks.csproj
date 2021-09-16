@@ -1,0 +1,21 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net5.0</TargetFramework>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="BenchmarkDotNet" Version="0.13.1" />
+    <PackageReference Include="BenchmarkDotNet.Annotations" Version="0.13.1" />
+    <PackageReference Include="MessagePack" Version="2.3.75" />
+    <PackageReference Include="MessagePack.Annotations" Version="2.3.75" />
+    <PackageReference Include="protobuf-net" Version="3.0.101" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Hyperlnq.Serializer\Hyperlnq.Serializer.csproj" />
+  </ItemGroup>
+
+</Project>
