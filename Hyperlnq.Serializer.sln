@@ -7,6 +7,11 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Hyperlnq.Serializer", "Hype
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Hyperlnq.Serializer.Benchmarks", "Hyperlnq.Serializer.Benchmarks\Hyperlnq.Serializer.Benchmarks.csproj", "{B0FD62DD-EB4D-4745-A40D-2D078C3B5908}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "SolutionScripts", "SolutionScripts", "{49347B2C-8891-48DA-AC0F-B6C998B28C59}"
+	ProjectSection(SolutionItems) = preProject
+		StrongName.ps1 = StrongName.ps1
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU

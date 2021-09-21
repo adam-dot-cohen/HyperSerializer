@@ -76,7 +76,7 @@
 								}}	
 								
 								[MethodImpl(MethodImplOptions.AggressiveInlining)]
-								public static {1} DeserializeAsync(Memory<byte> bytes)
+								public static {1} DeserializeAsync(ReadOnlyMemory<byte> bytes)
 								{{
 									return Deserialize(bytes.Span);
 								}}
@@ -162,7 +162,7 @@
 								}}	
 								
 								[MethodImpl(MethodImplOptions.AggressiveInlining)]
-								public static {1} DeserializeAsync(Memory<byte> bytes)
+								public static {1} DeserializeAsync(ReadOnlyMemory<byte> bytes)
 								{{
 									return Deserialize(bytes.Span);
 								}}
@@ -247,7 +247,7 @@
 									return Serialize(obj);
 								}}									
 								[MethodImpl(MethodImplOptions.AggressiveInlining)]
-								public static {1} DeserializeAsync(Memory<byte> bytes)
+								public static {1} DeserializeAsync(ReadOnlyMemory<byte> bytes)
 								{{
 									return Deserialize(bytes.Span);
 								}}
@@ -437,7 +437,7 @@
 								}}	
 								
 								[MethodImpl(MethodImplOptions.AggressiveInlining)]
-								public static {1} DeserializeAsync(Memory<byte> bytes)
+								public static {1} DeserializeAsync(ReadOnlyMemory<byte> bytes)
 
 								{{
 									return Deserialize(bytes.Span);

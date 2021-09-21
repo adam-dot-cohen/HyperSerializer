@@ -19,14 +19,14 @@ namespace Hyperlnq.Serializer
         private static Type _proxyType;
         private static CSharpCompilation _compilation;
         private static Assembly _generatedAssembly;
-        public delegate Span<byte> Serializer(T obj);
-        public delegate T Deserializer(ReadOnlySpan<byte> bytes);
-        public delegate Memory<byte> SeriailzerAsync(T obj);
-        public delegate T DeserializerAsync(Memory<byte> bytes);
-        public static Serializer SerializeDynamic;
-        public static Deserializer DeserializeDynamic;
-        public static SeriailzerAsync SerializeDynamicAsync;
-        public static DeserializerAsync DeserializeDynamicAsync;
+        private delegate Span<byte> Serializer(T obj);
+        private delegate T Deserializer(ReadOnlySpan<byte> bytes);
+        private delegate Memory<byte> SeriailzerAsync(T obj);
+        private delegate T DeserializerAsync(ReadOnlyMemory<byte> bytes);
+        private static Serializer SerializeDynamic;
+        private static Deserializer DeserializeDynamic;
+        private static SeriailzerAsync SerializeDynamicAsync;
+        private static DeserializerAsync DeserializeDynamicAsync;
 
      
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -39,15 +39,15 @@ namespace Hyperlnq.Serializer
         public static Memory<byte> SerializeAsync(T obj)
             =>Serialize(obj).ToArray();
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static T DeserializeAsync(Memory<byte> bytes)
+        public static T DeserializeAsync(ReadOnlyMemory<byte> bytes)
             => Deserialize(bytes.Span);
         
         internal static void BuildDelegates()
         {
             SerializeDynamic = _proxyType.GetMethod("Serialize")?.CreateDelegate<Serializer>();
             DeserializeDynamic = _proxyType.GetMethod("Deserialize")?.CreateDelegate<Deserializer>();
-            SerializeDynamicAsync = _proxyType.GetMethod("SerializeAsync")?.CreateDelegate<SeriailzerAsync>();
-            DeserializeDynamicAsync = _proxyType.GetMethod("DeserializeAsync")?.CreateDelegate<DeserializerAsync>();
+            //SerializeDynamicAsync = _proxyType.GetMethod("SerializeAsync")?.CreateDelegate<SeriailzerAsync>();
+            //DeserializeDynamicAsync = _proxyType.GetMethod("DeserializeAsync")?.CreateDelegate<DeserializerAsync>();
         }
 		
         static HyperSerializer()
@@ -123,21 +123,21 @@ namespace Hyperlnq.Serializer
     }
 
     
-public static class HyperSerializerV2<T>
+internal static class HyperSerializerV2<T>
 {
 	private static string _generatedCode;
 	private static string _proxyTypeName = $"ProxyGen.SerializationProxy_{typeof(T).Name}";
 	private static Type _proxyType;
 	private static CSharpCompilation _compilation;
 	private static Assembly _generatedAssembly;
-	public delegate Span<byte> Serializer(T obj);
-	public delegate T Deserializer(ReadOnlySpan<byte> bytes);
-	public delegate Memory<byte> SeriailzerAsync(T obj);
-	public delegate T DeserializerAsync(Memory<byte> bytes);
-	public static Serializer SerializeDynamic;
-	public static Deserializer DeserializeDynamic;
-	public static SeriailzerAsync SerializeDynamicAsync;
-	public static DeserializerAsync DeserializeDynamicAsync;
+	internal delegate Span<byte> Serializer(T obj);
+    internal delegate T Deserializer(ReadOnlySpan<byte> bytes);
+    internal delegate Memory<byte> SeriailzerAsync(T obj);
+    internal delegate T DeserializerAsync(ReadOnlyMemory<byte> bytes);
+    internal static Serializer SerializeDynamic;
+    internal static Deserializer DeserializeDynamic;
+    internal static SeriailzerAsync SerializeDynamicAsync;
+        internal static DeserializerAsync DeserializeDynamicAsync;
 
 	static HyperSerializerV2()
 	{
@@ -176,7 +176,7 @@ public static class HyperSerializerV2<T>
 
 	}
 	[MethodImpl(MethodImplOptions.AggressiveInlining)]
-	public static async Task<T> DeserializeAsync(Memory<byte> bytes)
+	public static async Task<T> DeserializeAsync(ReadOnlyMemory<byte> bytes)
 	{
 		T val = default;
 		try
@@ -194,16 +194,16 @@ public static class HyperSerializerV2<T>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static void BuildDelegates()
     {
-        var infos = _proxyType.GetMethod("Serialize", types: new[] { typeof(T) });
+        var infos = _proxyType.GetMethod("Serialize");
         SerializeDynamic = infos.CreateDelegate<Serializer>();
 
-        var infod = _proxyType.GetMethod("Deserialize", types: new[] { typeof(ReadOnlySpan<byte>) });
+        var infod = _proxyType.GetMethod("Deserialize");
         DeserializeDynamic = infod.CreateDelegate<Deserializer>();
 
-        var infosAsync = _proxyType.GetMethod("SerializeAsync", types: new[] { typeof(T) });
+        var infosAsync = _proxyType.GetMethod("SerializeAsync");
         SerializeDynamicAsync = infosAsync.CreateDelegate<SeriailzerAsync>();
 
-        var infodAsync = _proxyType.GetMethod("DeserializeAsync", types: new[] { typeof(Memory<byte>) });
+        var infodAsync = _proxyType.GetMethod("DeserializeAsync");
         DeserializeDynamicAsync = infodAsync.CreateDelegate<DeserializerAsync>();
     }
 
