@@ -54,7 +54,7 @@
 									var offset = 0;
 									var offsetWritten = 0;
 									var len = {2};
-									Span<byte> bytes = new byte[len];
+									byte[] bytes = new byte[len];
                     {3}
 									return bytes;
 									
