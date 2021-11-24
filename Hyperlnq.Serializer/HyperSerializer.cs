@@ -25,8 +25,6 @@ namespace Hyperlnq.Serializer
         private delegate T DeserializerAsync(ReadOnlyMemory<byte> bytes);
         private static Serializer SerializeDynamic;
         private static Deserializer DeserializeDynamic;
-        private static SeriailzerAsync SerializeDynamicAsync;
-        private static DeserializerAsync DeserializeDynamicAsync;
 
      
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
