@@ -6,9 +6,9 @@ using System.Reflection.Emit;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 
-namespace Hyperlnq.Serializer
+namespace HyperSerializer
 {
-    public static class ReflectionExtensions
+    internal static class ReflectionExtensions
     {
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static MethodInfo As(this MethodInfo obj)
@@ -31,12 +31,12 @@ namespace Hyperlnq.Serializer
         }
 
         public static string GetPropertyName<T>(this T val, Expression<Func<T>> propertyExpression) => (propertyExpression.Body as MemberExpression).Member.Name;
-        
+
         private static ConcurrentDictionary<Type, int> _typeSizes = new ConcurrentDictionary<Type, int>();
-        public static int SizeOf<TType>() => SizeOf(typeof(TType));
+        public static int SizeOf<TType>() => typeof(TType).SizeOf();
         public static int SizeOf(this Type type)
         {
-            if(_typeSizes.ContainsKey(type)) return _typeSizes[type];
+            if (_typeSizes.ContainsKey(type)) return _typeSizes[type];
             var method = new DynamicMethod("GetManagedSizeImpl", typeof(uint), new Type[0], typeof(TypeExtensions), false);
             ILGenerator gen = method.GetILGenerator();
             gen.Emit(OpCodes.Sizeof, type);

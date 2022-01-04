@@ -18,9 +18,9 @@ using System.Runtime.InteropServices;
 
 [assembly: System.Reflection.AssemblyCompanyAttribute("Hyperlnq")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Release")]
-[assembly: System.Reflection.AssemblyCopyrightAttribute("2021")]
+[assembly: System.Reflection.AssemblyCopyrightAttribute("2022")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.1.0.1")]
 [assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.1")]
 [assembly: System.Reflection.AssemblyProductAttribute("HyperSerializer")]
-[assembly: System.Reflection.AssemblyTitleAttribute("Hyperlnq.Serializer")]
+[assembly: System.Reflection.AssemblyTitleAttribute("HyperSerializer")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.1.0.1")]

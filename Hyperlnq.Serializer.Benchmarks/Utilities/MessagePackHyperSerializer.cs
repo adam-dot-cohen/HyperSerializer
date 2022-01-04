@@ -1,9 +1,9 @@
 ﻿using System;
 using MessagePack;
 
-namespace Hyperlnq.Serializer.Benchmarks.Utilities
+namespace HyperSerializer.Benchmarks.Utilities
 {
-    public class MessagePackHyperSerializer : IHyperSerializer
+    public class MessagePackHyperSerializer
     {
         public T Deserialize<T>(ReadOnlyMemory<byte> obj)
         {

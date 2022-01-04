@@ -1,11 +1,11 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio Version 16
-VisualStudioVersion = 16.0.31702.278
+# Visual Studio Version 17
+VisualStudioVersion = 17.0.31919.166
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Hyperlnq.Serializer", "Hyperlnq.Serializer\Hyperlnq.Serializer.csproj", "{9B86EF51-DB23-49C4-AEA1-A1763199A3F6}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "HyperSerializer", "Hyperlnq.Serializer\HyperSerializer.csproj", "{9B86EF51-DB23-49C4-AEA1-A1763199A3F6}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Hyperlnq.Serializer.Benchmarks", "Hyperlnq.Serializer.Benchmarks\Hyperlnq.Serializer.Benchmarks.csproj", "{B0FD62DD-EB4D-4745-A40D-2D078C3B5908}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "HyperSerializer.Benchmarks", "Hyperlnq.Serializer.Benchmarks\HyperSerializer.Benchmarks.csproj", "{B0FD62DD-EB4D-4745-A40D-2D078C3B5908}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "SolutionScripts", "SolutionScripts", "{49347B2C-8891-48DA-AC0F-B6C998B28C59}"
 	ProjectSection(SolutionItems) = preProject

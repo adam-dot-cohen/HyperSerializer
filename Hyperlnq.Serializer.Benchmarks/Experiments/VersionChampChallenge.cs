@@ -4,9 +4,10 @@ using System.Diagnostics;
 using BenchmarkDotNet.Attributes;
 using BenchmarkDotNet.Engines;
 using BenchmarkDotNet.Order;
+using HyperSerializer;
 using Buffer = System.Buffer;
 
-namespace Hyperlnq.Serializer.Benchmarks.Experiments
+namespace HyperSerializer.Benchmarks.Experiments
 {
     [SimpleJob(runStrategy: RunStrategy.Throughput, launchCount: 1, invocationCount: 1)]
     [Orderer(SummaryOrderPolicy.FastestToSlowest)]
@@ -16,13 +17,13 @@ namespace Hyperlnq.Serializer.Benchmarks.Experiments
     //|---------------------- |------------:|---------:|---------:|------:|--------:|-----------:|----------:|
     //|      FASTERSerializer |    69.81 ms | 0.966 ms | 0.903 ms |  1.00 |    0.00 | 28000.0000 |    351 MB |
     //| MessagePackSerializer | 1,311.43 ms | 2.462 ms | 2.303 ms | 18.79 |    0.23 | 25000.0000 |    313 MB |
-    public  class VersionChampChallenge
+    public class VersionChampChallenge
     {
         private List<Test> _test;
         private int iterations = 1_000_000;
         public VersionChampChallenge()
         {
-             _test = new List<Test>(); ;
+            _test = new List<Test>(); ;
             for (var i = 0; i < iterations; i++)
             {
                 _test.Add(new Test()
@@ -31,27 +32,26 @@ namespace Hyperlnq.Serializer.Benchmarks.Experiments
                     B = i,
                     C = DateTime.Now.Date,
                     D = (uint)i,
-                    E = (decimal)i,
-                    F = (DateTime.Now - DateTime.Now.AddDays(-1)),
+                    E = i,
+                    F = DateTime.Now - DateTime.Now.AddDays(-1),
                     G = Guid.NewGuid(),
                     H = TestEnum.three,
-                    //  I = i.ToString()
+                    // I = i.ToString()
                 });
             }
         }
-
-        [Benchmark(Baseline = true)]
-        public void HyperSerializer_V2()
+        [Benchmark]
+        public void HyperSerializer_Safe()
         {
             foreach (var obj in _test)
             {
-                var bytes = HyperSerializerV2<Test>.Serialize(obj);
-                Test deserialize = HyperSerializerV2<Test>.Deserialize(bytes);
+                var bytes = HyperSerializerSafe<Test>.Serialize(obj);
+                Test deserialize = HyperSerializerSafe<Test>.Deserialize(bytes);
                 Debug.Assert(deserialize.E == obj.E);
             }
         }
-        [Benchmark]
-        public void HyperSerializer_V1()
+        [Benchmark(Baseline = true)]
+        public void HyperSerializer_Unsafe()
         {
             foreach (var obj in _test)
             {
@@ -63,13 +63,48 @@ namespace Hyperlnq.Serializer.Benchmarks.Experiments
 
 
     }
+    public class VersionChampChallenge2
+    {
+        private List<int> _test;
+        private int iterations = 1_000_000;
+        public VersionChampChallenge2()
+        {
+            _test = new List<int>(); ;
+            for (var i = 0; i < iterations; i++)
+            {
+                _test.Add(i);
+            }
+        }
+        [Benchmark]
+        public void HyperSerializer_Safe()
+        {
+            foreach (var obj in _test)
+            {
+                var bytes = HyperSerializerSafe<int>.Serialize(obj);
+                var deserialize = HyperSerializerSafe<int>.Deserialize(bytes);
+                Debug.Assert(obj == deserialize);
+            }
+        }
+        [Benchmark(Baseline = true)]
+        public void HyperSerializer_Unsafe()
+        {
+            foreach (var obj in _test)
+            {
+                var bytes = HyperSerializer<int>.Serialize(obj);
+                var deserialize = HyperSerializer<int>.Deserialize(bytes);
+                Debug.Assert(deserialize == obj);
+            }
+        }
+
+
+    }
     //[Benchmark]
     //public void FASTERSerializerHeap_Bench()
     //{
     //    foreach(var obj in _test)
     //    {
-    //        HyperSerializer<Test>.SerializeAsync(out var bytes, obj);
-    //        Test deserialize = HyperSerializer<Test>.DeserializeAsync(bytes);
+    //        HyperSerializerSafe<Test>.SerializeAsync(out var bytes, obj);
+    //        Test deserialize = HyperSerializerSafe<Test>.DeserializeAsync(bytes);
     //        Debug.Assert(deserialize.E == obj.E);
     //    }
     //}
@@ -79,8 +114,8 @@ namespace Hyperlnq.Serializer.Benchmarks.Experiments
     //{
     //    foreach(var obj in _test)
     //    {
-    //        HyperSerializerV2<Test>.Serialize(out Span<byte> bytes, obj);
-    //        Test deserialize = HyperSerializerV2<Test>.Deserialize(bytes);
+    //        HyperSerializer<Test>.Serialize(out Span<byte> bytes, obj);
+    //        Test deserialize = HyperSerializer<Test>.Deserialize(bytes);
     //        Debug.Assert(deserialize.E == obj.E);
     //    }
     //}
@@ -90,8 +125,8 @@ namespace Hyperlnq.Serializer.Benchmarks.Experiments
     //{
     //    foreach(var obj in _test)
     //    {
-    //        HyperSerializerV2<Test>.SerializeAsync(out var bytes, obj);
-    //        Test deserialize = HyperSerializerV2<Test>.DeserializeAsync(bytes);
+    //        HyperSerializer<Test>.SerializeAsync(out var bytes, obj);
+    //        Test deserialize = HyperSerializer<Test>.DeserializeAsync(bytes);
     //        Debug.Assert(deserialize.E == obj.E);
     //    }
     //}

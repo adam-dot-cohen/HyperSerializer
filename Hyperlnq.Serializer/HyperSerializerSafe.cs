@@ -11,7 +11,7 @@ using System.Threading.Tasks;
 
 namespace HyperSerializer
 {
-    public static class HyperSerializer<T>
+    public static class HyperSerializerSafe<T>
     {
         private static string _proxyTypeName = $"ProxyGen.SerializationProxy_{typeof(T).Name}";
         private static Type _proxyType;
@@ -22,7 +22,7 @@ namespace HyperSerializer
         internal static Serializer SerializeDynamic;
         internal static Deserializer DeserializeDynamic;
 
-        static HyperSerializer()
+        static HyperSerializerSafe()
             => Compile();
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -59,17 +59,18 @@ namespace HyperSerializer
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private static void Compile()
         {
-            var generatedCode = CodeGen<SnippetsUnsafe>.GenerateCode<T>();
+            var assemblyName = $"{_proxyTypeName}-{DateTime.Now.ToFileTimeUtc()}";
+            var generatedCode = CodeGen<SnippetsSafe>.GenerateCode<T>();
             var syntaxTree = CSharpSyntaxTree.ParseText(generatedCode);
-            string assemblyName = $"{_proxyTypeName}-{DateTime.Now.ToFileTimeUtc()}";
-            var refPaths = CodeGen<SnippetsUnsafe>.GetReferences<T>();
+            var refPaths = CodeGen<SnippetsSafe>.GetReferences<T>();
             MetadataReference[] references = refPaths.Select(r => MetadataReference.CreateFromFile(r)).ToArray();
             var compilation = CSharpCompilation.Create(
                 assemblyName,
                 new[] { syntaxTree },
                 references,
                 new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary, allowUnsafe: true,
-                    optimizationLevel: OptimizationLevel.Release));
+                    optimizationLevel: OptimizationLevel.Release)
+                        );
 
             _compilation = compilation;
 
@@ -110,5 +111,6 @@ namespace HyperSerializer
                 _proxyType = _generatedAssembly.GetType(_proxyTypeName);
             }
         }
+
     }
 }
