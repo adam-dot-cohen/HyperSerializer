@@ -106,6 +106,12 @@ namespace HyperSerializer
                 }
                 ms.Seek(0, SeekOrigin.Begin);
 
+#if NET451_OR_GREATER
+                byte[] bytes = new bytes[ms.Length];
+                ms.Read(ms, 0, ms.Length);
+                _generatedAssembly = Assembly.Load(bytes);
+#endif
+
                 _generatedAssembly = AssemblyLoadContext.Default.LoadFromStream(ms);
 
                 _proxyType = _generatedAssembly.GetType(_proxyTypeName);
