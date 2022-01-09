@@ -70,7 +70,7 @@ Serialization of the following types and nested types is planned but not support
 If you need to exclude a property from being serialized for reasons other then performance (unless nanoseconds actually matter to you), presently your only option is a DTO.  If you would like this feature added feel free to contribute or log an issue.
 
 ## HyperSerializerUnsafe\<T\>
-The HyperSerializer project contains an unsafe implementation of the HyperSerializer<T>, named HyperSerializerUnsafe\<T\>.  It is experimental intended for benchmarking purposes only and does not meaningfuly outperform HyperSerializer\<T\> in most scenarios, if at all.  As such, it is not recommended for end user consumption.
+The HyperSerializer project contains an unsafe implementation of the HyperSerializer\<T\>, named HyperSerializerUnsafe\<T\>.  It is experimental intended for benchmarking purposes only and does not meaningfuly outperform HyperSerializer\<T\> in most scenarios, if at all.  As such, it is not recommended for end user consumption.
     
 ## Feedback, Suggestions and Contributions
 Are all welcome!
