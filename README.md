@@ -49,12 +49,11 @@ public class Test {
     public TestEnum H { get; set; }
 }
 ```
-### Results
--***Speed - Serializing and Deserializing 1M "Test" Objects***
+***Speed - Serializing and Deserializing 1M "Test" Objects***
 _(Times in Milliseconds - Lower is Better)_ - HyperSerializer is roughly 3x faster than ApexSerializer and 18x faster than MessagePack and Protobuf...
 ![Execution Duration](https://github.com/Hyperlnq/HyperSerializer/blob/main/BenchmarkAssets/Time.png)
 
--***Memory - Serializing and Deserializing 1M "Test" Objects***
+***Memory - Serializing and Deserializing 1M "Test" Objects***
 _(Memory in Megabytes - Lower is Better)_ - HyperSerializer requres roughly the same memory allocation as MessagePack and half that of ApexSerializer and Protobuf...
     
 ![Execution Duration](https://github.com/Hyperlnq/HyperSerializer/blob/main/BenchmarkAssets/Space.png)
@@ -63,8 +62,8 @@ _(Memory in Megabytes - Lower is Better)_ - HyperSerializer requres roughly the 
 ### Unsupported types
 Serialization of the following types and nested types is planned but not supported at this time (if you would like to contribute, fork away or reach out to collaborate)...
 
-*Classses with omplex type properties (i.e. a class with a property of type ANY class).  If a class contains a nested complex type property, it will still be serialized but the property will be ignored.
-*Collections (e.g. List, Dictionary, etc.). If a class contains a property of type collection, it will still be serialized but the property will be ignored.
+- Complex type properties (i.e. a class with a property of type ANY class).  If a class contains a property that is a complex type, the class will still be serialized but the property will be ignored.
+- Collections (e.g. List, Dictionary, etc.). If a class contains a property of type collection, the class will still be serialized but the property will be ignored.
 
 ### Property Exclusion
 If you need to exclude a property from being serialized for reasons other then performance (unless nanoseconds actually matter to you), presently your only option is a DTO.  If you would like this feature added feel free to contribute or log an issue.
