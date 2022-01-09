@@ -47,18 +47,18 @@ namespace HyperSerializer.Benchmarks.Experiments
         {
             foreach (var obj in _test)
             {
-                var bytes = HyperSerializerUnsafe<TestWithStrings>.Serialize(obj);
-                TestWithStrings deserialize = HyperSerializerUnsafe<TestWithStrings>.Deserialize(bytes);
+                var bytes = HyperSerializer<TestWithStrings>.Serialize(obj);
+                TestWithStrings deserialize = HyperSerializer<TestWithStrings>.Deserialize(bytes);
                 Debug.Assert(deserialize.GetHashCode() == obj.GetHashCode());
             }
         }
         [Benchmark]
-        public void HyperSerializerSafe()
+        public void HyperSerializerUnsafe()
         {
             foreach (var obj in _test)
             {
-                var bytes = HyperSerializer<TestWithStrings>.Serialize(obj);
-                TestWithStrings deserialize = HyperSerializer<TestWithStrings>.Deserialize(bytes);
+                var bytes = HyperSerializerUnsafe<TestWithStrings>.Serialize(obj);
+                TestWithStrings deserialize = HyperSerializerUnsafe<TestWithStrings>.Deserialize(bytes);
                 Debug.Assert(deserialize.GetHashCode() == obj.GetHashCode());
             }
         }
