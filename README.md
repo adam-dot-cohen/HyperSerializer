@@ -1,6 +1,6 @@
 # HyperSerializer
 ![]()
-[![NuGet version (HyperSerializer)](https://img.shields.io/badge/nuget-v1.0.6-blue?style=flat-square)](https://www.nuget.org/packages/HyperSerializer/)
+[![NuGet version (HyperSerializer)](https://img.shields.io/badge/nuget-v1.0.7-blue?style=flat-square)](https://www.nuget.org/packages/HyperSerializer/)
 
 Blazing fast binary serialization up to 18 times faster than MessagePack and Protobuf with roughly equivelant memory allocation (see Benchmarks below).  HyperSerializer uses the managed Span\<T\> and Memory\<T\> structs to acheive high speed and low memory allocation without unsafe code.  HyperSerializer is 100% thread-safe and comes with both sync and async serialization and deserialization methods.  Out of the box support for .NETCoreApp 3.1, net5.0, net6.0.
     
