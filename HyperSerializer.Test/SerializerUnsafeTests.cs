@@ -56,7 +56,6 @@ namespace HyperSerializer.Test
             RoundTripEquality<byte?>(null);
 
             RoundTripEquality<char?>(null);
-            RoundTripEquality<string>(null);
             RoundTripEquality<string?>(null);
 
             RoundTripEquality<short?>(null);
@@ -169,7 +168,7 @@ namespace HyperSerializer.Test
                 MemoryMarshal.Write(buffer, ref i);
                 var deserialize = HyperSerializerUnsafe<int>.Deserialize(buffer);
             }
-            catch (ArgumentOutOfRangeException e)
+            catch (ArgumentOutOfRangeException)
             {
                 Assert.Pass();
             }

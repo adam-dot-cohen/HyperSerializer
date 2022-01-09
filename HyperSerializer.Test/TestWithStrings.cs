@@ -12,7 +12,7 @@ namespace HyperSerializer.Test
         TimeSpan F { get; set; }
         Guid G { get; set; }
         TestEnum H { get; set; }
-        string I { get; set; }
+        string? I { get; set; }
         int? An { get; set; }
         long? Bn { get; set; }
         DateTime Cn { get; set; }
@@ -21,7 +21,7 @@ namespace HyperSerializer.Test
         TimeSpan? Fn { get; set; }
         Guid? Gn { get; set; }
         TestEnum? Hn { get; set; }
-        string In { get; set; }
+        string? In { get; set; }
     }
 
     public class TestWithStringsV2 : ITestWithStrings
@@ -34,7 +34,7 @@ namespace HyperSerializer.Test
         public virtual TimeSpan F { get; set; }
         public virtual Guid G { get; set; }
         public virtual TestEnum H { get; set; }
-        public virtual string I { get; set; }
+        public virtual string? I { get; set; }
         public virtual int? An { get; set; }
         public virtual long? Bn { get; set; }
         public virtual DateTime Cn { get; set; }
@@ -43,7 +43,7 @@ namespace HyperSerializer.Test
         public virtual TimeSpan? Fn { get; set; }
         public virtual Guid? Gn { get; set; }
         public virtual TestEnum? Hn { get; set; }
-        public virtual string In { get; set; }
+        public virtual string? In { get; set; }
         public virtual int A0 { get; set; }
     }
     public class TestWithStringsV3 : ITestWithStrings
@@ -57,7 +57,7 @@ namespace HyperSerializer.Test
         public virtual TimeSpan F { get; set; }
         public virtual Guid G { get; set; }
         public virtual TestEnum H { get; set; }
-        public virtual string I { get; set; }
+        public virtual string? I { get; set; }
         public virtual int? An { get; set; }
         public virtual long? Bn { get; set; }
         public virtual DateTime Cn { get; set; }
@@ -66,7 +66,7 @@ namespace HyperSerializer.Test
         public virtual TimeSpan? Fn { get; set; }
         public virtual Guid? Gn { get; set; }
         public virtual TestEnum? Hn { get; set; }
-        public virtual string In { get; set; }
+        public virtual string? In { get; set; }
     }
     public class TestWithStrings : ITestWithStrings
     {
@@ -78,7 +78,7 @@ namespace HyperSerializer.Test
         public virtual TimeSpan F { get; set; }
         public virtual Guid G { get; set; }
         public virtual TestEnum H { get; set; }
-        public virtual string I { get; set; }
+        public virtual string? I { get; set; }
         public virtual int? An { get; set; }
         public virtual long? Bn { get; set; }
         public virtual DateTime Cn { get; set; }
@@ -87,7 +87,7 @@ namespace HyperSerializer.Test
         public virtual TimeSpan? Fn { get; set; }
         public virtual Guid? Gn { get; set; }
         public virtual TestEnum? Hn { get; set; }
-        public virtual string In { get; set; }
+        public virtual string? In { get; set; }
     }
 }
 

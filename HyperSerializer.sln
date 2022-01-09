@@ -3,16 +3,16 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.0.31919.166
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "HyperSerializer", "Hyperlnq.Serializer\HyperSerializer.csproj", "{9B86EF51-DB23-49C4-AEA1-A1763199A3F6}"
-EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "HyperSerializer.Benchmarks", "Hyperlnq.Serializer.Benchmarks\HyperSerializer.Benchmarks.csproj", "{B0FD62DD-EB4D-4745-A40D-2D078C3B5908}"
-EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "SolutionScripts", "SolutionScripts", "{49347B2C-8891-48DA-AC0F-B6C998B28C59}"
 	ProjectSection(SolutionItems) = preProject
 		StrongName.ps1 = StrongName.ps1
 	EndProjectSection
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HyperSerializer.Test", "HyperSerializer.Test\HyperSerializer.Test.csproj", "{BCC344E9-CE47-4350-BF79-CCDCEE9C4D8C}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "HyperSerializer.Test", "HyperSerializer.Test\HyperSerializer.Test.csproj", "{BCC344E9-CE47-4350-BF79-CCDCEE9C4D8C}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "HyperSerializer", "HyperSerializer\HyperSerializer.csproj", "{65A27ABE-5599-4C36-9E7D-5FBF44AFDF5E}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "HyperSerializer.Benchmarks", "HyperSerializer.Benchmarks\HyperSerializer.Benchmarks.csproj", "{3F84CBEA-2AB1-424A-80B3-5F03176D043C}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -20,18 +20,18 @@ Global
 		Release|Any CPU = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{9B86EF51-DB23-49C4-AEA1-A1763199A3F6}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{9B86EF51-DB23-49C4-AEA1-A1763199A3F6}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{9B86EF51-DB23-49C4-AEA1-A1763199A3F6}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{9B86EF51-DB23-49C4-AEA1-A1763199A3F6}.Release|Any CPU.Build.0 = Release|Any CPU
-		{B0FD62DD-EB4D-4745-A40D-2D078C3B5908}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{B0FD62DD-EB4D-4745-A40D-2D078C3B5908}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{B0FD62DD-EB4D-4745-A40D-2D078C3B5908}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{B0FD62DD-EB4D-4745-A40D-2D078C3B5908}.Release|Any CPU.Build.0 = Release|Any CPU
 		{BCC344E9-CE47-4350-BF79-CCDCEE9C4D8C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{BCC344E9-CE47-4350-BF79-CCDCEE9C4D8C}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{BCC344E9-CE47-4350-BF79-CCDCEE9C4D8C}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{BCC344E9-CE47-4350-BF79-CCDCEE9C4D8C}.Release|Any CPU.Build.0 = Release|Any CPU
+		{65A27ABE-5599-4C36-9E7D-5FBF44AFDF5E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{65A27ABE-5599-4C36-9E7D-5FBF44AFDF5E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{65A27ABE-5599-4C36-9E7D-5FBF44AFDF5E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{65A27ABE-5599-4C36-9E7D-5FBF44AFDF5E}.Release|Any CPU.Build.0 = Release|Any CPU
+		{3F84CBEA-2AB1-424A-80B3-5F03176D043C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{3F84CBEA-2AB1-424A-80B3-5F03176D043C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{3F84CBEA-2AB1-424A-80B3-5F03176D043C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{3F84CBEA-2AB1-424A-80B3-5F03176D043C}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

@@ -22,7 +22,7 @@ namespace HyperSerializer.Test
         public virtual Guid G { get; set; }
         public virtual TestEnum H { get; set; }
         public virtual TestStruct Ts { get; set; }
-        public virtual string I { get; set; }
+        public virtual string? I { get; set; }
         public virtual int? An { get; set; }
         public virtual long? Bn { get; set; }
         public virtual DateTime Cn { get; set; }
@@ -31,7 +31,7 @@ namespace HyperSerializer.Test
         public virtual TimeSpan? Fn { get; set; }
         public virtual Guid? Gn { get; set; }
         public virtual TestEnum? Hn { get; set; }
-        public virtual string In { get; set; }
+        public virtual string? In { get; set; }
         public virtual TestStruct? Ts_Nullable { get; set; }
 
     }

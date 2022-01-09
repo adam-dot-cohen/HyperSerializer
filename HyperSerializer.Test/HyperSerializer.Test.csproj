@@ -15,7 +15,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Hyperlnq.Serializer\HyperSerializer.csproj" />
+    <ProjectReference Include="..\HyperSerializer\HyperSerializer.csproj" />
   </ItemGroup>
 
 </Project>
