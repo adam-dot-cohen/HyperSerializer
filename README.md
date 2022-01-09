@@ -12,7 +12,7 @@ Span<byte> buffer = default;
 MemoryMarshal.Write(buffer, ref i);
 var deserialize = HyperSerializer<int>.Deserialize(buffer);
 ```
-In the event the destiation data type was (1) an 8 BYTES in length or (2) an object containing properties with an aggregate size exceeding 8 BYTES, one of the following would occur: (1) a data type specific execption, in most cases - ArguementOutOfRangeException, OR (2) no exception at all if the bytes happen to represent valid values for the destination type(s).
+In the event the destiation data type was (1) 8 BYTES in length or (2) an object containing properties with an aggregate size exceeding 8 BYTES, one of the following would occur: (1) a data type specific execption, in most cases - ArguementOutOfRangeException, OR (2) no exception at all if the bytes happen to represent valid values for the destination type(s).
 
 ## Usage
 HyperSerializer is a contract-less serializalizer that supports serializing primatives, structs, classes and record types.  As a result of being contract-less, changing the order or removing properties from a class that existed at the time of serialization will break deserialization.  If you ADD new properties to a class WITHOUT changing the names, types and order of preexisting properties, it will not break deserialization of previously serialized objects but should be tested throughly.  With respect to classes, only properties with public getters and setters will be serialied (fields and properties not matching the aforementioned crieria will be ignored).
