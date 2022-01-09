@@ -49,7 +49,7 @@ public class Test {
     public TestEnum H { get; set; }
 }
 ```
-### Benchmark Results
+### Results
 -***Speed - Serializing and Deserializing 1M "Test" Objects***
 _(Times in Milliseconds - Lower is Better)_ - HyperSerializer is roughly 3x faster than ApexSerializer and 18x faster than MessagePack and Protobuf...
 ![Execution Duration](https://github.com/Hyperlnq/HyperSerializer/blob/main/BenchmarkAssets/Time.png)
