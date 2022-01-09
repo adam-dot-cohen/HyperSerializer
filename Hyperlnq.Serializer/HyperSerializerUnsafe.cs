@@ -11,9 +11,10 @@ using System.Threading.Tasks;
 
 namespace HyperSerializer
 {
-    public static class HyperSerializerSafe<T>
+    public static class HyperSerializerUnsafe<T>
     {
-        private static string _proxyTypeName = $"ProxyGen.SerializationProxy_{typeof(T).Name}";
+        private static string generatedCode;
+        private static string _proxyTypeName;
         private static Type _proxyType;
         private static CSharpCompilation _compilation;
         private static Assembly _generatedAssembly;
@@ -22,7 +23,7 @@ namespace HyperSerializer
         internal static Serializer SerializeDynamic;
         internal static Deserializer DeserializeDynamic;
 
-        static HyperSerializerSafe()
+        static HyperSerializerUnsafe()
             => Compile();
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -59,18 +60,20 @@ namespace HyperSerializer
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private static void Compile()
         {
-            var assemblyName = $"{_proxyTypeName}-{DateTime.Now.ToFileTimeUtc()}";
-            var generatedCode = CodeGen<SnippetsSafe>.GenerateCode<T>();
+            var result = CodeGen<SnippetsUnsafe>.GenerateCode<T>();
+            generatedCode = result.Item1;
+
+            _proxyTypeName = $"ProxyGen.SerializationProxy_{result.Item2}";
             var syntaxTree = CSharpSyntaxTree.ParseText(generatedCode);
-            var refPaths = CodeGen<SnippetsSafe>.GetReferences<T>();
+            string assemblyName = $"{_proxyTypeName}-{DateTime.Now.ToFileTimeUtc()}";
+            var refPaths = CodeGen<SnippetsUnsafe>.GetReferences<T>(true);
             MetadataReference[] references = refPaths.Select(r => MetadataReference.CreateFromFile(r)).ToArray();
             var compilation = CSharpCompilation.Create(
                 assemblyName,
                 new[] { syntaxTree },
                 references,
                 new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary, allowUnsafe: true,
-                    optimizationLevel: OptimizationLevel.Release)
-                        );
+                    optimizationLevel: OptimizationLevel.Release));
 
             _compilation = compilation;
 
@@ -87,23 +90,22 @@ namespace HyperSerializer
             {
                 var result = _compilation.Emit(ms);
                 if (!result.Success)
-                    if (!result.Success)
+                {
+                    var compilationErrors = result.Diagnostics.Where(diagnostic =>
+                            diagnostic.IsWarningAsError ||
+                            diagnostic.Severity == DiagnosticSeverity.Error)
+                        .ToList();
+                    if (compilationErrors.Any())
                     {
-                        var compilationErrors = result.Diagnostics.Where(diagnostic =>
-                                diagnostic.IsWarningAsError ||
-                                diagnostic.Severity == DiagnosticSeverity.Error)
-                            .ToList();
-                        if (compilationErrors.Any())
-                        {
-                            var firstError = compilationErrors.First();
-                            var errorNumber = firstError.Id;
-                            var errorDescription = firstError.GetMessage();
-                            var firstErrorMessage = $"{errorNumber}: {errorDescription};";
-                            var exception = new Exception($"Compilation failed, first error is: {firstErrorMessage}");
-                            compilationErrors.ForEach(e => { if (!exception.Data.Contains(e.Id)) exception.Data.Add(e.Id, e.GetMessage()); });
-                            throw exception;
-                        }
+                        var firstError = compilationErrors.First();
+                        var errorNumber = firstError.Id;
+                        var errorDescription = firstError.GetMessage();
+                        var firstErrorMessage = $"{errorNumber}: {errorDescription};";
+                        var exception = new Exception($"Compilation failed, first error is: {firstErrorMessage}");
+                        compilationErrors.ForEach(e => { if (!exception.Data.Contains(e.Id)) exception.Data.Add(e.Id, e.GetMessage()); });
+                        throw exception;
                     }
+                }
                 ms.Seek(0, SeekOrigin.Begin);
 
                 _generatedAssembly = AssemblyLoadContext.Default.LoadFromStream(ms);
@@ -111,6 +113,5 @@ namespace HyperSerializer
                 _proxyType = _generatedAssembly.GetType(_proxyTypeName);
             }
         }
-
     }
 }

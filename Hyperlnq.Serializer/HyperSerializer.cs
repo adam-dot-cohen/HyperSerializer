@@ -59,17 +59,20 @@ namespace HyperSerializer
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private static void Compile()
         {
-            var generatedCode = CodeGen<SnippetsUnsafe>.GenerateCode<T>();
+            var result = CodeGen<SnippetsUnsafe>.GenerateCode<T>();
+            var generatedCode = result.Item1;
+            _proxyTypeName = $"ProxyGen.SerializationProxy_{result.Item2}";
             var syntaxTree = CSharpSyntaxTree.ParseText(generatedCode);
-            string assemblyName = $"{_proxyTypeName}-{DateTime.Now.ToFileTimeUtc()}";
-            var refPaths = CodeGen<SnippetsUnsafe>.GetReferences<T>();
+            var assemblyName = $"{_proxyTypeName}-{DateTime.Now.ToFileTimeUtc()}";
+            var refPaths = CodeGen<SnippetsSafe>.GetReferences<T>();
             MetadataReference[] references = refPaths.Select(r => MetadataReference.CreateFromFile(r)).ToArray();
             var compilation = CSharpCompilation.Create(
                 assemblyName,
                 new[] { syntaxTree },
                 references,
                 new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary, allowUnsafe: true,
-                    optimizationLevel: OptimizationLevel.Release));
+                    optimizationLevel: OptimizationLevel.Release)
+                        );
 
             _compilation = compilation;
 
@@ -86,23 +89,22 @@ namespace HyperSerializer
             {
                 var result = _compilation.Emit(ms);
                 if (!result.Success)
-                    if (!result.Success)
+                {
+                    var compilationErrors = result.Diagnostics.Where(diagnostic =>
+                            diagnostic.IsWarningAsError ||
+                            diagnostic.Severity == DiagnosticSeverity.Error)
+                        .ToList();
+                    if (compilationErrors.Any())
                     {
-                        var compilationErrors = result.Diagnostics.Where(diagnostic =>
-                                diagnostic.IsWarningAsError ||
-                                diagnostic.Severity == DiagnosticSeverity.Error)
-                            .ToList();
-                        if (compilationErrors.Any())
-                        {
-                            var firstError = compilationErrors.First();
-                            var errorNumber = firstError.Id;
-                            var errorDescription = firstError.GetMessage();
-                            var firstErrorMessage = $"{errorNumber}: {errorDescription};";
-                            var exception = new Exception($"Compilation failed, first error is: {firstErrorMessage}");
-                            compilationErrors.ForEach(e => { if (!exception.Data.Contains(e.Id)) exception.Data.Add(e.Id, e.GetMessage()); });
-                            throw exception;
-                        }
+                        var firstError = compilationErrors.First();
+                        var errorNumber = firstError.Id;
+                        var errorDescription = firstError.GetMessage();
+                        var firstErrorMessage = $"{errorNumber}: {errorDescription};";
+                        var exception = new Exception($"Compilation failed, first error is: {firstErrorMessage}");
+                        compilationErrors.ForEach(e => { if (!exception.Data.Contains(e.Id)) exception.Data.Add(e.Id, e.GetMessage()); });
+                        throw exception;
                     }
+                }
                 ms.Seek(0, SeekOrigin.Begin);
 
                 _generatedAssembly = AssemblyLoadContext.Default.LoadFromStream(ms);
@@ -110,5 +112,6 @@ namespace HyperSerializer
                 _proxyType = _generatedAssembly.GetType(_proxyTypeName);
             }
         }
+
     }
 }

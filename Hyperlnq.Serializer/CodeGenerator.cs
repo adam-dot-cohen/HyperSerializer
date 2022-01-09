@@ -6,6 +6,7 @@ using System.Reflection;
 using System.Reflection.Emit;
 using System.Runtime.CompilerServices;
 using System.Text;
+using Microsoft.CodeAnalysis.CSharp.Syntax;
 
 namespace HyperSerializer
 {
@@ -14,19 +15,19 @@ namespace HyperSerializer
     {
         private static TSnippets snippets = new TSnippets();
         private const BindingFlags _flags = BindingFlags.Instance | BindingFlags.GetProperty | BindingFlags.SetProperty | BindingFlags.Public;
-        internal static IEnumerable<string> GetReferences<T>()
+        internal static IEnumerable<string> GetReferences<T>(bool includeUnsafe = false)
         {
             var refPaths = new List<string> {
                 FrameworkAssemblyPaths.System,
                 FrameworkAssemblyPaths.System_Console,
                 FrameworkAssemblyPaths.System_Private_CoreLib,
                 FrameworkAssemblyPaths.System_Runtime,
-                FrameworkAssemblyPaths.System_Runtime_CompilerServices_Unsafe,
                 typeof(T).GetTypeInfo().Assembly.Location,
             };
-            if (TypeSupport.IsSupportedType<T>())
-                refPaths.Add(typeof(T).Assembly.Location);
-            else
+            if(includeUnsafe)
+                refPaths.Add(
+                    FrameworkAssemblyPaths.System_Runtime_CompilerServices_Unsafe);
+            if (!TypeSupport.IsSupportedType<T>())
             {
                 foreach (var prop in typeof(T).GetProperties(_flags).Where(h => h.CanRead && h.CanWrite && TypeSupport.IsSupportedType(h.PropertyType)))
                 {
@@ -40,12 +41,17 @@ namespace HyperSerializer
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static string GenerateCode<T>()
+        public static (string, string) GenerateCode<T>()
         {
+            //if (Nullable.GetUnderlyingType(typeof(T)) != null)
+            //    throw new Exception("Parameter 'T' must be non-nullable");
+            var cType = Nullable.GetUnderlyingType(typeof(T));
+            var cTypeName = cType != null ? $"{cType.Name}_Nullable" : typeof(T).Name;
+            var pType = cType != null ? $"{cType.FullName}?" : typeof(T).FullName;
             var (length, serialize) = Serialize<T>();
             var (length3, deserialize) = Deserialize<T>();
-            return string.Format(snippets.ClassTemplate, typeof(T).Name, typeof(T).ToString().Replace("+", "."),
-                length, serialize, deserialize, TypeSupport.IsSupportedType<T>() ? "default" : "new()");
+            return (string.Format(snippets.ClassTemplate, cTypeName, pType.ToString().Replace("+", "."),
+                length, serialize, deserialize, TypeSupport.IsSupportedType<T>() ? "default" : "new()"), cTypeName);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -58,7 +64,7 @@ namespace HyperSerializer
                 (offset, offsetStr) = GenerateSerializer<T>(sb);
             else
             {
-                foreach (var prop in typeof(T).GetProperties(_flags).Where(h => h.CanRead && h.CanWrite && TypeSupport.IsSupportedType(h.PropertyType)))
+                foreach (var prop in typeof(T).GetProperties(_flags).Where(h => h.CanRead && h.CanWrite))
                 {
                     if (!TypeSupport.IsSupportedType(prop.PropertyType)) continue;
                     var (len, str) = GenerateSerializer<T>(sb, "obj", prop);
@@ -79,7 +85,7 @@ namespace HyperSerializer
                 (offset, offsetStr) = GenerateDeserializer<T>(sb);
             else
             {
-                foreach (var prop in typeof(T).GetProperties(_flags).Where(h => h.CanRead && h.CanWrite && TypeSupport.IsSupportedType(h.PropertyType)))
+                foreach (var prop in typeof(T).GetProperties(_flags).Where(h => h.CanRead && h.CanWrite))
                 {
 
                     if (!TypeSupport.IsSupportedType(prop.PropertyType)) continue;
@@ -111,15 +117,16 @@ namespace HyperSerializer
                 //write value
                 sb.AppendFormat(snippets.PropertyTemplateSerializeVarLenStr, fieldName, propertyName);
                 sb.AppendLine();
-                var offsetStr = $"+{string.Format(snippets.StringLength, fieldName)}";
+                var offsetStr = $"+{string.Format(snippets.StringLengthSpan, fieldName)}";
                 return (offset, offsetStr);
             }
             Type uType;
             if (type.IsGenericType && (uType = Nullable.GetUnderlyingType(type)) != null)
             {
                 //write value
-                sb.AppendFormat(snippets.PropertyTemplateSerializeNullable, propertyName,
-                    parameterName, uType.SizeOf(), uType);
+
+                var uTypeName = uType.FullName.Replace("+", ".");
+                sb.AppendFormat(snippets.PropertyTemplateSerializeNullable, propertyName, fieldName, uType.SizeOf(), uType);
                 offset += uType.SizeOf() + 1;
                 sb.AppendLine();
 
@@ -159,7 +166,7 @@ namespace HyperSerializer
             {
                 //write value
                 var uTypeName = uType.FullName.Replace("+", ".");
-                sb.AppendFormat(snippets.PropertyTemplateDeserializeNullable, fieldName, typeName, uType.SizeOf());
+                sb.AppendFormat(snippets.PropertyTemplateDeserializeNullable, fieldName, uTypeName, uType.SizeOf());
                 offset += uType.SizeOf() + 1;
                 sb.AppendLine();
                 return (offset, string.Empty);

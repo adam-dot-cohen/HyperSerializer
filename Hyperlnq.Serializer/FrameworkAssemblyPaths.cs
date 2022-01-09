@@ -28,7 +28,7 @@ namespace HyperSerializer
             var scriptProjectInfo = ProjectInfo.Create(ProjectId.CreateNewId(), VersionStamp.Create(), "Script", "Script", LanguageNames.CSharp, isSubmission: true)
                .WithMetadataReferences(new[]
                {
-       MetadataReference.CreateFromFile(typeof(object).Assembly.Location)
+                    MetadataReference.CreateFromFile(typeof(object).Assembly.Location)
                })
                .WithCompilationOptions(compilationOptions);
 
@@ -49,17 +49,16 @@ namespace HyperSerializer
         public static string GenCode()
         {
             return @"
-
-	public class DotNetAssemblyPaths
-	{
-		" + string.Join("\n\t\t", GetPaths().Select(r => r.Item2)) + @"
-	}
-	";
+	            public class FrameworkAssemblyPaths
+	            {
+		            " + string.Join("\n\t\t", GetPaths().Select(r => r.Item2)) + @"
+	            }
+	            ";
 
         }
         public static string Join()
         {
-            return string.Join(",\n", GetNames().Join(GetPaths(), a => a.Trim(), b => b.Item1.Replace(".", "_"), (a, b) => "{DotNetAssemblys." + a + "," + b.Item2 + "}"));
+            return string.Join(",\n", GetNames().Join(GetPaths(), a => a.Trim(), b => b.Item1.Replace(".", "_"), (a, b) => "{FrameworkAssemblyPaths." + a + "," + b.Item2 + "}"));
         }
         public static IEnumerable<string> GetNames()
         {
@@ -72,7 +71,7 @@ namespace HyperSerializer
         {
             foreach (var p in Directory.GetFiles(Path.Combine(Path.GetDirectoryName(typeof(System.Runtime.GCSettings).GetTypeInfo().Assembly.Location)))
                 .Where(r => !Path.GetFileName(r).StartsWith(".") && !Path.GetFileName(r).StartsWith("api")).ToList())
-                yield return (Path.GetFileNameWithoutExtension(p), "public static string " + Path.GetFileNameWithoutExtension(p).Replace(".", "_") + " => Path.Combine(Path.GetDirectoryName(typeof(System.Runtime.GCSettings).GetTypeInfo().Assembly.Location), \"" + Path.GetFileName(p) + "\");");
+                yield return (Path.GetFileNameWithoutExtension(p), "public static string " + Path.GetFileNameWithoutExtension(p).Replace(".", "_") + " => Path.Combine(Path.GetDirectoryName(typeof(System.Object).Assembly.Location), \"" + Path.GetFileName(p) + "\");");
         }
     }
     public class FrameworkAssemblyPaths

@@ -77,24 +77,6 @@ namespace HyperSerializer.Benchmarks.Experiments
         public virtual Guid G { get; set; }
         [Key(9), ProtoMember(9)]
         public virtual TestEnum H { get; set; }
-        //[Key(10), ProtoMember(10), Index(9)]
-        //public virtual string I { get; set; }
-        //[Key(11), ProtoMember(11), Index(9)]
-        //public virtual int? An { get; set; }
-        //[Key(12), ProtoMember(12), Index(10)]
-        //public virtual long? Bn { get; set; }
-        //[Key(13), ProtoMember(13), Index(11)]
-        //public virtual DateTime Cn { get; set; }
-        //[Key(14), ProtoMember(14), Index(12)]
-        //public virtual uint? Dn { get; set; }
-        //[Key(15), ProtoMember(15), Index(13)]
-        //public virtual decimal? En { get; set; }
-        //[Key(16), ProtoMember(16), Index(14)]
-        //public virtual TimeSpan? Fn { get; set; }
-        //[Key(17), ProtoMember(17), Index(15)]
-        //public virtual TestEnum? Hn { get; set; }
-        //[Key(18), ProtoMember(18), Index(19)]
-        //public virtual string In { get; set; }
     }
 
 }

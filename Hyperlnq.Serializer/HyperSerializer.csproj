@@ -15,7 +15,7 @@
     <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
     <DelaySign>true</DelaySign>
     <RepositoryUrl>https://github.com/Hyperlnq/HyperSerializer</RepositoryUrl>
-    <Version>1.0.4</Version>
+    <Version>1.0.5</Version>
   </PropertyGroup>
   
   <ItemGroup>

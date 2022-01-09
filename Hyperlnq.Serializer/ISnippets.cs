@@ -10,6 +10,7 @@
         string PropertyTemplateSerializeVarLenStr { get; }
         string PropertyTemplateDeserializeVarLenStr { get; }
         string StringLength { get; }
+        string StringLengthSpan { get; }
         string ClassTemplate { get; }
     }
 }

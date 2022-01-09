@@ -3,6 +3,7 @@ using System.Buffers;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
+using Apex.Serialization;
 using BenchmarkDotNet.Attributes;
 using BenchmarkDotNet.Engines;
 using BenchmarkDotNet.Order;
@@ -17,10 +18,6 @@ namespace HyperSerializer.Benchmarks.Experiments
     [Orderer(SummaryOrderPolicy.FastestToSlowest)]
     [MemoryDiagnoser]
 
-    //|                Method |        Mean |    Error |   StdDev | Ratio | RatioSD |      Gen 0 | Allocated |
-    //|---------------------- |------------:|---------:|---------:|------:|--------:|-----------:|----------:|
-    //|      FASTERSerializer |    69.81 ms | 0.966 ms | 0.903 ms |  1.00 |    0.00 | 28000.0000 |    351 MB |
-    //| MessagePackSerializer | 1,311.43 ms | 2.462 ms | 2.303 ms | 18.79 |    0.23 | 25000.0000 |    313 MB |
     public class SyncBenchmarksWithStrings
     {
         private List<TestWithStrings> _test;
@@ -50,9 +47,19 @@ namespace HyperSerializer.Benchmarks.Experiments
         {
             foreach (var obj in _test)
             {
-                var bytes = HyperSerializerSafe<TestWithStrings>.Serialize(obj);
-                var deserialize = HyperSerializerSafe<TestWithStrings>.Deserialize(bytes);
-                Debug.Assert(deserialize.E == obj.E);
+                var bytes = HyperSerializerUnsafe<TestWithStrings>.Serialize(obj);
+                TestWithStrings deserialize = HyperSerializerUnsafe<TestWithStrings>.Deserialize(bytes);
+                Debug.Assert(deserialize.GetHashCode() == obj.GetHashCode());
+            }
+        }
+        [Benchmark]
+        public void HyperSerializerSafe()
+        {
+            foreach (var obj in _test)
+            {
+                var bytes = HyperSerializer<TestWithStrings>.Serialize(obj);
+                TestWithStrings deserialize = HyperSerializer<TestWithStrings>.Deserialize(bytes);
+                Debug.Assert(deserialize.GetHashCode() == obj.GetHashCode());
             }
         }
         [Benchmark]
@@ -65,8 +72,7 @@ namespace HyperSerializer.Benchmarks.Experiments
                 Serializer.Serialize(stream, obj);
                 stream.Position = 0;
                 var deserialize = Serializer.Deserialize<TestWithStrings>(stream);
-                Debug.Assert(deserialize.
-                    E == obj.E);
+                Debug.Assert(deserialize.GetHashCode() == obj.GetHashCode());
             }
         }
 
@@ -76,12 +82,24 @@ namespace HyperSerializer.Benchmarks.Experiments
             foreach (var obj in _test)
             {
                 var serialize = MessagePack.MessagePackSerializer.Serialize(obj);
-                var deserialize = MessagePack.MessagePackSerializer.Deserialize<TestWithStrings>(serialize);
-                Debug.Assert(deserialize.E == obj.E);
-
+                TestWithStrings deserialize = MessagePack.MessagePackSerializer.Deserialize<TestWithStrings>(serialize);
+                Debug.Assert(deserialize.GetHashCode() == obj.GetHashCode());
             }
         }
+        [Benchmark]
+        public void ApexSerializer()
+        {
 
+            var _binary = Binary.Create(new Settings { UseSerializedVersionId = false }.MarkSerializable(x => true));
+            foreach (var obj in _test)
+            {
+                using var stream = new MemoryStream();
+                _binary.Write(obj, stream);
+                stream.Position = 0;
+                var deserialize = _binary.Read<TestWithStrings>(stream);
+                Debug.Assert(deserialize.GetHashCode() == obj.GetHashCode());
+            }
+        }
 
     }
     //[Benchmark]
@@ -89,8 +107,8 @@ namespace HyperSerializer.Benchmarks.Experiments
     //{
     //    foreach(var obj in _test)
     //    {
-    //        HyperSerializerSafe<Test>.SerializeAsync(out var bytes, obj);
-    //        Test deserialize = HyperSerializerSafe<Test>.DeserializeAsync(bytes);
+    //        HyperSerializer<TestWithStrings>.SerializeAsync(out var bytes, obj);
+    //        TestWithStrings deserialize = HyperSerializer<TestWithStrings>.DeserializeAsync(bytes);
     //        Debug.Assert(deserialize.E == obj.E);
     //    }
     //}
@@ -100,8 +118,8 @@ namespace HyperSerializer.Benchmarks.Experiments
     //{
     //    foreach(var obj in _test)
     //    {
-    //        HyperSerializer<Test>.Serialize(out Span<byte> bytes, obj);
-    //        Test deserialize = HyperSerializer<Test>.Deserialize(bytes);
+    //        HyperSerializerUnsafe<TestWithStrings>.Serialize(out Span<byte> bytes, obj);
+    //        TestWithStrings deserialize = HyperSerializerUnsafe<TestWithStrings>.Deserialize(bytes);
     //        Debug.Assert(deserialize.E == obj.E);
     //    }
     //}
@@ -111,8 +129,8 @@ namespace HyperSerializer.Benchmarks.Experiments
     //{
     //    foreach(var obj in _test)
     //    {
-    //        HyperSerializer<Test>.SerializeAsync(out var bytes, obj);
-    //        Test deserialize = HyperSerializer<Test>.DeserializeAsync(bytes);
+    //        HyperSerializerUnsafe<TestWithStrings>.SerializeAsync(out var bytes, obj);
+    //        TestWithStrings deserialize = HyperSerializerUnsafe<TestWithStrings>.DeserializeAsync(bytes);
     //        Debug.Assert(deserialize.E == obj.E);
     //    }
     //}

@@ -51,12 +51,12 @@ namespace HyperSerializer.Benchmarks.Experiments
 
 
         [Benchmark(Baseline = true)]
-        public void FASTERSerializerAsync()
+        public void HyperSerializerAsync()
         {
             _test.AsParallel().WithDegreeOfParallelism(Environment.ProcessorCount).ForAll((obj) =>
             {
-                var bytes = HyperSerializerSafe<Test>.Serialize(obj);
-                Test deserialize = HyperSerializerSafe<Test>.Deserialize(bytes);
+                var bytes = HyperSerializerUnsafe<Test>.Serialize(obj);
+                Test deserialize = HyperSerializerUnsafe<Test>.Deserialize(bytes);
                 Debug.Assert(deserialize.E == obj.E);
             });
         }
@@ -92,8 +92,8 @@ namespace HyperSerializer.Benchmarks.Experiments
     //{
     //    foreach(var obj in _test)
     //    {
-    //        HyperSerializerSafe<Test>.SerializeAsync(out var bytes, obj);
-    //        Test deserialize = HyperSerializerSafe<Test>.DeserializeAsync(bytes);
+    //        HyperSerializer<Test>.SerializeAsync(out var bytes, obj);
+    //        Test deserialize = HyperSerializer<Test>.DeserializeAsync(bytes);
     //        Debug.Assert(deserialize.E == obj.E);
     //    }
     //}
@@ -103,8 +103,8 @@ namespace HyperSerializer.Benchmarks.Experiments
     //{
     //    foreach(var obj in _test)
     //    {
-    //        HyperSerializer<Test>.Serialize(out Span<byte> bytes, obj);
-    //        Test deserialize = HyperSerializer<Test>.Deserialize(bytes);
+    //        HyperSerializerUnsafe<Test>.Serialize(out Span<byte> bytes, obj);
+    //        Test deserialize = HyperSerializerUnsafe<Test>.Deserialize(bytes);
     //        Debug.Assert(deserialize.E == obj.E);
     //    }
     //}
@@ -114,8 +114,8 @@ namespace HyperSerializer.Benchmarks.Experiments
     //{
     //    foreach(var obj in _test)
     //    {
-    //        HyperSerializer<Test>.SerializeAsync(out var bytes, obj);
-    //        Test deserialize = HyperSerializer<Test>.DeserializeAsync(bytes);
+    //        HyperSerializerUnsafe<Test>.SerializeAsync(out var bytes, obj);
+    //        Test deserialize = HyperSerializerUnsafe<Test>.DeserializeAsync(bytes);
     //        Debug.Assert(deserialize.E == obj.E);
     //    }
     //}

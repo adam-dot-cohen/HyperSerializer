@@ -10,7 +10,8 @@
         public string PropertyTemplateSerializeVarLenStr { get { return "if(_{1} > 0) Utf8Encoding.GetBytes({0}.AsSpan(),bytes.Slice(offset+=offsetWritten, offsetWritten = _{1}));"; } }
         public string PropertyTemplateDeserializeVarLenStr { get { return "{0} = (_{1} >= 0) ? Utf8Encoding.GetString(bytes.Slice(offset += offsetWritten, offsetWritten = _{1})) : null;"; } }
         public string StringLength { get { return "({0}?.Length ?? -1)"; } }
-        public string ClassTemplate { get { return @"
+        public string StringLengthSpan { get { return "({0}?.Length ?? 0)"; } }
+		public string ClassTemplate { get { return @"
 					namespace ProxyGen
 					{{
 						using System;

@@ -107,8 +107,7 @@ namespace HyperSerializer
             if (type.IsGenericType && (uType = Nullable.GetUnderlyingType(type)) != null)
             {
                 //write value
-                sb.AppendFormat(snippets.PropertyTemplateSerializeNullable, propertyName,
-                    parameterName, propertyName, uType.SizeOf());
+                sb.AppendFormat(snippets.PropertyTemplateSerializeNullable, propertyName, parameterName, propertyName, uType.SizeOf());
                 offset += uType.SizeOf() + 1;
                 sb.AppendLine();
 
