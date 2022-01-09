@@ -55,7 +55,6 @@ namespace HyperSerializer
             DeserializeDynamic = (Deserializer)infod.CreateDelegate(typeof(Deserializer));
 #endif
         }
-
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private static void Compile()
         {

@@ -4,7 +4,7 @@ using NUnit.Framework;
 
 namespace HyperSerializer.Test;
 
-public class SerializerSafeTests : TestBaseSafe
+public class SerializerTestsUnsafe : TestBaseUnsafe
 {
     [SetUp]
     public void Setup()

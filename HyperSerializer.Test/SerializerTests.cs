@@ -6,7 +6,7 @@ using NUnit.Framework;
 
 namespace HyperSerializer.Test
 {
-    public class SerializerUnsafeTests : TestBaseUnsafe
+    public class SerializerTests : TestBase
     {
         [SetUp]
         public void Setup()
@@ -130,8 +130,8 @@ namespace HyperSerializer.Test
                 H = TestEnum.three,
                 I = i.ToString()
             };
-            var serialized = HyperSerializerUnsafe<TestWithStrings>.Serialize(testObj);
-            var deserialize = HyperSerializerUnsafe<Incompatible.TestWithStrings>.Deserialize(serialized);
+            var serialized = HyperSerializer<TestWithStrings>.Serialize(testObj);
+            var deserialize = HyperSerializer<Incompatible.TestWithStrings>.Deserialize(serialized);
             Assert.False(AllCommonPropertiesAreEqual(testObj, deserialize));
 
         }
@@ -152,8 +152,8 @@ namespace HyperSerializer.Test
                 H = TestEnum.three,
                 I = i.ToString()
             };
-            var serialized = HyperSerializerUnsafe<TestWithStrings>.Serialize(testObj);
-            var deserialize = HyperSerializerUnsafe<TestWithStringsV2>.Deserialize(serialized) as ITestWithStrings;
+            var serialized = HyperSerializer<TestWithStrings>.Serialize(testObj);
+            var deserialize = HyperSerializer<TestWithStringsV2>.Deserialize(serialized) as ITestWithStrings;
             Assert.True(AllPropertiesAreEqual((ITestWithStrings)testObj, deserialize));
         }
 
@@ -166,7 +166,42 @@ namespace HyperSerializer.Test
                 var i = 1L << 32;
                 Span<byte> buffer = default;
                 MemoryMarshal.Write(buffer, ref i);
-                var deserialize = HyperSerializerUnsafe<int>.Deserialize(buffer);
+                var deserialize = HyperSerializer<int>.Deserialize(buffer);
+            }
+            catch (ArgumentOutOfRangeException)
+            {
+                Assert.Pass();
+            }
+            Assert.Fail();
+        }
+
+        [Test]
+        public void Test_AttemptedBufferOverflowShould_DateTime_Throw_OutOfRangeException()
+        {
+            try
+            {
+
+                var i = 1L << 32;
+                Span<byte> buffer = default;
+                MemoryMarshal.Write(buffer, ref i);
+                var deserialize = HyperSerializer<DateTime>.Deserialize(buffer);
+            }
+            catch (ArgumentOutOfRangeException)
+            {
+                Assert.Pass();
+            }
+            Assert.Fail();
+        }
+        [Test]
+        public void Test_AttemptedBufferOverflowShould_short_Throw_OutOfRangeException()
+        {
+            try
+            {
+
+                var i = 1L << 32;
+                Span<byte> buffer = default;
+                MemoryMarshal.Write(buffer, ref i);
+                var deserialize = HyperSerializer<short>.Deserialize(buffer);
             }
             catch (ArgumentOutOfRangeException)
             {

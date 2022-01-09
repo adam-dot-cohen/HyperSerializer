@@ -4,7 +4,7 @@ using NUnit.Framework;
 
 namespace HyperSerializer.Test;
 
-public class TestBaseSafe
+public class TestBase
 {
     protected void RoundTripEquality<T>(T value)
     {
