@@ -59,17 +59,6 @@ _(Memory in Megabytes - Lower is Better)_ - HyperSerializer requres roughly the 
     
 ![Execution Duration](https://github.com/Hyperlnq/HyperSerializer/blob/main/BenchmarkAssets/Space.png)
       
-## About HyperSerializer
-HyperSerializer is intended for use cases such as caching, and interservice communication behind firewalls or between known parites.  It is implemented using a customer binary format (aka wire format) and uses "bounded" serialization to protect against buffer overflows.  As a result, attempting to deserialize binary that exceeds the size of an expected data type.  For example, the following code which can be found in the test project attempts to deserialize an 8 BYTE long message as a 4 BYTE int resulting in an ArgumentOutOfRangeException:
-
-```csharp
-long i = 1L << 32;
-Span<byte> buffer = default;
-MemoryMarshal.Write(buffer, ref i);
-var deserialize = HyperSerializer<int>.Deserialize(buffer);
-```
-In the event the destiation data type were an 8 BYTES in length or an object containing properties that exceeded 8 BYTES one of the following would occur: (1) no exception if the bytes popluated are within the bounds the deserialized type(s), or (2) a data type specific excption, in most cases - ArguementOutOfRangeException.
-    
 ## Limitations 
 ### Unsupported types
 Serialization of the following types and nested types is planned but not supported at this time (if you would like to contribute, fork away or reach out to collaborate)...
