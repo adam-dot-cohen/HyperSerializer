@@ -6,7 +6,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace HyperSerializer.Benchmarks.Experiments
+namespace HyperSerialize.Benchmarks.Experiments
 {
     [MessagePackObject(), ProtoContract()]
     public class TestWithStrings

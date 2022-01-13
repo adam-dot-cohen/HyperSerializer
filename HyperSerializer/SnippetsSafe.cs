@@ -1,4 +1,4 @@
-﻿namespace HyperSerializer
+﻿namespace HyperSerialize
 {
     internal class SnippetsSafe : ISnippets
     {

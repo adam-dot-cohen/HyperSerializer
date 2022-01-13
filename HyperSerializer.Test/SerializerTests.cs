@@ -1,10 +1,11 @@
 using System;
 using System.Globalization;
+using System.IO;
 using System.Runtime.InteropServices;
 using System.Text;
 using NUnit.Framework;
 
-namespace HyperSerializer.Test
+namespace HyperSerialize.Test
 {
     public class SerializerTests : TestBase
     {
@@ -113,6 +114,28 @@ namespace HyperSerializer.Test
                 I = i.ToString()
             };
             RoundTripComplexTypeEquality(testObj);
+        }
+        [Test]
+        public void Test_ComplexType_Equality_With_Stream()
+        {
+            MemoryStream ms = new MemoryStream();
+            var i = new Random().Next(int.MaxValue);
+            var testObj = new TestWithStrings()
+            {
+                A = i,
+                B = i,
+                C = DateTime.Now.Date,
+                D = (uint)i,
+                E = i,
+                F = DateTime.Now - DateTime.Now.AddDays(-1),
+                G = Guid.NewGuid(),
+                H = TestEnum.three,
+                I = i.ToString()
+            };
+            //HyperSerializer.HyperBinarySerializer<TestWithStrings>.Serialize(ms, testObj);
+            //ms.Position = 0;
+            //var obj2 = HyperBinarySerializer<TestWithStrings>.Deserialize(ms);
+            //Assert.AreEqual(testObj.A, obj2.A);
         }
         [Test]
         public void Test_ComplexType_TypeVersionConfict_Should_Fail()

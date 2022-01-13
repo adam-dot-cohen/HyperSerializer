@@ -2,7 +2,7 @@ using System;
 using System.Linq;
 using NUnit.Framework;
 
-namespace HyperSerializer.Test;
+namespace HyperSerialize.Test;
 
 public class TestBase
 {
@@ -15,13 +15,13 @@ public class TestBase
     protected void RoundTripComplexTypeEquality<T>(T value)
     {
         var serialized = HyperSerializer<T>.Serialize(value);
-        var deserialize = HyperSerializer<T>.Deserialize(serialized);
+        T deserialize = HyperSerializer<T>.Deserialize(serialized);
         Assert.True(this.AllPropertiesAreEqual(value, deserialize));
     }
     protected void RoundTripInequality<T>(T value)
     {
         var serialized = HyperSerializer<T>.Serialize(value);
-        var deserialize = HyperSerializer<T>.Deserialize(serialized);
+        T deserialize = HyperSerializer<T>.Deserialize(serialized);
         Assert.AreNotEqual(value, deserialize);
     }
 

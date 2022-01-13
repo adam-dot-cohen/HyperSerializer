@@ -7,12 +7,12 @@ using Apex.Serialization;
 using BenchmarkDotNet.Attributes;
 using BenchmarkDotNet.Engines;
 using BenchmarkDotNet.Order;
-using HyperSerializer;
+using HyperSerialize;
 using MessagePack;
 using ProtoBuf;
 using Buffer = System.Buffer;
 
-namespace HyperSerializer.Benchmarks.Experiments
+namespace HyperSerialize.Benchmarks.Experiments
 {
     [SimpleJob(runStrategy: RunStrategy.Throughput, launchCount: 1, invocationCount: 1)]
     [Orderer(SummaryOrderPolicy.FastestToSlowest)]
@@ -43,7 +43,7 @@ namespace HyperSerializer.Benchmarks.Experiments
         }
 
         [Benchmark(Baseline = true)]
-        public void HyperSerializer()
+        public void HyperSerializerSync()
         {
             foreach (var obj in _test)
             {
@@ -107,8 +107,8 @@ namespace HyperSerializer.Benchmarks.Experiments
     //{
     //    foreach(var obj in _test)
     //    {
-    //        HyperSerializer<TestWithStrings>.SerializeAsync(out var bytes, obj);
-    //        TestWithStrings deserialize = HyperSerializer<TestWithStrings>.DeserializeAsync(bytes);
+    //        HyperSerializer.SerializeAsync(out var bytes, obj);
+    //        TestWithStrings deserialize = HyperSerializer.DeserializeAsync(bytes);
     //        Debug.Assert(deserialize.E == obj.E);
     //    }
     //}

@@ -4,7 +4,7 @@ using System.Linq;
 using System.Reflection;
 using System.Text;
 
-namespace HyperSerializer
+namespace HyperSerialize
 {
     internal static class CodeGen2<TSnippets>
         where TSnippets : ISnippets, new()

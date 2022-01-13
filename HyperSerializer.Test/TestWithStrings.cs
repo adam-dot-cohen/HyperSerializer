@@ -1,6 +1,6 @@
 using System;
 
-namespace HyperSerializer.Test
+namespace HyperSerialize.Test
 {
     public interface ITestWithStrings
     {
@@ -91,7 +91,7 @@ namespace HyperSerializer.Test
     }
 }
 
-namespace HyperSerializer.Test.Incompatible
+namespace HyperSerialize.Test.Incompatible
 {
     public class TestWithStrings
     {

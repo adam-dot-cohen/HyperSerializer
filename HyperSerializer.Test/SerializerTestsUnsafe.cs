@@ -2,7 +2,7 @@ using System;
 using System.Runtime.InteropServices;
 using NUnit.Framework;
 
-namespace HyperSerializer.Test;
+namespace HyperSerialize.Test;
 
 public class SerializerTestsUnsafe : TestBaseUnsafe
 {

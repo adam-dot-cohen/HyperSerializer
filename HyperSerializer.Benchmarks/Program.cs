@@ -4,7 +4,7 @@ using BenchmarkDotNet.Environments;
 using BenchmarkDotNet.Jobs;
 using BenchmarkDotNet.Running;
 
-namespace HyperSerializer.Benchmarks
+namespace HyperSerialize.Benchmarks
 {
     class Program
     {

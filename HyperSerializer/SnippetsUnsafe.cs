@@ -1,6 +1,6 @@
 ﻿using System.Dynamic;
 
-namespace HyperSerializer
+namespace HyperSerialize
 {
     internal class SnippetsUnsafe : ISnippets
     {

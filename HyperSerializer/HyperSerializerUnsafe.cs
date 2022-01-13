@@ -9,7 +9,7 @@ using System.Runtime.CompilerServices;
 using System.Runtime.Loader;
 using System.Threading.Tasks;
 
-namespace HyperSerializer
+namespace HyperSerialize
 {
     public static class HyperSerializerUnsafe<T>
     {
@@ -33,11 +33,11 @@ namespace HyperSerializer
         public static T Deserialize(ReadOnlySpan<byte> bytes)
             => DeserializeDynamic(bytes);
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static Memory<byte> SerializeAsync(T obj)
-            => Serialize(obj).ToArray();
+        public static ValueTask<Memory<byte>> SerializeAsync(T obj)
+            => new ValueTask<Memory<byte>>(Serialize(obj).ToArray());
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static T DeserializeAsync(ReadOnlyMemory<byte> bytes)
-            => Deserialize(bytes.Span);
+        public static ValueTask<T> DeserializeAsync(ReadOnlyMemory<byte> bytes)
+            => new ValueTask<T>(Deserialize(bytes.Span));
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static void BuildDelegates()

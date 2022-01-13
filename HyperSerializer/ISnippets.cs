@@ -1,4 +1,4 @@
-﻿namespace HyperSerializer
+﻿namespace HyperSerialize
 {
     internal interface ISnippets
     {

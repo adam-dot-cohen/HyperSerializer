@@ -8,7 +8,7 @@ using System.Runtime.CompilerServices;
 using System.Text;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 
-namespace HyperSerializer
+namespace HyperSerialize
 {
     internal static class CodeGen<TSnippets>
         where TSnippets : ISnippets, new()

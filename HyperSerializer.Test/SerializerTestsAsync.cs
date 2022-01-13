@@ -4,7 +4,7 @@ using System.Runtime.InteropServices;
 using System.Text;
 using NUnit.Framework;
 
-namespace HyperSerializer.Test
+namespace HyperSerialize.Test
 {
     public class SerializerTestsAsync : TestBase
     {
@@ -130,8 +130,8 @@ namespace HyperSerializer.Test
                 H = TestEnum.three,
                 I = i.ToString()
             };
-            var serialized = HyperSerializer<TestWithStrings>.SerializeAsync(testObj);
-            var deserialize = HyperSerializer<Incompatible.TestWithStrings>.DeserializeAsync(serialized);
+            var serialized = HyperSerializer<TestWithStrings>.SerializeAsync(testObj).GetAwaiter().GetResult();
+            var deserialize = HyperSerializer<Incompatible.TestWithStrings>.DeserializeAsync(serialized).GetAwaiter().GetResult();
             Assert.False(AllCommonPropertiesAreEqual(testObj, deserialize));
 
         }
@@ -152,8 +152,8 @@ namespace HyperSerializer.Test
                 H = TestEnum.three,
                 I = i.ToString()
             };
-            var serialized = HyperSerializer<TestWithStrings>.SerializeAsync(testObj);
-            var deserialize = HyperSerializer<TestWithStringsV2>.DeserializeAsync(serialized) as ITestWithStrings;
+            var serialized = HyperSerializer<TestWithStrings>.SerializeAsync(testObj).GetAwaiter().GetResult();
+            var deserialize = HyperSerializer<TestWithStringsV2>.DeserializeAsync(serialized).GetAwaiter().GetResult() as ITestWithStrings;
             Assert.True(AllPropertiesAreEqual((ITestWithStrings)testObj, deserialize));
         }
 
@@ -166,7 +166,7 @@ namespace HyperSerializer.Test
                 var i = 1L << 32;
                 Span<byte> buffer = default;
                 MemoryMarshal.Write(buffer, ref i);
-                var deserialize = HyperSerializer<int>.DeserializeAsync(buffer.ToArray());
+                var deserialize = HyperSerializer<int>.DeserializeAsync(buffer.ToArray()).GetAwaiter().GetResult();
             }
             catch (ArgumentOutOfRangeException)
             {
@@ -184,7 +184,7 @@ namespace HyperSerializer.Test
                 var i = 1L << 32;
                 Span<byte> buffer = default;
                 MemoryMarshal.Write(buffer, ref i);
-                var deserialize = HyperSerializer<DateTime>.DeserializeAsync(buffer.ToArray());
+                var deserialize = HyperSerializer<DateTime>.DeserializeAsync(buffer.ToArray()).GetAwaiter().GetResult();
             }
             catch (ArgumentOutOfRangeException)
             {
@@ -201,7 +201,7 @@ namespace HyperSerializer.Test
                 var i = 1L << 32;
                 Span<byte> buffer = default;
                 MemoryMarshal.Write(buffer, ref i);
-                var deserialize = HyperSerializer<short>.DeserializeAsync(buffer.ToArray());
+                var deserialize = HyperSerializer<short>.DeserializeAsync(buffer.ToArray()).GetAwaiter().GetResult();
             }
             catch (ArgumentOutOfRangeException)
             {

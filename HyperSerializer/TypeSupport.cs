@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 
-namespace HyperSerializer
+namespace HyperSerialize
 {
     internal static class TypeSupport
     {

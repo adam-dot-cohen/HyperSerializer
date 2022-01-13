@@ -3,7 +3,7 @@ using System.Linq;
 using System.Reflection;
 using NUnit.Framework;
 
-namespace HyperSerializer.Test;
+namespace HyperSerialize.Test;
 
 public class TestBaseUnsafe
 {

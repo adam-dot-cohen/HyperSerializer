@@ -11,7 +11,7 @@ using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.Host.Mef;
 using Microsoft.CodeAnalysis.Text;
 
-namespace HyperSerializer
+namespace HyperSerialize
 {
     internal static class MyExtensions
     {

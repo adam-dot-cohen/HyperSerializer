@@ -1,15 +1,14 @@
-﻿using Microsoft.CodeAnalysis;
-using Microsoft.CodeAnalysis.CSharp;
-using System;
-using System.Buffers;
+﻿using System;
 using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Runtime.Loader;
 using System.Threading.Tasks;
+using Microsoft.CodeAnalysis;
+using Microsoft.CodeAnalysis.CSharp;
 
-namespace HyperSerializer
+namespace HyperSerialize
 {
     public static class HyperSerializer<T>
     {
@@ -32,11 +31,11 @@ namespace HyperSerializer
         public static T Deserialize(ReadOnlySpan<byte> bytes)
             => DeserializeDynamic(bytes);
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static Memory<byte> SerializeAsync(T obj)
-            => Serialize(obj).ToArray();
+        public static ValueTask<Memory<byte>> SerializeAsync(T obj)
+            =>new ValueTask<Memory<byte>>(Serialize(obj).ToArray());
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static T DeserializeAsync(ReadOnlyMemory<byte> bytes)
-            => Deserialize(bytes.Span);
+        public static ValueTask<T> DeserializeAsync(ReadOnlyMemory<byte> bytes)
+            => new ValueTask<T>(Deserialize(bytes.Span));
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static void BuildDelegates()
@@ -71,7 +70,7 @@ namespace HyperSerializer
                 references,
                 new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary, allowUnsafe: true,
                     optimizationLevel: OptimizationLevel.Release)
-                        );
+            );
 
             _compilation = compilation;
 

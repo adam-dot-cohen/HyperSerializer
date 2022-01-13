@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace HyperSerializer.Test
+namespace HyperSerialize.Test
 {
     public struct TestStruct
     {

@@ -2,26 +2,26 @@ using System;
 using System.Linq;
 using NUnit.Framework;
 
-namespace HyperSerializer.Test;
+namespace HyperSerialize.Test;
 
 public class TestBaseAsync
 {
     protected void RoundTripEquality<T>(T value)
     {
-        var serialized = HyperSerializer<T>.SerializeAsync(value);
-        var deserialize = HyperSerializer<T>.DeserializeAsync(serialized);
+        var serialized = HyperSerializer<T>.SerializeAsync(value).GetAwaiter().GetResult();
+        var deserialize = HyperSerializer<T>.DeserializeAsync(serialized).GetAwaiter().GetResult();
         Assert.AreEqual(value, deserialize);
     }
     protected void RoundTripComplexTypeEquality<T>(T value)
     {
-        var serialized = HyperSerializer<T>.SerializeAsync(value);
-        var deserialize = HyperSerializer<T>.DeserializeAsync(serialized);
+        var serialized = HyperSerializer<T>.SerializeAsync(value).GetAwaiter().GetResult();
+        var deserialize = HyperSerializer<T>.DeserializeAsync(serialized).GetAwaiter().GetResult();
         Assert.True(this.AllPropertiesAreEqual(value, deserialize));
     }
     protected void RoundTripInequality<T>(T value)
     {
-        var serialized = HyperSerializer<T>.SerializeAsync(value);
-        var deserialize = HyperSerializer<T>.DeserializeAsync(serialized);
+        var serialized = HyperSerializer<T>.SerializeAsync(value).GetAwaiter().GetResult();
+        var deserialize = HyperSerializer<T>.DeserializeAsync(serialized).GetAwaiter().GetResult();
         Assert.AreNotEqual(value, deserialize);
     }
 

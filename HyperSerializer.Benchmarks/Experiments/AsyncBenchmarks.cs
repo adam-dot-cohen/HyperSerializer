@@ -6,10 +6,10 @@ using System.Linq;
 using BenchmarkDotNet.Attributes;
 using BenchmarkDotNet.Engines;
 using BenchmarkDotNet.Order;
-using HyperSerializer;
+using HyperSerialize;
 using Buffer = System.Buffer;
 
-namespace HyperSerializer.Benchmarks.Experiments
+namespace HyperSerialize.Benchmarks.Experiments
 {
     [SimpleJob(runStrategy: RunStrategy.Throughput, launchCount: 1)]
     [Orderer(SummaryOrderPolicy.FastestToSlowest)]
@@ -50,8 +50,8 @@ namespace HyperSerializer.Benchmarks.Experiments
         {
             _test.AsParallel().WithDegreeOfParallelism(Environment.ProcessorCount).ForAll((obj) =>
             {
-                var bytes = HyperSerializer<Test>.SerializeAsync(obj);
-                Test deserialize = HyperSerializer<Test>.DeserializeAsync(bytes);
+                var bytes = HyperSerializer<Test>.SerializeAsync(obj).GetAwaiter().GetResult();
+                Test deserialize = HyperSerializer<Test>.DeserializeAsync(bytes).GetAwaiter().GetResult();
                 Debug.Assert(deserialize.E == obj.E);
             });
         }
@@ -60,8 +60,8 @@ namespace HyperSerializer.Benchmarks.Experiments
         {
             _test.AsParallel().WithDegreeOfParallelism(Environment.ProcessorCount).ForAll((obj) =>
             {
-                var bytes = HyperSerializerUnsafe<Test>.SerializeAsync(obj);
-                Test deserialize = HyperSerializerUnsafe<Test>.DeserializeAsync(bytes);
+                var bytes = HyperSerializerUnsafe<Test>.SerializeAsync(obj).GetAwaiter().GetResult();
+                Test deserialize = HyperSerializerUnsafe<Test>.DeserializeAsync(bytes).GetAwaiter().GetResult();
                 Debug.Assert(deserialize.E == obj.E);
             });
         }

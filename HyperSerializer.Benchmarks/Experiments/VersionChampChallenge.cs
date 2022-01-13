@@ -4,10 +4,10 @@ using System.Diagnostics;
 using BenchmarkDotNet.Attributes;
 using BenchmarkDotNet.Engines;
 using BenchmarkDotNet.Order;
-using HyperSerializer;
+using HyperSerialize;
 using Buffer = System.Buffer;
 
-namespace HyperSerializer.Benchmarks.Experiments
+namespace HyperSerialize.Benchmarks.Experiments
 {
     [SimpleJob(runStrategy: RunStrategy.Throughput, launchCount: 1, invocationCount: 1)]
     [Orderer(SummaryOrderPolicy.FastestToSlowest)]
