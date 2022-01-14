@@ -26,10 +26,15 @@ HyperSerializer was built as a champion/challenger (C++ vs C#) experiment to sup
 HyperSerializer is intended for use cases such as caching and interservice communication behind firewalls or between known parites.  It is implemented using a customer binary format (aka wire format) and uses bounding techniques to protect against buffer overflows.  As a result, attempting to deserialize a message that exceeds the size of an expected data type will result in an exception in most cases as described later in this section.  For example, the following code which can be found in SerializerTests.cs in the test project attempts to deserialize an 8 BYTE buffer as a 4 BYTE int, which results in an ArgumentOutOfRangeException:
 
 ```csharp
+//Simulate foreign serialization
 long i = 1L << 32;
 Span<byte> buffer = default;
 MemoryMarshal.Write(buffer, ref i);
+
+//Simulate attempting to deserialize Int64 (8 bytes) to Int32 (4 bytes)
 var deserialize = HyperSerializer<int>.Deserialize(buffer);
+
+//Result: ArguementOutOfRangeException
 ```
 In the event the destiation data type was (1) 8 BYTES in length or (2) an object containing properties with an aggregate size exceeding 8 BYTES, one of the following would occur: (1) a data type specific execption, in most cases - ArguementOutOfRangeException, OR (2) no exception at all if the bytes happen to represent valid values for the destination type(s).
 
