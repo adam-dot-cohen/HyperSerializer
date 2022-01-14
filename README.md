@@ -94,7 +94,7 @@ Intel Core i9-10980XE CPU 3.00GHz, 1 CPU, 36 logical and 18 physical cores
 |    ProtobufSerializer|  917.73 ms|  10.020 ms|  9.372 ms|  18.37|     0.17|  35000.0000|     435 MB
 ```
 ## HyperSerializerUnsafe\<T\>
-The HyperSerializer project contains an unsafe implementation of the HyperSerializer\<T\>, named HyperSerializerUnsafe\<T\>.  It is an experimental version intended for benchmarking purposes and does not meaningfuly outperform HyperSerializer\<T\> in most scenarios, if at all (see table .  As such, it is not recommended for end user consumption.
+The HyperSerializer project contains an unsafe implementation of the HyperSerializer\<T\>, named HyperSerializerUnsafe\<T\>.  It is an experimental version intended for benchmarking purposes and does not meaningfuly outperform HyperSerializer\<T\> in most scenarios, if at all (see table above).  As such, it is not recommended for end user consumption.
 
 ## Limitations 
 ### Unsupported types
