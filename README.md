@@ -1,6 +1,6 @@
 # Overview
 ![]()
-[![NuGet version (HyperSerializer)](https://img.shields.io/badge/nuget-v1.0.8-blue?style=flat-square)](https://www.nuget.org/packages/HyperSerializer/)
+[![NuGet version (HyperSerializer)](https://img.shields.io/badge/nuget-v1.0.10-blue?style=flat-square)](https://www.nuget.org/packages/HyperSerializer/)
 
 If you're looking for the fastest Microsoft.Net binary serializer, look no further.  HyperSerializer is up to ***18x faster than MessagePack and Protobuf*** with roughly equivelant memory.
 
