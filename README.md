@@ -66,6 +66,7 @@ public class Test {
     public TimeSpan F { get; set; }
     public Guid G { get; set; }
     public TestEnum H { get; set; }
+    public string I { get; set; }
 }
 ```
 ***Speed - Serializing and Deserializing 1M "Test" Objects***
