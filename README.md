@@ -10,7 +10,7 @@ If you're looking for the fastest Microsoft.Net binary serializer, look no furth
 
 ## Quick Start
 
-HyperSerializer is extremely easy to implement.  Simply install the Nuget package (Install-Package HyperSerializer) and serialize/deserialize with just 2 lines of code.
+HyperSerializer is extremely easy to implement.  Simply install the [Nuget package (Install-Package HyperSerializer)](https://www.nuget.org/packages/HyperSerializer/) and serialize/deserialize with just 2 lines of code.
 
 ```csharp
 //Sync Example
