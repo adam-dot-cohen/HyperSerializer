@@ -4,7 +4,7 @@ using System.Runtime.InteropServices;
 using System.Text;
 using NUnit.Framework;
 
-namespace HyperSerialize.Test
+namespace Hyper.Test
 {
     public class SerializerTestsAsync : TestBase
     {

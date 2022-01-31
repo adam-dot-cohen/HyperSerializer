@@ -6,7 +6,7 @@ using System.Runtime.InteropServices;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace HyperSerialize
+namespace Hyper
 {
     internal static class HyperBinarySerializerExperimental
     {

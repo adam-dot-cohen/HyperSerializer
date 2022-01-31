@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
 using System.Runtime.InteropServices;
@@ -7,7 +8,7 @@ using NUnit.Framework;
 
 namespace Hyper.Test
 {
-    public class SerializerTests : TestBase
+    public class SerializerTestsV3 : TestBaseV3
     {
         [SetUp]
         public void Setup()
@@ -37,6 +38,28 @@ namespace Hyper.Test
                 H = TestEnum.three,
                 I = i.ToString(),
                 Ts = new TestStruct() { T1 = i, T2 = i }
+            };
+            RoundTripComplexTypeEquality(testObj);
+        }
+        [Test]
+        public void Test_ObjectWithTestStruct_Equality_AndArray()
+        {
+            var i = new Random().Next(int.MaxValue);
+            var testObj = new TestObjectWithTestStructAndarray()
+            {
+                A = i,
+                B = i,
+                C = DateTime.Now.Date,
+                D = (uint)i,
+                E = i,
+                F = DateTime.Now - DateTime.Now.AddDays(-1),
+                G = Guid.NewGuid(),
+                H = TestEnum.three,
+                I = i.ToString(),
+                Ts = new TestStruct() { T1 = i, T2 = i },
+                ArrayTest = new int[]{1,2,3},
+                ListTest = new List<int> { 1, 2, 3 }
+
             };
             RoundTripComplexTypeEquality(testObj);
         }

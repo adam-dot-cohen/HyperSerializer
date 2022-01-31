@@ -1,4 +1,4 @@
-namespace HyperSerialize.Test;
+namespace Hyper.Test;
 
 public enum TestEnum
 {

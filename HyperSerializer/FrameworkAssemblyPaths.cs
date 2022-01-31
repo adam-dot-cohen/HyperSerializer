@@ -11,7 +11,7 @@ using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.Host.Mef;
 using Microsoft.CodeAnalysis.Text;
 
-namespace HyperSerialize
+namespace Hyper
 {
     internal static class MyExtensions
     {
@@ -74,7 +74,7 @@ namespace HyperSerialize
                 yield return (Path.GetFileNameWithoutExtension(p), "public static string " + Path.GetFileNameWithoutExtension(p).Replace(".", "_") + " => Path.Combine(Path.GetDirectoryName(typeof(System.Object).Assembly.Location), \"" + Path.GetFileName(p) + "\");");
         }
     }
-    public class FrameworkAssemblyPaths
+    internal class FrameworkAssemblyPaths
     {
         public static string System_Console => Path.Combine(Path.GetDirectoryName(typeof(System.Runtime.GCSettings).GetTypeInfo().Assembly.Location), "System.Console.dll");
         public static string System => Path.Combine(Path.GetDirectoryName(typeof(System.Runtime.GCSettings).GetTypeInfo().Assembly.Location), "System.dll");

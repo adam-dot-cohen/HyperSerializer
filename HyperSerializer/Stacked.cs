@@ -1,8 +1,8 @@
 ﻿using System.Runtime.CompilerServices;
 
-namespace HyperSerialize
+namespace Hyper
 {
-    public struct Stacked<T>
+    internal struct Stacked<T>
     {
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static Stacked<T> Get(T val) => new Stacked<T> { Value = val };

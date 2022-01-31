@@ -11,12 +11,12 @@ using BenchmarkDotNet.Engines;
 using BenchmarkDotNet.Exporters;
 using BenchmarkDotNet.Exporters.Csv;
 using BenchmarkDotNet.Order;
-using HyperSerialize;
+using Hyper;
 using MessagePack;
 using ProtoBuf;
 using Buffer = System.Buffer;
 
-namespace HyperSerialize.Benchmarks.Experiments
+namespace Hyper.Benchmarks.Experiments
 {
     [SimpleJob(runStrategy: RunStrategy.Throughput, launchCount: 1, invocationCount: 1)]
     [Orderer(SummaryOrderPolicy.FastestToSlowest)]
@@ -59,6 +59,16 @@ namespace HyperSerialize.Benchmarks.Experiments
                 Debug.Assert(deserialize.GetHashCode() == obj.GetHashCode());
             }
         }
+        [Benchmark( Description = "HyperV3")]
+        public void HyperSerializerLegacySync()
+        {
+            foreach (var obj in _test)
+            {
+                var bytes = HyperSerializerLegacy<Test>.Serialize(obj);
+                Test deserialize = HyperSerializerLegacy<Test>.Deserialize(bytes);
+                Debug.Assert(deserialize.GetHashCode() == obj.GetHashCode());
+            }
+        }
         //[Benchmark(Description = "HyperUnsafe")]
         //public void HyperSerializerUnsafe()
         //{
@@ -69,7 +79,7 @@ namespace HyperSerialize.Benchmarks.Experiments
         //        Debug.Assert(deserialize.GetHashCode() == obj.GetHashCode());
         //    }
         //}
-       
+
         [Benchmark(Description = "Protobuf")]
         public void ProtobufSerializer()
         {

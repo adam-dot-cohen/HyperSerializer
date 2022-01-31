@@ -1,7 +1,7 @@
 ﻿using System;
 using MessagePack;
 
-namespace HyperSerialize.Benchmarks.Utilities
+namespace Hyper.Benchmarks.Utilities
 {
     public class MessagePackHyperSerializer
     {

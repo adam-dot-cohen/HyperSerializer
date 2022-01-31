@@ -1,16 +1,16 @@
-﻿namespace HyperSerialize
+﻿namespace Hyper
 {
     internal interface ISnippets
     {
-        string PropertyTemplateSerialize { get; }
-        string PropertyTemplateDeserialize { get; }
-        string PropertyTemplateDeserializeLocal { get; }
-        string PropertyTemplateSerializeNullable { get; }
-        string PropertyTemplateDeserializeNullable { get; }
-        string PropertyTemplateSerializeVarLenStr { get; }
-        string PropertyTemplateDeserializeVarLenStr { get; }
-        string StringLength { get; }
-        string StringLengthSpan { get; }
-        string ClassTemplate { get; }
+        public string PropertyTemplateSerialize { get; }
+        public string PropertyTemplateDeserialize { get; }
+        public string PropertyTemplateDeserializeLocal { get; }
+        public string PropertyTemplateSerializeNullable { get; }
+        public string PropertyTemplateDeserializeNullable { get; }
+        public string PropertyTemplateSerializeVarLenStr { get; }
+        public string PropertyTemplateDeserializeVarLenStr { get; }
+        public string StringLength { get; }
+        public string StringLengthSpan { get; }
+        public string ClassTemplate { get; }
     }
 }

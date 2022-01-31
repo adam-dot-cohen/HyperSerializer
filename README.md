@@ -106,7 +106,7 @@ The HyperSerializer project contains an unsafe implementation of the HyperSerial
 Serialization of the following types and nested types is planned but not supported at this time (if you would like to contribute, fork away or reach out to collaborate)...
 
 - Complex type properties (i.e. a class with a property of type ANY class).  If a class contains a property that is a complex type, the class will still be serialized but the property will be ignored.
-- Collections (e.g. List, Dictionary, etc.). If a class contains a property of type collection, the class will still be serialized but the property will be ignored.
+- Dictionaries are not supported at this type (arrays, generic lists, etc. are supported). If a class contains a property of type Dictionary, the class will still be serialized but the property will be ignored.
 
 ### Property Exclusion
 If you need to exclude a property from being serialized for reasons other then performance (unless nanoseconds actually matter to you), presently your only option is a DTO.  If you would like this feature added feel free to contribute or log an issue.

@@ -6,7 +6,7 @@ using System.Reflection.Emit;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 
-namespace HyperSerialize
+namespace Hyper
 {
     internal static class ReflectionExtensions
     {

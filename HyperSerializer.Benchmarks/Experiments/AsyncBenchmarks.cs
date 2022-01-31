@@ -6,10 +6,10 @@ using System.Linq;
 using BenchmarkDotNet.Attributes;
 using BenchmarkDotNet.Engines;
 using BenchmarkDotNet.Order;
-using HyperSerialize;
+using Hyper;
 using Buffer = System.Buffer;
 
-namespace HyperSerialize.Benchmarks.Experiments
+namespace Hyper.Benchmarks.Experiments
 {
     [SimpleJob(runStrategy: RunStrategy.Throughput, launchCount: 1)]
     [Orderer(SummaryOrderPolicy.FastestToSlowest)]

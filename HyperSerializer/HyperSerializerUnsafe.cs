@@ -9,7 +9,7 @@ using System.Runtime.CompilerServices;
 using System.Runtime.Loader;
 using System.Threading.Tasks;
 
-namespace HyperSerialize
+namespace Hyper
 {
     public static class HyperSerializerUnsafe<T>
     {
