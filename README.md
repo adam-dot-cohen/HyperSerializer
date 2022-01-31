@@ -1,8 +1,8 @@
 # Overview
 ![]()
-[![NuGet version (HyperSerializer)](https://img.shields.io/badge/nuget-v1.0.10-blue?style=flat-square)](https://www.nuget.org/packages/HyperSerializer/)
+[![NuGet version (HyperSerializer)](https://img.shields.io/badge/nuget-v1.0.11-blue?style=flat-square)](https://www.nuget.org/packages/HyperSerializer/)
 
-If you're looking for the fastest Microsoft.Net binary serializer, look no further.  HyperSerializer is up to ***18x faster than MessagePack and Protobuf*** with roughly equivelant memory. Simply install the [Nuget package (Install-Package HyperSerializer)](https://www.nuget.org/packages/HyperSerializer/) and serialize/deserialize with just 2 lines of code.
+If you're looking for the fastest Microsoft.Net binary serializer known to Git-kind, look no further.  HyperSerializer is up to ***18x faster than MessagePack and Protobuf*** with roughly equivelant memory. Simply install the [Nuget package (Install-Package HyperSerializer)](https://www.nuget.org/packages/HyperSerializer/) and serialize/deserialize with just 2 lines of code.
 
 ```csharp
 //Sync Example
