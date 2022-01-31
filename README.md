@@ -1,16 +1,8 @@
 # Overview
 ![]()
-[![NuGet version (HyperSerializer)](https://img.shields.io/badge/nuget-v1.0.8-blue?style=flat-square)](https://www.nuget.org/packages/HyperSerializer/)
+[![NuGet version (HyperSerializer)](https://img.shields.io/badge/nuget-v1.0.10-blue?style=flat-square)](https://www.nuget.org/packages/HyperSerializer/)
 
-If you're looking for the fastest Microsoft.Net binary serializer, look no further.  HyperSerializer is up to ***18x faster than MessagePack and Protobuf*** with roughly equivelant memory.
-
-![Execution Duration](https://github.com/Hyperlnq/HyperSerializer/blob/main/BenchmarkAssets/Time.png)
-
-***See Benchmarks section below for additional information.***
-
-## Quick Start
-
-HyperSerializer is extremely easy to implement.  Simply install the Nuget package (Install-Package HyperSerializer) and serialize/deserialize with just 2 lines of code.
+If you're looking for the fastest Microsoft.Net binary serializer, look no further.  HyperSerializer is up to ***18x faster than MessagePack and Protobuf*** with roughly equivelant memory. Simply install the [Nuget package (Install-Package HyperSerializer)](https://www.nuget.org/packages/HyperSerializer/) and serialize/deserialize with just 2 lines of code.
 
 ```csharp
 //Sync Example
@@ -18,7 +10,11 @@ Test obj = new();
 Span<byte> bytes = HyperSerializer<Test>.Serialize(obj);
 Test objDeserialized = HyperSerializer<Test>.Deserialize(bytes);
 ```
- """See the Usage section below for additional information."""
+***Head to Head Speed Test***
+
+BenchmarkDotNet experiment serializing and deserializing 1M "Test" classes. Times in Milliseconds - Lower is Better.  See "Benchmarks" for serialized test object definiiton and additional stats on memory utiltization.
+
+![Execution Duration](https://github.com/Hyperlnq/HyperSerializer/blob/main/BenchmarkAssets/Time.png)
  
 # Implementation and Framework Support
 HyperSerializer was built as a champion/challenger (C++ vs C#) experiment to support the nanosecond latency requirements of high frequency trading.  HyperSerializer uses the managed Span\<T\> and Memory\<T\> structs to acheive extreme speed and low memory allocation without unsafe code.  HyperSerializer is 100% thread-safe and comes with both sync and async serialization and deserialization methods.  Out of the box support for .NETCoreApp 3.1, net5.0, net6.0.
