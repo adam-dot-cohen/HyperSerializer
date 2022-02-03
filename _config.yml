@@ -2,6 +2,7 @@
 # This config file is meant for settings that affect your entire website. When you first
 # set up your website you should go through all these settings and edit them, but after
 # the initial set up you won't need to come back to this file often.
+repository: hyperlnq/HyperSerializer
 
 # --- Required options --- #
 
@@ -49,6 +50,7 @@ social-network-links:
 #  youtube: c/daattali
 #  medium: yourname
 #  reddit: yourname
+
   linkedin: adamtcohen
 #  xing: yourname
 #  stackoverflow: "3943160/daattali"
@@ -138,7 +140,7 @@ footer-hover-col: "#0085A1"
 gtag: "G-DTWQE58PW9"
 
 # Fill in your Google Analytics ID to track your website using Google Analytics
-google_analytics: "3220413957"
+#google_analytics: "3220413957"
 
 # Fill in your Cloudflare Analytics beacon token to track your website using Cloudflare Analytics
 #cloudflare_analytics: ""
