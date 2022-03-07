@@ -1,3 +1,4 @@
-
-
-theme: jekyll-theme-slate
+remote_theme: pages-themes/slate@v0.2.0
+title: 'HyperSerializer - Binary Serializer'
+description: '.Net binary serialization up to 18x faster than MessagePack and Protobuf written in C#'
+google_analytics: 'UA-218998452-1'
