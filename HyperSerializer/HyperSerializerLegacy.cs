@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Reflection;
@@ -12,12 +11,12 @@ using Microsoft.CodeAnalysis.CSharp;
 namespace Hyper
 {
     /// <summary>
-    /// HyperSerializer\<typeparam name="T"></typeparam> default implementation with support for value types, strings arrays and lists containing value types, and reference types (e.g. your DTO class).
-    /// Note that reference types containing properties that are complex types (i.e. a child object/class with properties) and Dictionaries are not yet supported.  Properties of these types will be ignored during serialization and deserialization.
+    /// HyperSerializerLegacy\<typeparam name="T"></typeparam> is the original implementation pre-1.0.1 with limitations described in the generic type parameter's description.
+    /// and collections (lists, arrays, dictionaries).
     /// </summary>
-    /// <typeparam name="T">ValueType (e.g. int, Guid, string, decimal?,etc,; arrays and lists of these types are supported as well) or heap based ref type (e.g. DTO class/object) containing properties to be serialized/deserialized.
-    /// NOTE objects containing properties that are complex types (i.e. other objects with properties) and type Dictionary are ignored during serialization and deserialization.</typeparam>
-    public static class HyperSerializer<T>
+    /// <typeparam name="T">ValueType (e.g. int, Guid, string, decimal?, etc...) or heap based ref type (e.g. DTO object with properties to be serialized) to be serialized/deserialized.
+    /// NOTE objects containing properties that are complex types (i.e. other objects with properties) are ignored during serialization.  Only value types and strings are supported.</typeparam>
+    public static class HyperSerializerLegacy<T>
     {
         private static string _proxyTypeName = $"ProxyGen.SerializationProxy_{typeof(T).Name}";
         private static Type _proxyType;
@@ -28,9 +27,8 @@ namespace Hyper
         internal static Serializer SerializeDynamic;
         internal static Deserializer DeserializeDynamic;
 
-        static HyperSerializer()
+        static HyperSerializerLegacy()
             => Compile();
-
         /// <summary>
         /// Serialize <typeparam name="T"></typeparam> to binary non-async
         /// </summary>
@@ -54,7 +52,7 @@ namespace Hyper
         /// <returns><seealso cref="Span{byte}"/></returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static ValueTask<Memory<byte>> SerializeAsync(T obj)
-            => new ValueTask<Memory<byte>>(Serialize(obj).ToArray());
+            =>new ValueTask<Memory<byte>>(Serialize(obj).ToArray());
         /// <summary>
         /// Deserialize binary to <typeparam name="T"></typeparam> async
         /// </summary>
@@ -84,12 +82,12 @@ namespace Hyper
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private static void Compile()
         {
-            var result = CodeGenV3<SnippetsSafeV3>.GenerateCode<T>();
+            var result = CodeGen<SnippetsSafe>.GenerateCode<T>();
             var generatedCode = result.Item1;
             _proxyTypeName = $"ProxyGen.SerializationProxy_{result.Item2}";
             var syntaxTree = CSharpSyntaxTree.ParseText(generatedCode);
             var assemblyName = $"{_proxyTypeName}-{DateTime.Now.ToFileTimeUtc()}";
-            var refPaths = CodeGenV3<SnippetsSafeV3>.GetReferences<T>();
+            var refPaths = CodeGen<SnippetsSafe>.GetReferences<T>();
             MetadataReference[] references = refPaths.Select(r => MetadataReference.CreateFromFile(r)).ToArray();
             var compilation = CSharpCompilation.Create(
                 assemblyName,

@@ -124,6 +124,18 @@ namespace Hyper
                 var offsetStr = $"+({fieldName}?.Length ?? 0)*Unsafe.SizeOf<{typeof(System.Char)}>()";
                 return (offset, offsetStr);
             }
+            if ((type == typeof(IEnumerable<>) && type.GetElementType().IsValueType))
+            {
+                //write length
+                sb.AppendFormat(snippets.PropertyTemplateSerializeListLen, propertyName, fieldName, type.GetElementType().FullName);
+                offset = typeof(int).SizeOf();
+                sb.AppendLine();
+                //write value
+                sb.AppendFormat(snippets.PropertyTemplateSerializeVarLenArr, fieldName, propertyName, type.GetElementType().FullName);
+                sb.AppendLine();
+                var offsetStr = $"+({fieldName}?.Count() ?? 0)*Unsafe.SizeOf<{type.GetElementType().FullName}>()";
+                return (offset, offsetStr);
+            }
             if ((type.IsArray && type.GetElementType().IsValueType) )
             {
                 //write length
@@ -136,18 +148,7 @@ namespace Hyper
                 var offsetStr = $"+({fieldName}?.Length ?? 0)*Unsafe.SizeOf<{type.GetElementType().FullName}>()";
                 return (offset, offsetStr);
             }
-            if ((type == typeof(List<>) && type.GetElementType().IsValueType))
-            {
-                //write length
-                sb.AppendFormat(snippets.PropertyTemplateSerializeListLen, propertyName, fieldName, type.GetElementType().FullName);
-                offset = typeof(int).SizeOf();
-                sb.AppendLine();
-                //write value
-                sb.AppendFormat(snippets.PropertyTemplateSerializeVarLenArr, fieldName, propertyName, type.GetElementType().FullName);
-                sb.AppendLine();
-                var offsetStr = $"+({fieldName}?.Count() ?? 0)*Unsafe.SizeOf<{type.GetElementType().FullName}>()";
-                return (offset, offsetStr);
-            }
+            
             Type uType;
             if (type.IsGenericType && (uType = Nullable.GetUnderlyingType(type)) != null)
             {
@@ -190,7 +191,7 @@ namespace Hyper
                 return (offset, offsetStr);
             }
 
-            if (type == typeof(List<>) && type.GenericTypeArguments.FirstOrDefault()!.IsValueType)
+            if (type == typeof(IEnumerable<>) && type.GenericTypeArguments.FirstOrDefault()!.IsValueType)
             {
                 //write length
                 sb.AppendFormat(snippets.PropertyTemplateDeserializeLocal, propertyName, nameof(Int32), offset = typeof(int).SizeOf());
