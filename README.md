@@ -2,7 +2,7 @@
 ![]()
 [![NuGet version (HyperSerializer)](https://img.shields.io/badge/nuget-v1.0.11-blue?style=flat-square)](https://www.nuget.org/packages/HyperSerializer/)
 
-If you're looking for the fastest Microsoft.Net binary serializer known to Git-kind, look no further.  HyperSerializer is up to ***18x faster than MessagePack and Protobuf*** with roughly equivelant memory. Simply install the [Nuget package (Install-Package HyperSerializer)](https://www.nuget.org/packages/HyperSerializer/) and serialize/deserialize with just 2 lines of code.
+If you're looking for the fastest Microsoft.Net binary serializer known to Git-kind, look no further.  HyperSerializer is up to ***18x faster than [MessagePack](https://github.com/neuecc/MessagePack-CSharp) and [Protobuf](https://github.com/protocolbuffers/protobuf), and 11x faster than [BinaryPack](https://github.com/Sergio0694/BinaryPack)***, with roughly equivelant or better memory allocation. Simply install the [Nuget package (Install-Package HyperSerializer)](https://www.nuget.org/packages/HyperSerializer/) and serialize/deserialize with just 2 lines of code.
 
 ```csharp
 //Sync Example
@@ -14,7 +14,7 @@ Test objDeserialized = HyperSerializer<Test>.Deserialize(bytes);
 
 BenchmarkDotNet experiment serializing and deserializing 1M "Test" classes. Times in Milliseconds - Lower is Better.  See "Benchmarks" for serialized test object definiiton and additional stats on memory utiltization.
 
-![Execution Duration](https://github.com/Hyperlnq/HyperSerializer/blob/main/BenchmarkAssets/Time.png)
+![Execution Duration](http://raw.githubusercontent.com/Hyperlnq/HyperSerializer/main/BenchmarkAssets/Time.png)
  
 # Implementation and Framework Support
 HyperSerializer was built as a champion/challenger (C++ vs C#) experiment to support the nanosecond latency requirements of high frequency trading.  HyperSerializer uses the managed Span\<T\> and Memory\<T\> structs to acheive extreme speed and low memory allocation without unsafe code.  HyperSerializer is 100% thread-safe and comes with both sync and async serialization and deserialization methods.  Out of the box support for .NETCoreApp 3.1, net5.0, net6.0.
@@ -73,12 +73,12 @@ public class Test {
 ***Speed - Serializing and Deserializing 1M "Test" Objects***
 _(Times in Milliseconds - Lower is Better)_ - HyperSerializer is roughly 3x faster than ApexSerializer and 18x faster than MessagePack and Protobuf...
 
-![Execution Duration](https://github.com/Hyperlnq/HyperSerializer/blob/main/BenchmarkAssets/Time.png)
+![Execution Duration](http://raw.githubusercontent.com/Hyperlnq/HyperSerializer/main/BenchmarkAssets/Time.png)
 
 ***Memory - Serializing and Deserializing 1M "Test" Objects***
 _(Memory in Megabytes - Lower is Better)_ - HyperSerializer requres roughly the same memory allocation as MessagePack and half that of ApexSerializer and Protobuf...
     
-![Execution Duration](https://github.com/Hyperlnq/HyperSerializer/blob/main/BenchmarkAssets/Space.png)
+![Execution Duration](http://raw.githubusercontent.com/Hyperlnq/HyperSerializer/main/BenchmarkAssets/Space.png)
 
 ```
 BenchmarkDotNet=v0.13.1, OS=Windows 10.0.19044.1415 (21H2)
