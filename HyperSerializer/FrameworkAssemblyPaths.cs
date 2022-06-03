@@ -6,9 +6,9 @@ using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 using Microsoft.CodeAnalysis;
-using Microsoft.CodeAnalysis.Completion;
+//using Microsoft.CodeAnalysis.Completion;
 using Microsoft.CodeAnalysis.CSharp;
-using Microsoft.CodeAnalysis.Host.Mef;
+//using Microsoft.CodeAnalysis.Host.Mef;
 using Microsoft.CodeAnalysis.Text;
 
 namespace Hyper
@@ -17,33 +17,33 @@ namespace Hyper
     {
         public static async void Compile()
         {
-            var host = MefHostServices.Create(MefHostServices.DefaultAssemblies);
-            var workspace = new AdhocWorkspace(host);
-            var scriptCode = GenCode();
+            //var host = MefHostServices.Create(MefHostServices.DefaultAssemblies);
+            //var workspace = new AdhocWorkspace(host);
+            //var scriptCode = GenCode();
 
-            var compilationOptions = new CSharpCompilationOptions(
-               OutputKind.DynamicallyLinkedLibrary,
-               usings: new[] { "System" });
+            //var compilationOptions = new CSharpCompilationOptions(
+            //   OutputKind.DynamicallyLinkedLibrary,
+            //   usings: new[] { "System" });
 
-            var scriptProjectInfo = ProjectInfo.Create(ProjectId.CreateNewId(), VersionStamp.Create(), "Script", "Script", LanguageNames.CSharp, isSubmission: true)
-               .WithMetadataReferences(new[]
-               {
-                    MetadataReference.CreateFromFile(typeof(object).Assembly.Location)
-               })
-               .WithCompilationOptions(compilationOptions);
+            //var scriptProjectInfo = ProjectInfo.Create(ProjectId.CreateNewId(), VersionStamp.Create(), "Script", "Script", LanguageNames.CSharp, isSubmission: true)
+            //   .WithMetadataReferences(new[]
+            //   {
+            //        MetadataReference.CreateFromFile(typeof(object).Assembly.Location)
+            //   })
+            //   .WithCompilationOptions(compilationOptions);
 
-            var scriptProject = workspace.AddProject(scriptProjectInfo);
-            var scriptDocumentInfo = DocumentInfo.Create(
-                DocumentId.CreateNewId(scriptProject.Id), "Script",
-                sourceCodeKind: SourceCodeKind.Script,
-                loader: TextLoader.From(TextAndVersion.Create(SourceText.From(scriptCode), VersionStamp.Create())));
-            var scriptDocument = workspace.AddDocument(scriptDocumentInfo);
+            //var scriptProject = workspace.AddProject(scriptProjectInfo);
+            //var scriptDocumentInfo = DocumentInfo.Create(
+            //    DocumentId.CreateNewId(scriptProject.Id), "Script",
+            //    sourceCodeKind: SourceCodeKind.Script,
+            //    loader: TextLoader.From(TextAndVersion.Create(SourceText.From(scriptCode), VersionStamp.Create())));
+            //var scriptDocument = workspace.AddDocument(scriptDocumentInfo);
 
-            // cursor position is at the end
-            var position = scriptCode.Length - 1;
+            //// cursor position is at the end
+            //var position = scriptCode.Length - 1;
 
-            var completionService = CompletionService.GetService(scriptDocument);
-            var results = await completionService.GetCompletionsAsync(scriptDocument, position);
+            //var completionService = CompletionService.GetService(scriptDocument);
+            //var results = await completionService.GetCompletionsAsync(scriptDocument, position);
         }
 
         public static string GenCode()
