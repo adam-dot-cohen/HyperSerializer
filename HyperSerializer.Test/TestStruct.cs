@@ -58,7 +58,7 @@ namespace Hyper.Test
         public virtual TestEnum? Hn { get; set; }
         public virtual string? In { get; set; }
         public virtual TestStruct? Ts_Nullable { get; set; }
-        public virtual int[] ArrayTest { get; set; }
+        public virtual int[] ArrayTest { get; set; } = null!;
         public virtual int[] ArrayTestNull { get; set; }
         public virtual List<int> ListTest { get; set; }
         public virtual List<int> ListTestNull { get; set; }

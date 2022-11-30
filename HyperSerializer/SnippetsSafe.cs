@@ -23,13 +23,7 @@
 
 						public static class SerializationProxy_{0}
 						{{
-								#if NET5_0
-								internal static readonly Encoding Utf8Encoding => new UTF8Encoding(false);
-                                #elif NET6_0
-                                internal static readonly Encoding Utf8Encoding => new UTF8Encoding(false);                                
-								#else
 								internal static readonly Encoding Utf8Encoding = new UTF8Encoding(false);
-								#endif
 								private const int maxStackAlloc = 256;
 								[MethodImpl(MethodImplOptions.AggressiveInlining)]
 								public static Span<byte> Serialize({1} obj)

@@ -1,4 +1,9 @@
-﻿namespace Hyper
+﻿using System;
+using System.Buffers;
+using System.Runtime.CompilerServices;
+using System.Runtime.InteropServices;
+
+namespace Hyper
 {
     internal class SnippetsSafeV3 :  ISnippetsSafeV3
     {
@@ -85,5 +90,6 @@
 						}}
 
 		}}"; } }
+       
     }
 }

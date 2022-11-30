@@ -6,6 +6,7 @@ using System.IO;
 using Apex.Serialization;
 using BenchmarkDotNet.Attributes;
 using BenchmarkDotNet.Engines;
+using BenchmarkDotNet.Jobs;
 using BenchmarkDotNet.Order;
 using Hyper;
 using MessagePack;
@@ -14,7 +15,7 @@ using Buffer = System.Buffer;
 
 namespace Hyper.Benchmarks.Experiments
 {
-    [SimpleJob(runStrategy: RunStrategy.Throughput, launchCount: 1, invocationCount: 1)]
+    [SimpleJob(runStrategy: RunStrategy.Throughput, launchCount: 1, invocationCount: 1, runtimeMoniker:RuntimeMoniker.Net60)]
     [Orderer(SummaryOrderPolicy.FastestToSlowest)]
     [MemoryDiagnoser]
 
@@ -41,12 +42,23 @@ namespace Hyper.Benchmarks.Experiments
                 });
             }
         }
-
         [Benchmark(Baseline = true)]
+        public void HyperSerializerExperimental()
+        {
+            for (var i = 0; i < iterations; i++)
+            {
+                var obj = _test[i];
+                var bytes = HyperSerializerExperimental<TestWithStrings>.Serialize(obj);
+                TestWithStrings deserialize = HyperSerializerExperimental<TestWithStrings>.Deserialize(bytes);
+                Debug.Assert(deserialize.GetHashCode() == obj.GetHashCode());
+            }
+        }
+        [Benchmark]
         public void HyperSerializerSync()
         {
-            foreach (var obj in _test)
+            for (var i = 0; i < iterations; i++)
             {
+                var obj = _test[i];
                 var bytes = HyperSerializer<TestWithStrings>.Serialize(obj);
                 TestWithStrings deserialize = HyperSerializer<TestWithStrings>.Deserialize(bytes);
                 Debug.Assert(deserialize.GetHashCode() == obj.GetHashCode());
@@ -55,19 +67,22 @@ namespace Hyper.Benchmarks.Experiments
         [Benchmark]
         public void HyperSerializerUnsafe()
         {
-            foreach (var obj in _test)
+            for (var i = 0; i < iterations; i++)
             {
+                var obj = _test[i];
                 var bytes = HyperSerializerUnsafe<TestWithStrings>.Serialize(obj);
                 TestWithStrings deserialize = HyperSerializerUnsafe<TestWithStrings>.Deserialize(bytes);
                 Debug.Assert(deserialize.GetHashCode() == obj.GetHashCode());
             }
         }
+       
         [Benchmark]
         public void ProtobufSerializer()
         {
             MemoryPool<byte>.Shared.Rent(1014);
-            foreach (var obj in _test)
+            for (var i = 0; i < iterations; i++)
             {
+                var obj = _test[i];
                 using var stream = new MemoryStream();
                 Serializer.Serialize(stream, obj);
                 stream.Position = 0;
@@ -79,8 +94,9 @@ namespace Hyper.Benchmarks.Experiments
         [Benchmark]
         public void MessagePackSerializer()
         {
-            foreach (var obj in _test)
+            for (var i = 0; i < iterations; i++)
             {
+                var obj = _test[i];
                 var serialize = MessagePack.MessagePackSerializer.Serialize(obj);
                 TestWithStrings deserialize = MessagePack.MessagePackSerializer.Deserialize<TestWithStrings>(serialize);
                 Debug.Assert(deserialize.GetHashCode() == obj.GetHashCode());
@@ -91,8 +107,9 @@ namespace Hyper.Benchmarks.Experiments
         {
 
             var _binary = Binary.Create(new Settings { UseSerializedVersionId = false }.MarkSerializable(x => true));
-            foreach (var obj in _test)
+            for (var i = 0; i < iterations; i++)
             {
+                var obj = _test[i];
                 using var stream = new MemoryStream();
                 _binary.Write(obj, stream);
                 stream.Position = 0;

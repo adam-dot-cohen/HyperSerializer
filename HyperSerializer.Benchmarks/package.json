@@ -1,0 +1,14 @@
+{
+  "version": "1.0.0",
+  "name": "my-app",
+  "private": true,
+  "dependencies": {
+    "@abp/flag-icon-css": "~5.2.2",
+    "@volo/abp.aspnetcore.components.server.leptontheme": "~5.2.2",
+    "@volo/abp.aspnetcore.mvc.ui.theme.lepton": "~5.2.2",
+    "@volo/account": "~5.2.2",
+    "@volo/cms-kit-pro.admin": "~5.2.2",
+    "@volo/file-management": "~5.2.2"
+  },
+  "typings": "typings.d.ts"
+}

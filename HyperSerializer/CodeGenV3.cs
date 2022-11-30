@@ -1,9 +1,11 @@
-﻿using System;
+﻿using Microsoft.CodeAnalysis;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using System.Runtime.CompilerServices;
+using System.Runtime.InteropServices;
 using System.Text;
 
 namespace Hyper
@@ -13,40 +15,49 @@ namespace Hyper
     {
         private static TSnippets snippets = new TSnippets();
         private const BindingFlags _flags = BindingFlags.Instance | BindingFlags.GetProperty | BindingFlags.SetProperty | BindingFlags.Public;
-        internal static IEnumerable<string> GetReferences<T>(bool includeUnsafe = false)
+        internal static IEnumerable<PortableExecutableReference> GetReferences<T>(bool includeUnsafe = false)
         {
-            var refPaths = new List<string> {
-                FrameworkAssemblyPaths.System,
-                FrameworkAssemblyPaths.System_Console,
-                FrameworkAssemblyPaths.System_Private_CoreLib,
-                FrameworkAssemblyPaths.System_Runtime,
-                typeof(System.Runtime.CompilerServices.Unsafe).Assembly.Location,
-                typeof(System.Linq.Enumerable).Assembly.Location,
-                typeof(T).GetTypeInfo().Assembly.Location,
+            var refPaths = new List<PortableExecutableReference> {
+                MetadataReference.CreateFromFile(FrameworkAssemblyPaths.System),
+                MetadataReference.CreateFromFile(FrameworkAssemblyPaths.System_Console),
+                    MetadataReference.CreateFromFile(FrameworkAssemblyPaths.System_Private_CoreLib),
+                        MetadataReference.CreateFromFile(FrameworkAssemblyPaths.System_Runtime),
+                            MetadataReference.CreateFromFile(typeof(System.Runtime.CompilerServices.Unsafe).Assembly.Location),
+                                MetadataReference.CreateFromFile(typeof(System.Linq.Enumerable).Assembly.Location),
+                                    MetadataReference.CreateFromFile(typeof(T).GetTypeInfo().Assembly.Location),
             };
             if (includeUnsafe)
                 refPaths.Add(
-                    FrameworkAssemblyPaths.System_Runtime_CompilerServices_Unsafe);
+                    MetadataReference.CreateFromFile(FrameworkAssemblyPaths.System_Runtime_CompilerServices_Unsafe));
+
+            
+
             if (!TypeSupport.IsSupportedType<T>())
             {
-                foreach (var prop in typeof(T).GetProperties(_flags).Where(h => h.CanRead && h.CanWrite && TypeSupport.IsSupportedType(h.PropertyType)))
+                var props = typeof(T).GetProperties(_flags).ToList();
+#if NET5_0_OR_GREATER
+                foreach (var prop in CollectionsMarshal.AsSpan(props))
                 {
+#else
+                foreach (var prop in props)
+                {
+#endif
+                    if(!(prop.CanRead && prop.CanWrite && TypeSupport.IsSupportedType(prop.PropertyType)))
+                        continue;
                     Type t = default;
                     if ((t = Nullable.GetUnderlyingType(prop.PropertyType)) == null)
                         t = prop.PropertyType;
-                    refPaths.Add(t.Assembly.Location);
+                    refPaths.Add(MetadataReference.CreateFromFile(t.Assembly.Location));
                 }
             }
-            return refPaths.Distinct();
+            return refPaths;
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static (string, string) GenerateCode<T>()
+        public static (string Code, string ClassName) GenerateCode<T>()
         {
-            //if (Nullable.GetUnderlyingType(typeof(T)) != null)
-            //    throw new Exception("Parameter 'T' must be non-nullable");
             var cType = Nullable.GetUnderlyingType(typeof(T));
-            var cTypeName = cType != null ? $"{cType.Name}_Nullable" : typeof(T).Name;
+            string cTypeName = typeof(T).GetClassName<T>();
             var pType = cType != null ? $"{cType.FullName}?" : typeof(T).FullName;
             var (length, serialize) = Serialize<T>();
             var (length3, deserialize) = Deserialize<T>();
@@ -64,9 +75,16 @@ namespace Hyper
                 (offset, offsetStr) = GenerateSerializer<T>(sb);
             else
             {
-                foreach (var prop in typeof(T).GetProperties(_flags).Where(h => h.CanRead && h.CanWrite))
+                var props = typeof(T).GetProperties(_flags).ToList();
+#if NET5_0_OR_GREATER
+                foreach (var prop in CollectionsMarshal.AsSpan(props))
                 {
-                    if (!TypeSupportV3.IsSupportedType(prop.PropertyType)) continue;
+#else
+                foreach (var prop in props)
+                {
+#endif
+                    if(!(prop.CanRead && prop.CanWrite && TypeSupportV3.IsSupportedType(prop.PropertyType)))
+                        continue;
                     var (len, str) = GenerateSerializer<T>(sb, "obj", prop);
                     offset += len;
                     offsetStr += str;
@@ -85,10 +103,17 @@ namespace Hyper
                 (offset, offsetStr) = GenerateDeserializer<T>(sb);
             else
             {
-                foreach (var prop in typeof(T).GetProperties(_flags).Where(h => h.CanRead && h.CanWrite))
+                
+                var props = typeof(T).GetProperties(_flags).ToList();
+#if NET5_0_OR_GREATER
+                foreach (var prop in CollectionsMarshal.AsSpan(props))
                 {
-
-                    if (!TypeSupportV3.IsSupportedType(prop.PropertyType)) continue;
+#else
+                foreach (var prop in props)
+                {
+#endif
+                    if(!(prop.CanRead && prop.CanWrite && TypeSupportV3.IsSupportedType(prop.PropertyType)))
+                        continue;
                     var (len, str) = GenerateDeserializer<T>(sb, "obj", prop);
                     offset += len;
                     offsetStr += str;
@@ -108,20 +133,15 @@ namespace Hyper
 
             if (type == typeof(string))
             {
-                ////write length
-                //sb.AppendFormat(snippets.PropertyTemplateSerialize, propertyName, nameof(Int32),
-                //    string.Format(snippets.StringLength, fieldName), typeof(int).SizeOf());
-                //offset = typeof(int).SizeOf();
-                //sb.AppendLine();
                 //write length
-                sb.AppendFormat(snippets.PropertyTemplateSerializeArrLen, propertyName, fieldName, typeof(System.Char));
+                sb.AppendFormat(snippets.PropertyTemplateSerializeArrLen, propertyName, fieldName, typeof(char));
                 offset = typeof(int).SizeOf();
                 sb.AppendLine();
 
                 //write value
-                sb.AppendFormat(snippets.PropertyTemplateSerializeVarLenStr, fieldName, propertyName, typeof(System.Char));
+                sb.AppendFormat(snippets.PropertyTemplateSerializeVarLenStr, fieldName, propertyName, typeof(char));
                 sb.AppendLine();
-                var offsetStr = $"+({fieldName}?.Length ?? 0)*Unsafe.SizeOf<{typeof(System.Char)}>()";
+                var offsetStr = $"+({fieldName}?.Length ?? 0)*Unsafe.SizeOf<{typeof(char)}>()";
                 return (offset, offsetStr);
             }
             if ((type == typeof(IEnumerable<>) && type.GetElementType().IsValueType))
@@ -130,6 +150,7 @@ namespace Hyper
                 sb.AppendFormat(snippets.PropertyTemplateSerializeListLen, propertyName, fieldName, type.GetElementType().FullName);
                 offset = typeof(int).SizeOf();
                 sb.AppendLine();
+
                 //write value
                 sb.AppendFormat(snippets.PropertyTemplateSerializeVarLenArr, fieldName, propertyName, type.GetElementType().FullName);
                 sb.AppendLine();
@@ -142,6 +163,7 @@ namespace Hyper
                 sb.AppendFormat(snippets.PropertyTemplateSerializeArrLen, propertyName, fieldName, type.GetElementType().FullName);
                 offset = typeof(int).SizeOf();
                 sb.AppendLine();
+
                 //write value
                 sb.AppendFormat(snippets.PropertyTemplateSerializeVarLenArr, fieldName, propertyName, type.GetElementType().FullName);
                 sb.AppendLine();
@@ -153,7 +175,6 @@ namespace Hyper
             if (type.IsGenericType && (uType = Nullable.GetUnderlyingType(type)) != null)
             {
                 //write value
-
                 var uTypeName = uType.FullName.Replace("+", ".");
                 sb.AppendFormat(snippets.PropertyTemplateSerializeNullable, propertyName, fieldName, uType.SizeOf(), uType);
                 offset += uType.SizeOf() + 1;

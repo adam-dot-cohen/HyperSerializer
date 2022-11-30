@@ -11,12 +11,19 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="Experiments\AsyncBenchmarks.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
     <PackageReference Include="Apex.Serialization" Version="4.0.2" />
     <PackageReference Include="BenchmarkDotNet" Version="0.13.1" />
     <PackageReference Include="BenchmarkDotNet.Annotations" Version="0.13.1" />
     <PackageReference Include="BinaryPack" Version="1.0.3" />
+    <PackageReference Include="CommunityToolkit.HighPerformance" Version="8.0.0" />
+    <PackageReference Include="DotNext.IO" Version="4.5.0" />
     <PackageReference Include="MessagePack" Version="2.3.85" />
     <PackageReference Include="MessagePack.Annotations" Version="2.3.85" />
+    <PackageReference Include="Microsoft.IO.RecyclableMemoryStream" Version="2.2.0" />
     <PackageReference Include="protobuf-net" Version="3.1.4" />
   </ItemGroup>
 

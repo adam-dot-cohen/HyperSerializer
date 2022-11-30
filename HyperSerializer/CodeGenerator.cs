@@ -43,8 +43,6 @@ namespace Hyper
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static (string, string) GenerateCode<T>()
         {
-            //if (Nullable.GetUnderlyingType(typeof(T)) != null)
-            //    throw new Exception("Parameter 'T' must be non-nullable");
             var cType = Nullable.GetUnderlyingType(typeof(T));
             var cTypeName = cType != null ? $"{cType.Name}_Nullable" : typeof(T).Name;
             var pType = cType != null ? $"{cType.FullName}?" : typeof(T).FullName;

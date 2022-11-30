@@ -8,6 +8,7 @@ using BenchmarkDotNet.Attributes;
 using BenchmarkDotNet.Engines;
 using BenchmarkDotNet.Exporters;
 using BenchmarkDotNet.Exporters.Csv;
+using BenchmarkDotNet.Jobs;
 using BenchmarkDotNet.Order;
 using Hyper;
 using MessagePack;
@@ -16,22 +17,26 @@ using Buffer = System.Buffer;
 
 namespace Hyper.Benchmarks.Experiments
 {
-    [SimpleJob(runStrategy: RunStrategy.Throughput, launchCount: 1, invocationCount: 1)]
+    
+    [SimpleJob(runStrategy: RunStrategy.Throughput, launchCount: 1, invocationCount: 1, runtimeMoniker:RuntimeMoniker.Net60)]
     [Orderer(SummaryOrderPolicy.FastestToSlowest)]
-    [MeanColumn]
+    //[MeanColumn]
     [MemoryDiagnoser]
-    [AsciiDocExporter]
-    [CsvMeasurementsExporter]
-    [HtmlExporter]
-    [RPlotExporter]
+    //[AsciiDocExporter]
+    //[CsvMeasurementsExporter]
+    //[HtmlExporter]
     public class SyncBenchmarks
     {
         private List<Test> _test;
-        private int iterations = 1_000_000;
-        public SyncBenchmarks()
+        [Params(10, 100, 1_000, 10_000, 100_000, 1_000_000)]
+        public int iterations;
+        [GlobalSetup]
+        public void Setup()
         {
-            _test = new List<Test>(); ;
-            for (var i = 0; i < iterations; i++)
+            if(_test == null)
+                _test = new List<Test>();
+            
+            for (var i = _test.Count; i < iterations; i++)
             {
                 _test.Add(new Test()
                 {
@@ -47,7 +52,7 @@ namespace Hyper.Benchmarks.Experiments
                 });
             }
         }
-        [Benchmark(Baseline = true, Description = "Hyper")]
+        [Benchmark(Baseline = true, Description = "HyperSerializer")]
         public void HyperSerializerSync()
         {
             foreach (var obj in _test)
@@ -57,26 +62,26 @@ namespace Hyper.Benchmarks.Experiments
                 Debug.Assert(deserialize.GetHashCode() == obj.GetHashCode());
             }
         }
-        [Benchmark( Description = "HyperV3")]
+        [Benchmark( Description = "HyperExperimental")]
         public void HyperSerializerLegacySync()
         {
             foreach (var obj in _test)
             {
-                var bytes = HyperSerializerLegacy<Test>.Serialize(obj);
-                Test deserialize = HyperSerializerLegacy<Test>.Deserialize(bytes);
+                var bytes = HyperSerializerExperimental<Test>.Serialize(obj);
+                Test deserialize = HyperSerializerExperimental<Test>.Deserialize(bytes);
                 Debug.Assert(deserialize.GetHashCode() == obj.GetHashCode());
             }
         }
-        //[Benchmark(Description = "HyperUnsafe")]
-        //public void HyperSerializerUnsafe()
-        //{
-        //    foreach (var obj in _test)
-        //    {
-        //        var bytes = HyperSerializerUnsafe<Test>.Serialize(obj);
-        //        Test deserialize = HyperSerializerUnsafe<Test>.Deserialize(bytes);
-        //        Debug.Assert(deserialize.GetHashCode() == obj.GetHashCode());
-        //    }
-        //}
+        [Benchmark(Description = "HyperUnsafe")]
+        public void HyperSerializerUnsafe()
+        {
+            foreach (var obj in _test)
+            {
+                var bytes = HyperSerializerUnsafe<Test>.Serialize(obj);
+                Test deserialize = HyperSerializerUnsafe<Test>.Deserialize(bytes);
+                Debug.Assert(deserialize.GetHashCode() == obj.GetHashCode());
+            }
+        }
 
         [Benchmark(Description = "Protobuf")]
         public void ProtobufSerializer()

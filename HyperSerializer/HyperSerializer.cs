@@ -19,10 +19,8 @@ namespace Hyper
     /// NOTE objects containing properties that are complex types (i.e. other objects with properties) and type Dictionary are ignored during serialization and deserialization.</typeparam>
     public static class HyperSerializer<T>
     {
-        private static string _proxyTypeName = $"ProxyGen.SerializationProxy_{typeof(T).Name}";
+        private static readonly string _proxyTypeName = $"ProxyGen.SerializationProxy_{typeof(T).GetClassName<T>()}";
         private static Type _proxyType;
-        private static CSharpCompilation _compilation;
-        private static Assembly _generatedAssembly;
         internal delegate Span<byte> Serializer(T obj);
         internal delegate T Deserializer(ReadOnlySpan<byte> bytes);
         internal static Serializer SerializeDynamic;
@@ -54,7 +52,7 @@ namespace Hyper
         /// <returns><seealso cref="Span{byte}"/></returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static ValueTask<Memory<byte>> SerializeAsync(T obj)
-            => new ValueTask<Memory<byte>>(Serialize(obj).ToArray());
+            => new(Serialize(obj).ToArray());
         /// <summary>
         /// Deserialize binary to <typeparam name="T"></typeparam> async
         /// </summary>
@@ -62,17 +60,17 @@ namespace Hyper
         /// <returns><typeparam name="T"></typeparam></returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static ValueTask<T> DeserializeAsync(ReadOnlyMemory<byte> bytes)
-            => new ValueTask<T>(Deserialize(bytes.Span));
+            => new(Deserialize(bytes.Span));
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static void BuildDelegates()
+        private static void BuildDelegates()
         {
 #if NET5_0_OR_GREATER
             var infos = _proxyType.GetMethod("Serialize");
             SerializeDynamic = infos.CreateDelegate<Serializer>();
 
             var infod = _proxyType.GetMethod("Deserialize");
-            DeserializeDynamic = infod.CreateDelegate<Deserializer>();
+            if (infod != null) DeserializeDynamic = infod.CreateDelegate<Deserializer>();
 #else
             var infos = _proxyType.GetMethod("Serialize");
             SerializeDynamic = (Serializer)infos.CreateDelegate(typeof(Serializer));
@@ -85,31 +83,27 @@ namespace Hyper
         private static void Compile()
         {
             var result = CodeGenV3<SnippetsSafeV3>.GenerateCode<T>();
-            var generatedCode = result.Item1;
-            _proxyTypeName = $"ProxyGen.SerializationProxy_{result.Item2}";
-            var syntaxTree = CSharpSyntaxTree.ParseText(generatedCode);
-            var assemblyName = $"{_proxyTypeName}-{DateTime.Now.ToFileTimeUtc()}";
-            var refPaths = CodeGenV3<SnippetsSafeV3>.GetReferences<T>();
-            MetadataReference[] references = refPaths.Select(r => MetadataReference.CreateFromFile(r)).ToArray();
+            
             var compilation = CSharpCompilation.Create(
-                assemblyName,
-                new[] { syntaxTree },
-                references,
-                new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary, allowUnsafe: true,
-                    optimizationLevel: OptimizationLevel.Release)
+                $"ProxyGen.SerializationProxy_{result.ClassName}_{DateTime.Now.ToFileTimeUtc()}",
+                new[] { CSharpSyntaxTree.ParseText(result.Code) },
+                CodeGenV3<SnippetsSafeV3>.GetReferences<T>(),
+                new CSharpCompilationOptions(
+                    OutputKind.DynamicallyLinkedLibrary, 
+                    allowUnsafe: true,
+                    optimizationLevel: 
+                    OptimizationLevel.Release)
             );
 #if DEBUG
             Debug.Write(generatedCode);
 #endif
-            _compilation = compilation;
-
-            Emit();
-
+            
+            Emit(compilation);
             BuildDelegates();
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private static void Emit()
+        private static void Emit(CSharpCompilation _compilation)
         {
             if (_proxyType != null) return;
             using (var ms = new MemoryStream())
@@ -132,17 +126,11 @@ namespace Hyper
                         throw exception;
                     }
                 }
+                
                 ms.Seek(0, SeekOrigin.Begin);
+                var generatedAssembly = AssemblyLoadContext.Default.LoadFromStream(ms);
 
-#if NET451_OR_GREATER
-                byte[] bytes = new bytes[ms.Length];
-                ms.Read(ms, 0, ms.Length);
-                _generatedAssembly = Assembly.Load(bytes);
-#endif
-
-                _generatedAssembly = AssemblyLoadContext.Default.LoadFromStream(ms);
-
-                _proxyType = _generatedAssembly.GetType(_proxyTypeName);
+                _proxyType = generatedAssembly.GetType(_proxyTypeName);
             }
         }
 

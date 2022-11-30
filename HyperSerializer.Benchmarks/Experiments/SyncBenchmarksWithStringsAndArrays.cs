@@ -3,6 +3,7 @@ using System.Buffers;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
+using System.Linq;
 using Apex.Serialization;
 using BenchmarkDotNet.Attributes;
 using BenchmarkDotNet.Engines;
@@ -21,11 +22,15 @@ namespace Hyper.Benchmarks.Experiments
     public class SyncBenchmarksWithStringsAndArrays
     {
         private List<TestObjectWithStringsAndArray> _test;
-        private int iterations = 1_000_00;
-        public SyncBenchmarksWithStringsAndArrays()
+        [Params(10, 100, 1_000, 10_000, 100_000, 1_000_000)]
+        public int iterations;
+        [GlobalSetup]
+        public void Setup()
         {
-            _test = new List<TestObjectWithStringsAndArray>(); ;
-            for (var i = 0; i < iterations; i++)
+            if(_test == null)
+                _test = new List<TestObjectWithStringsAndArray>();
+            
+            for (var i = _test.Count; i < iterations; i++)
             {
                 _test.Add(new TestObjectWithStringsAndArray()
                 {
@@ -49,8 +54,8 @@ namespace Hyper.Benchmarks.Experiments
         {
             foreach (var obj in _test)
             {
-                var bytes = HyperSerializerLegacy<TestObjectWithStringsAndArray>.Serialize(obj);
-                var deserialize = HyperSerializerLegacy<TestObjectWithStringsAndArray>.Deserialize(bytes);
+                var bytes = HyperSerializer<TestObjectWithStringsAndArray>.Serialize(obj);
+                var deserialize = HyperSerializer<TestObjectWithStringsAndArray>.Deserialize(bytes);
                 Debug.Assert(deserialize.GetHashCode() == obj.GetHashCode());
             }
         }

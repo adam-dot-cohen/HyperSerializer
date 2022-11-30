@@ -13,7 +13,6 @@
         string PropertyTemplateDeserializeVarLenArr { get; }
         string PropertyTemplateDeserializeVarLenList { get; }
         string PropertyTemplateSerializeListLen { get; }
-
         string PropertyTemplateSerializeArrLen { get; }
         string StringLength { get; }
         string StringLengthSpan { get; }

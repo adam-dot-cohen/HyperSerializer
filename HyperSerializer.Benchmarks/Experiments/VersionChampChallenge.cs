@@ -14,14 +14,14 @@ namespace Hyper.Benchmarks.Experiments
     [MemoryDiagnoser]
     public class VersionChampChallenge
     {
-        private List<Test> _test;
+        private List<TestWithStrings> _test;
         private int iterations = 1_000_000;
         public VersionChampChallenge()
         {
-            _test = new List<Test>(); ;
+            _test = new List<TestWithStrings>(); ;
             for (var i = 0; i < iterations; i++)
             {
-                _test.Add(new Test()
+                _test.Add(new TestWithStrings()
                 {
                     A = i,
                     B = i,
@@ -31,7 +31,7 @@ namespace Hyper.Benchmarks.Experiments
                     F = DateTime.Now - DateTime.Now.AddDays(-1),
                     G = Guid.NewGuid(),
                     H = TestEnum.three,
-                    // I = i.ToString()
+                    I = i.ToString()
                 });
             }
         }
@@ -40,8 +40,8 @@ namespace Hyper.Benchmarks.Experiments
         {
             foreach (var obj in _test)
             {
-                var bytes = HyperSerializer<Test>.Serialize(obj);
-                Test deserialize = HyperSerializer<Test>.Deserialize(bytes);
+                var bytes = HyperSerializer<TestWithStrings>.Serialize(obj);
+                TestWithStrings deserialize = HyperSerializer<TestWithStrings>.Deserialize(bytes);
                 Debug.Assert(deserialize.E == obj.E);
             }
         }
@@ -50,8 +50,8 @@ namespace Hyper.Benchmarks.Experiments
         {
             foreach (var obj in _test)
             {
-                var bytes = HyperSerializerUnsafe<Test>.Serialize(obj);
-                Test deserialize = HyperSerializerUnsafe<Test>.Deserialize(bytes);
+                var bytes = HyperSerializerExperimental<TestWithStrings>.Serialize(obj);
+                TestWithStrings deserialize = HyperSerializerExperimental<TestWithStrings>.Deserialize(bytes);
                 Debug.Assert(deserialize.E == obj.E);
             }
         }
@@ -85,8 +85,8 @@ namespace Hyper.Benchmarks.Experiments
         {
             foreach (var obj in _test)
             {
-                var bytes = HyperSerializerUnsafe<int?>.Serialize(obj);
-                var deserialize = HyperSerializerUnsafe<int?>.Deserialize(bytes);
+                var bytes = HyperSerializerLegacy<int?>.Serialize(obj);
+                var deserialize = HyperSerializerLegacy<int?>.Deserialize(bytes);
                 Debug.Assert(deserialize == obj);
             }
         }

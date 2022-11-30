@@ -7,7 +7,7 @@
 		<Company>Hyperlnq</Company>
 		<Product>HyperSerializer</Product>
 		<Copyright>2022</Copyright>
-		<Description>The  fastest dotnet binary serializer known to Git-kind.  Up to 18 times faster than MessagePack and Protobuf with roughly equivelant memory allocation. HyperSerializer uses the Span and Memory managed memory structs to acheive high speed and low memory allocation without unsafe code. HyperSerializer is 100% thread-safe and comes with both sync and async serialization and deserialization methods.</Description>
+		<Description>The fastest dotnet binary serializer known to Git-kind.  Up to 18 times faster than MessagePack and Protobuf with roughly equivelant memory allocation. HyperSerializer uses the Span and Memory managed memory structs to acheive high speed and low memory allocation without unsafe code. HyperSerializer is 100% thread-safe and comes with both sync and async serialization and deserialization methods.</Description>
 		<PackageLicenseFile>License.txt</PackageLicenseFile>
 		<PackageProjectUrl>https://github.com/Hyperlnq/HyperSerializer</PackageProjectUrl>
 		<PackageTags>Fastest;Binary;Serializer;Serialization;High-Performance;Low-Allocation;Span&lt;T&gt;;Memory&lt;T&gt;;dotnet</PackageTags>
@@ -23,6 +23,7 @@
 		<PlatformTarget>AnyCPU</PlatformTarget>
 		<PackageIcon>favicon.png</PackageIcon>
 		<LangVersion>latest</LangVersion>
+    <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
 	</PropertyGroup>
 	<ItemGroup>
 		<PackageReference Include="Microsoft.CodeAnalysis.CSharp" Version="4.2.0" />
