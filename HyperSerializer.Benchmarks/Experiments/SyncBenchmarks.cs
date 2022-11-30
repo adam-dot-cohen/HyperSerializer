@@ -28,7 +28,7 @@ namespace Hyper.Benchmarks.Experiments
     public class SyncBenchmarks
     {
         private List<Test> _test;
-        [Params(10, 100, 1_000, 10_000, 100_000, 1_000_000)]
+        [Params(1_000_000)]
         public int iterations;
         [GlobalSetup]
         public void Setup()
