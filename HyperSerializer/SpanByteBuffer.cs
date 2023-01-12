@@ -10,7 +10,7 @@ using System.Threading.Tasks;
 
 namespace HyperSerializer
 {
-   internal ref struct SpanByteBuffer
+   public ref struct SpanByteBuffer
 {
 	private byte[] _rental;
 	private Span<byte> _buffer;
@@ -211,7 +211,8 @@ namespace HyperSerializer
 			
 		_pos += length;
 	}
-
+        
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
 	public void Append(ReadOnlySpan<byte> value)
 	{
 		int pos = _pos;
@@ -237,6 +238,9 @@ namespace HyperSerializer
 		Grow(1);
 		Append(c);
 	}
+
+    private int growCount = 4;
+    private double maxBuffer = 4;
         
 	[MethodImpl(MethodImplOptions.NoInlining)]
 	private void Grow(int additionalCapacityBeyondPos)
@@ -244,23 +248,20 @@ namespace HyperSerializer
 		Debug.Assert(additionalCapacityBeyondPos > 0);
 		Debug.Assert(_pos > _buffer.Length - additionalCapacityBeyondPos, "Grow called incorrectly, no resize is needed.");
             
-		byte[] poolArray = ArrayPool<byte>.Shared.Rent((int)Math.Max((uint)(_pos + additionalCapacityBeyondPos), (uint)_buffer.Length * 2));
-
-		_buffer.Slice(0, _pos).CopyTo(poolArray);
-
-		byte[] toReturn = _rental;
-		_buffer = _rental = poolArray;
-		if (toReturn != null)
-			ArrayPool<byte>.Shared.Return(toReturn);
+		byte[] poolArray = new byte[((int)Math.Max((uint)(_pos + additionalCapacityBeyondPos), (uint)_buffer.Length * 
+            4
+            ))];
+        _buffer.Slice(0, _pos).CopyTo(poolArray);
+        _buffer = _rental = poolArray;
 	}
 
 	[MethodImpl(MethodImplOptions.AggressiveInlining)]
 	public void Dispose()
 	{
-		byte[] toReturn = _rental;
+		//byte[] toReturn = _rental;
 		this = default;
-		if (toReturn != null)
-			ArrayPool<byte>.Shared.Return(toReturn);
+		//if (toReturn != null)
+		//	ArrayPool<byte>.Shared.Return(toReturn);
 	}
 }
 }

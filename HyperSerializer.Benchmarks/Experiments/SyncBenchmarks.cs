@@ -87,6 +87,7 @@ namespace Hyper.Benchmarks.Experiments
         public void ProtobufSerializer()
         {
             MemoryPool<byte>.Shared.Rent(1014);
+            ArrayBufferWriter<byte> writer = new ArrayBufferWriter<byte>();
             foreach (var obj in _test)
             {
                 using var stream = new MemoryStream();

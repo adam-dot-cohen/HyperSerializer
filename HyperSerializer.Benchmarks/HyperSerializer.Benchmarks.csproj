@@ -11,10 +11,6 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Compile Remove="Experiments\AsyncBenchmarks.cs" />
-  </ItemGroup>
-
-  <ItemGroup>
     <PackageReference Include="Apex.Serialization" Version="4.0.3" />
     <PackageReference Include="BenchmarkDotNet" Version="0.13.2" />
     <PackageReference Include="BenchmarkDotNet.Annotations" Version="0.13.2" />

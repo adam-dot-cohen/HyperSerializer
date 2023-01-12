@@ -29,59 +29,51 @@ namespace Hyper
 						using System.Runtime.InteropServices;
 						using System.Text;
 
-						public unsafe static class SerializationProxy_{0}
+						public static class SerializationProxy_{0}
 						{{
-								#if NET5_0
-								internal static readonly Encoding Utf8Encoding => new UTF8Encoding(false);
-                                #elif NET6_0
-                                internal static readonly Encoding Utf8Encoding => new UTF8Encoding(false);                                
-								#else
-								internal static readonly Encoding Utf8Encoding = new UTF8Encoding(false);
-								#endif
-								private const int maxStackAlloc = 256;
-								[MethodImpl(MethodImplOptions.AggressiveInlining)]
+								[MethodImpl(MethodImplOptions.AggressiveOptimization)]
 								public static Span<byte> Serialize({1} obj)
 								{{
 									return Heap(obj);	
 								}}
-								[MethodImpl(MethodImplOptions.AggressiveInlining)]
+								[MethodImpl(MethodImplOptions.AggressiveOptimization)]
 								private static Span<byte> Stack({1} obj)
 								{{
 									var offset = 0;
 									var offsetWritten = 0;
 									var len = {2};
 									Span<byte> bytes = stackalloc byte[len];	
-                    {3}
+                                    {3}
 									return bytes.ToArray();
 								}}
-								[MethodImpl(MethodImplOptions.AggressiveInlining)]
+								[MethodImpl(MethodImplOptions.AggressiveOptimization)]
 								private static Span<byte> Heap({1} obj)
 								{{
 									var offset = 0;
 									var offsetWritten = 0;
 									var len = {2};
 									Span<byte> bytes = new byte[len];
-                    {3}
+                                    {3}
 									return bytes;
 									
 								}}
-								[MethodImpl(MethodImplOptions.AggressiveInlining)]
+								[MethodImpl(MethodImplOptions.AggressiveOptimization)]
 								public static {1} Deserialize(ReadOnlySpan<byte> bytes)
 								{{
 									{1} obj = {5}; 
 									var offset = 0;
 									var offsetWritten = 0;
 									int len0 = 0;
-					{4}
+					                {4}
 									return obj;
 								}}
-								[MethodImpl(MethodImplOptions.AggressiveInlining)]
+								[MethodImpl(MethodImplOptions.AggressiveOptimization)]
 								public static Memory<byte> SerializeAsync({1} obj)
 								{{
 									return Serialize(obj).ToArray();
 								}}	
 								
-								[MethodImpl(MethodImplOptions.AggressiveInlining)]
+								[MethodImpl(MethodImplOptions.AggressiveOptimization)]
 								public static {1} DeserializeAsync(ReadOnlyMemory<byte> bytes)
 
 								{{

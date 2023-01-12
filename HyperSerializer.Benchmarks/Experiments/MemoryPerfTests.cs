@@ -20,16 +20,17 @@ using System.Buffers;
 using System.Diagnostics;
 using BenchmarkDotNet.Jobs;
 using CommunityToolkit.HighPerformance.Buffers;
+using System.IO.Pipelines;
 
 namespace HyperSerializer.Benchmarks.Experiments;
 
-[SimpleJob(runStrategy: RunStrategy.Throughput, launchCount: 1, invocationCount: 1, runtimeMoniker:RuntimeMoniker.Net60)]
+[SimpleJob(runStrategy: RunStrategy.Throughput, launchCount: 1, invocationCount: 1, runtimeMoniker: RuntimeMoniker.Net60)]
 [Orderer(SummaryOrderPolicy.FastestToSlowest)]
 [MemoryDiagnoser]
 public class MemoryStreamingBenchmark
 {
     private static readonly RecyclableMemoryStreamManager manager = new();
-    private readonly byte[] chunk = new byte[2048];
+    private readonly byte[] chunk = new byte[128];
 
     [Params(100, 1000, 10_000, 100_000, 1_000_000)]
     public int TotalCount;
@@ -42,14 +43,37 @@ public class MemoryStreamingBenchmark
             output.Write(chunk, 0, taken);
         }
     }
-   
+
     private void Write(ResizableSpanByte output)
     {
         for (int remaining = TotalCount, taken; remaining > 0; remaining -= taken)
         {
             taken = Math.Min(remaining, chunk.Length);
-            var slice = output.Slice(taken);
-            chunk.CopyTo(slice);
+            output.Write(chunk);
+        }
+    }
+    private void Write(ResizablePipe output)
+    {
+        for (int remaining = TotalCount, taken; remaining > 0; remaining -= taken)
+        {
+            taken = Math.Min(remaining, chunk.Length);
+            output.Write(chunk);
+        }
+    }
+    private void Write(ResizableMemByte output)
+    {
+        for (int remaining = TotalCount, taken; remaining > 0; remaining -= taken)
+        {
+            taken = Math.Min(remaining, chunk.Length);
+            output.Write(chunk);
+        }
+    }
+    private void Write(MemoryBuffer output)
+    {
+        for (int remaining = TotalCount, taken; remaining > 0; remaining -= taken)
+        {
+            taken = Math.Min(remaining, chunk.Length);
+            output.Write(chunk);
         }
     }
     private unsafe void Write(ArrayPoolBufferWriter<byte> output)
@@ -66,8 +90,7 @@ public class MemoryStreamingBenchmark
         for (int remaining = TotalCount, taken; remaining > 0; remaining -= taken)
         {
             taken = Math.Min(remaining, chunk.Length);
-            fixed (byte* b = chunk)
-                output.Write(b, taken);
+            output.Append(chunk);
         }
     }
     private unsafe void Write(GrowableSpan output)
@@ -75,8 +98,7 @@ public class MemoryStreamingBenchmark
         for (int remaining = TotalCount, taken; remaining > 0; remaining -= taken)
         {
             taken = Math.Min(remaining, chunk.Length);
-            fixed (byte* b = chunk)
-                output.Write(b, taken);
+            output.Write(chunk);
         }
     }
     private unsafe void Write(SpanBytePool output)
@@ -88,12 +110,12 @@ public class MemoryStreamingBenchmark
                 output.Write(b, taken);
         }
     }
-    [Benchmark(Description = "MemoryStream", Baseline = true)]
-    public void WriteToMemoryStream()
-    {
-        using var ms = new MemoryStream();
-        Write(ms);
-    }
+    //[Benchmark(Description = "MemoryStream", Baseline = true)]
+    //public void WriteToMemoryStream()
+    //{
+    //    using var ms = new MemoryStream();
+    //    Write(ms);
+    //}
     [Benchmark(Description = "SpanByteBuffer")]
     public void WriteToSpanByteBuffer()
     {
@@ -106,40 +128,40 @@ public class MemoryStreamingBenchmark
         var gs = new GrowableSpan();
         Write(gs);
     }
-    [Benchmark(Description = "SpanBytePool")]
-    public void WriteToSpanBytePool()
-    {
-        var gs = new SpanBytePool();
-        Write(gs);
-    }
+    //[Benchmark(Description = "SpanBytePool")]
+    //public void WriteToSpanBytePool()
+    //{
+    //    var gs = new SpanBytePool();
+    //    Write(gs);
+    //}
 
-[Benchmark(Description = "ArrayPoolBufferWriter")]
-public void ArrayPoolBufferWriter()
-{
-    using ArrayPoolBufferWriter<byte> writer = new();
-    Write(writer);
-}
-[Benchmark(Description = "ArrayPoolBufferWriterStream")]
-public void ArrayPoolBufferWriterStream()
-{
-    using ArrayPoolBufferWriter<byte> writer = new();
-    using var stream = writer.AsStream();
-    Write(writer);
-}
-    [Benchmark(Description = "RecyclableMemoryStream")]
-    public void WriteToRecyclableMemoryStream()
+    [Benchmark(Description = "ArrayPoolBufferWriter")]
+    public void ArrayPoolBufferWriter()
     {
-        using var ms = manager.GetStream();
-        Write(ms);
+        using ArrayPoolBufferWriter<byte> writer = new();
+        Write(writer);
     }
+    [Benchmark(Description = "ArrayPoolBufferWriterStream")]
+    public void ArrayPoolBufferWriterStream()
+    {
+        using ArrayPoolBufferWriter<byte> writer = new();
+        using var stream = writer.AsStream();
+        Write(writer);
+    }
+    //[Benchmark(Description = "RecyclableMemoryStream")]
+    //public void WriteToRecyclableMemoryStream()
+    //{
+    //    using var ms = manager.GetStream();
+    //    Write(ms);
+    //}
 
-    [Benchmark(Description = "SparseBufferWriter<byte>")]
-    public void WriteToSparseBuffer()
-    {
-        using var buffer = new SparseBufferWriter<byte>(4096, SparseBufferGrowth.Linear);
-        using var ms = buffer.AsStream(false);
-        Write(ms);
-    }
+    //[Benchmark(Description = "SparseBufferWriter<byte>")]
+    //public void WriteToSparseBuffer()
+    //{
+    //    using var buffer = new SparseBufferWriter<byte>(4096, SparseBufferGrowth.Linear);
+    //    using var ms = buffer.AsStream(false);
+    //    Write(ms);
+    //}
 
     //[Benchmark(Description = "PooledArrayBufferWriter<byte>")]
     //public void WriteToGrowableBuffer()
@@ -155,13 +177,64 @@ public void ArrayPoolBufferWriterStream()
     //    using var writer = new FileBufferingWriter(asyncIO: false);
     //    Write(writer);
     //}
-    //[Benchmark(Description = "ResizableSpanByte")]
-    //public void ResizableSpanByte()
+    [Benchmark(Description = "ResizableSpanByte")]
+    public void ResizableSpanByte()
+    {
+        var i = sizeof(int);
+        var writer = new ResizableSpanByte(256);
+        Write(writer);
+    }
+    //[Benchmark(Description = "ResizablePipe")]
+    //public void ResizableSpanByte2()
     //{
     //    var i = sizeof(int);
-    //    var writer = new ResizableSpanByte(2048);
+    //    var writer = new ResizablePipe(8);
     //    Write(writer);
     //}
+    [Benchmark(Description = "ResizableMemByte")]
+    public void ResizableMemByte()
+    {
+        var i = sizeof(int);
+        var writer = new ResizableMemByte(256);
+        Write(writer);
+    }
+    [Benchmark(Description = "MemoryBuffer")]
+    public void MemroyBuffer()
+    {
+        var i = sizeof(int);
+        var writer = new MemoryBuffer(256);
+        Write(writer);
+    }
+
+}
+
+
+public ref struct ResizablePipe
+{
+    private int _increment = 1;
+    private byte[] _array = default;
+    private Span<byte> _buffer;
+    private int _offset = 0;
+    private static ArrayPool<byte> _pool;
+    private PipeWriter _writer;
+    private MemoryStream _stream;
+    public ResizablePipe(int initialLength = 256)
+    {
+        _stream = new MemoryStream();
+        _writer = PipeWriter.Create(_stream);
+        _increment = initialLength;
+        _pool = ArrayPool<byte>.Shared;
+        _buffer = _pool.Rent(initialLength);
+        _offset = 0;
+    }
+
+    public Span<byte> Get() => _stream.GetBuffer();
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public void Write(Span<byte> bytes)
+    {
+        _writer.Write(bytes);
+    }
 
 }
 //public struct VectorBuffer<T>
@@ -262,764 +335,618 @@ public void ArrayPoolBufferWriterStream()
 //}
 ref struct GrowableSpan
 {
-	private byte[] _rental;
-	private Span<byte> _buffer;
-	private int _pos;
+    private byte[] _rental;
+    private Span<byte> _buffer;
+    private int _pos;
 
-	public GrowableSpan(Span<byte> initialBuffer)
-	{
-		_rental = null;
-		_buffer = initialBuffer;
-		_pos = 0;
-	}
+    public GrowableSpan(Span<byte> initialBuffer)
+    {
+        _rental = null;
+        _buffer = initialBuffer;
+        _pos = 0;
+    }
 
-	public GrowableSpan(int initialCapacity)
-	{
-		_rental = new byte[initialCapacity];
-		_buffer = _rental;
-		_pos = 0;
-	}
+    public GrowableSpan(int initialCapacity)
+    {
+        _rental = new byte[initialCapacity];
+        _buffer = _rental;
+        _pos = 0;
+    }
 
-	public int Length
-	{
-		get => _pos;
-		set
-		{
-			Debug.Assert(value >= 0);
-			Debug.Assert(value <= _buffer.Length);
-			_pos = value;
-		}
-	}
+    public int Length
+    {
+        get => _pos;
+        set
+        {
+            Debug.Assert(value >= 0);
+            Debug.Assert(value <= _buffer.Length);
+            _pos = value;
+        }
+    }
 
-	public int Capacity => _buffer.Length;
+    public int Capacity => _buffer.Length;
 
-	public void EnsureCapacity(int capacity)
-	{
-		Debug.Assert(capacity >= 0);
+    public void EnsureCapacity(int capacity)
+    {
+        Debug.Assert(capacity >= 0);
 
-		if ((uint)capacity > (uint)_buffer.Length)
-			Grow(capacity - _pos);
-	}
+        if ((uint)capacity > (uint)_buffer.Length)
+            Grow(capacity - _pos);
+    }
 
-	public ref byte GetPinnableReference()
-	{
-		return ref MemoryMarshal.GetReference(_buffer);
-	}
+    public ref byte GetPinnableReference()
+    {
+        return ref MemoryMarshal.GetReference(_buffer);
+    }
 
-	public ref byte this[int index]
-	{
-		get
-		{
-			Debug.Assert(index < _pos);
-			return ref _buffer[index];
-		}
-	}
+    public ref byte this[int index]
+    {
+        get
+        {
+            Debug.Assert(index < _pos);
+            return ref _buffer[index];
+        }
+    }
 
-	public override string ToString()
-	{
-		string s = _buffer.Slice(0, _pos).ToString();
-		Dispose();
-		return s;
-	}
+    public override string ToString()
+    {
+        string s = _buffer.Slice(0, _pos).ToString();
+        Dispose();
+        return s;
+    }
 
-	public ReadOnlySpan<byte> AsSpan() => _buffer.Slice(0, _pos);
-	public ReadOnlySpan<byte> AsSpan(int start) => _buffer.Slice(start, _pos - start);
-	public ReadOnlySpan<byte> AsSpan(int start, int length) => _buffer.Slice(start, length);
+    public ReadOnlySpan<byte> AsSpan() => _buffer.Slice(0, _pos);
+    public ReadOnlySpan<byte> AsSpan(int start) => _buffer.Slice(start, _pos - start);
+    public ReadOnlySpan<byte> AsSpan(int start, int length) => _buffer.Slice(start, length);
 
-	public bool TryCopyTo(Span<byte> destination, out int len)
-	{
-		if (_buffer.Slice(0, _pos).TryCopyTo(destination))
-		{
-			len = _pos;
-			Dispose();
-			return true;
-		}
-		else
-		{
-			len = 0;
-			Dispose();
-			return false;
-		}
-	}
+    public bool TryCopyTo(Span<byte> destination, out int len)
+    {
+        if (_buffer.Slice(0, _pos).TryCopyTo(destination))
+        {
+            len = _pos;
+            Dispose();
+            return true;
+        }
+        else
+        {
+            len = 0;
+            Dispose();
+            return false;
+        }
+    }
 
-	public void Insert(int index, byte value, int count)
-	{
-		if (_pos > _buffer.Length - count)
-			Grow(count);
+    public void Insert(int index, byte value, int count)
+    {
+        if (_pos > _buffer.Length - count)
+            Grow(count);
 
-		int remaining = _pos - index;
-		_buffer.Slice(index, remaining).CopyTo(_buffer.Slice(index + count));
-		_buffer.Slice(index, count).Fill(value);
-		_pos += count;
-	}
+        int remaining = _pos - index;
+        _buffer.Slice(index, remaining).CopyTo(_buffer.Slice(index + count));
+        _buffer.Slice(index, count).Fill(value);
+        _pos += count;
+    }
 
-	public void Insert(int index, byte[] s)
-	{
-		if (s == null) return;
+    public void Insert(int index, byte[] s)
+    {
+        if (s == null) return;
 
-		int count = s.Length;
+        int count = s.Length;
 
-		if (_pos > (_buffer.Length - count))
-			Grow(count);
+        if (_pos > (_buffer.Length - count))
+            Grow(count);
 
-		int remaining = _pos - index;
-		_buffer.Slice(index, remaining).CopyTo(_buffer.Slice(index + count));
-		s
+        int remaining = _pos - index;
+        _buffer.Slice(index, remaining).CopyTo(_buffer.Slice(index + count));
+        s
 #if !NET6_0_OR_GREATER
 			.AsSpan()
 #endif
-			.CopyTo(_buffer.Slice(index));
-		_pos += count;
-	}
+            .CopyTo(_buffer.Slice(index));
+        _pos += count;
+    }
 
-	[MethodImpl(MethodImplOptions.AggressiveInlining)]
-	public void Write(byte b)
-	{
-		int pos = _pos;
-		if ((uint)pos < (uint)_buffer.Length)
-		{
-			_buffer[pos] = b;
-			_pos = pos + 1;
-		}
-		else
-			GrowAndAppend(b);
-	}
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public void Write(byte b)
+    {
+        int pos = _pos;
+        if ((uint)pos < (uint)_buffer.Length)
+        {
+            _buffer[pos] = b;
+            _pos = pos + 1;
+        }
+        else
+            GrowAndAppend(b);
+    }
 
-	[MethodImpl(MethodImplOptions.AggressiveInlining)]
-	public void Write(byte[] b)
-	{
-		if (b == null)
-		{
-			return;
-		}
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public void Write(byte[] b)
+    {
+        if (b == null)
+        {
+            return;
+        }
 
-		int pos = _pos;
-		if (b.Length == 1 && (uint)pos < (uint)_buffer.Length)
-		{
-			_buffer[pos] = b[0];
-			_pos++;
-		}
-		else
-		{
-			AppendSlow(b);
-		}
-	}
+        int pos = _pos;
+        if (b.Length == 1 && (uint)pos < (uint)_buffer.Length)
+        {
+            _buffer[pos] = b[0];
+            _pos++;
+        }
+        else
+        {
+            AppendSlow(b);
+        }
+    }
 
-	private void AppendSlow(byte[] b)
-	{
-		int pos = _pos;
-		if (pos > _buffer.Length - b.Length)
-		{
-			Grow(b.Length);
-		}
+    private void AppendSlow(byte[] b)
+    {
+        int pos = _pos;
+        if (pos > _buffer.Length - b.Length)
+        {
+            Grow(b.Length);
+        }
 
-		b
+        b
 #if !NET6_0_OR_GREATER
 			.AsSpan()
 #endif
-			.CopyTo(_buffer.Slice(pos));
-		_pos += b.Length;
-	}
+            .CopyTo(_buffer.Slice(pos));
+        _pos += b.Length;
+    }
 
-	public void Append(byte b, int count)
-	{
-		if (_pos > _buffer.Length - count)
-			Grow(count);
+    public void Append(byte b, int count)
+    {
+        if (_pos > _buffer.Length - count)
+            Grow(count);
 
-		Span<byte> dst = _buffer.Slice(_pos, count);
-		for (int i = 0; i < dst.Length; i++) dst[i] = b;
+        Span<byte> dst = _buffer.Slice(_pos, count);
+        for (int i = 0; i < dst.Length; i++) dst[i] = b;
 
-		_pos += count;
-	}
+        _pos += count;
+    }
 
-	public unsafe void Write(byte* value, int length)
-	{
-		int pos = _pos;
-		if (pos > _buffer.Length - length)
-			Grow(length);
+    public unsafe void Write(byte* value, int length)
+    {
+        int pos = _pos;
+        if (pos > _buffer.Length - length)
+            Grow(length);
 
-		Span<byte> dst = _buffer.Slice(_pos, length);
-		for (int i = 0; i < dst.Length; i++) dst[i] = *value++;
+        Span<byte> dst = _buffer.Slice(_pos, length);
+        for (int i = 0; i < dst.Length; i++) dst[i] = *value++;
 
-		_pos += length;
-	}
+        _pos += length;
+    }
 
-	public void Write(ReadOnlySpan<byte> value)
-	{
-		int pos = _pos;
-		if (pos > _buffer.Length - value.Length) Grow(value.Length);
+    public void Write(ReadOnlySpan<byte> value)
+    {
+        int pos = _pos;
+        if (pos > _buffer.Length - value.Length) Grow(value.Length);
 
-		value.CopyTo(_buffer.Slice(_pos));
-		_pos += value.Length;
-	}
+        value.CopyTo(_buffer.Slice(_pos));
+        _pos += value.Length;
+    }
 
-	[MethodImpl(MethodImplOptions.AggressiveInlining)]
-	public Span<byte> AppendSpan(int length)
-	{
-		int origPos = _pos;
-		if (origPos > _buffer.Length - length) Grow(length);
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public Span<byte> AppendSpan(int length)
+    {
+        int origPos = _pos;
+        if (origPos > _buffer.Length - length) Grow(length);
 
-		_pos = origPos + length;
-		return _buffer.Slice(origPos, length);
-	}
+        _pos = origPos + length;
+        return _buffer.Slice(origPos, length);
+    }
 
-	[MethodImpl(MethodImplOptions.NoInlining)]
-	private void GrowAndAppend(byte c)
-	{
-		Grow(1);
-		Write(c);
-	}
+    [MethodImpl(MethodImplOptions.NoInlining)]
+    private void GrowAndAppend(byte c)
+    {
+        Grow(1);
+        Write(c);
+    }
 
-	/// <summary>
-	/// Resize the internal buffer either by doubling current buffer size or
-	/// by adding <paramref name="additionalCapacityBeyondPos"/> to
-	/// <see cref="_pos"/> whichever is greater.
-	/// </summary>
-	/// <param name="additionalCapacityBeyondPos">
-	/// Number of chars requested beyond current position.
-	/// </param>
-	[MethodImpl(MethodImplOptions.NoInlining)]
-	private void Grow(int additionalCapacityBeyondPos)
-	{
-		Debug.Assert(additionalCapacityBeyondPos > 0);
-		Debug.Assert(_pos > _buffer.Length - additionalCapacityBeyondPos, "Grow called incorrectly, no resize is needed.");
+    /// <summary>
+    /// Resize the internal buffer either by doubling current buffer size or
+    /// by adding <paramref name="additionalCapacityBeyondPos"/> to
+    /// <see cref="_pos"/> whichever is greater.
+    /// </summary>
+    /// <param name="additionalCapacityBeyondPos">
+    /// Number of chars requested beyond current position.
+    /// </param>
+    [MethodImpl(MethodImplOptions.NoInlining)]
+    private void Grow(int additionalCapacityBeyondPos)
+    {
+        Debug.Assert(additionalCapacityBeyondPos > 0);
+        Debug.Assert(_pos > _buffer.Length - additionalCapacityBeyondPos, "Grow called incorrectly, no resize is needed.");
 
-		// Make sure to let Rent throw an exception if the caller has a bug and the desired capacity is negative
-		byte[] poolArray = new byte[((int)Math.Max((uint)(_pos + additionalCapacityBeyondPos), (uint)_buffer.Length * 2))];
+        // Make sure to let Rent throw an exception if the caller has a bug and the desired capacity is negative
+        byte[] poolArray = new byte[((int)Math.Max((uint)(_pos + additionalCapacityBeyondPos), (uint)_buffer.Length * 2))];
 
-		_buffer.Slice(0, _pos).CopyTo(poolArray);
+        _buffer.Slice(0, _pos).CopyTo(poolArray);
+        _buffer = _rental = poolArray;
 
-		byte[] toReturn = _rental;
-		_buffer = _rental = poolArray;
+    }
 
-	}
-
-	[MethodImpl(MethodImplOptions.AggressiveInlining)]
-	public void Dispose()
-	{
-		byte[] toReturn = _rental;
-		this = default; // for safety, to avoid using pooled array if this instance is erroneously appended to again
-		if (toReturn != null)
-			ArrayPool<byte>.Shared.Return(toReturn);
-	}
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public void Dispose()
+    {
+        this = default;
+    }
 }
 ref struct SpanBytePool
 {
-	private IMemoryOwner<byte> _rental;
-	private Span<byte> _buffer;
-	private int _pos;
+    private IMemoryOwner<byte> _rental;
+    private Span<byte> _buffer;
+    private int _pos;
 
-	public SpanBytePool(Span<byte> initialBuffer)
-	{
-		_rental = null;
-		_buffer = initialBuffer;
-		_pos = 0;
-	}
+    public SpanBytePool(Span<byte> initialBuffer)
+    {
+        _rental = null;
+        _buffer = initialBuffer;
+        _pos = 0;
+    }
 
-	public SpanBytePool(int initialCapacity)
-	{
-		_rental = MemoryPool<byte>.Shared.Rent(initialCapacity);
-		_buffer = _rental.Memory.Span;
-		_pos = 0;
-	}
-
-	public int Length
-	{
-		get => _pos;
-		set
-		{
-			Debug.Assert(value >= 0);
-			Debug.Assert(value <= _buffer.Length);
-			_pos = value;
-		}
-	}
-
-	public int Capacity => _buffer.Length;
-
-	public void EnsureCapacity(int capacity)
-	{
-		Debug.Assert(capacity >= 0);
-
-		if ((uint)capacity > (uint)_buffer.Length)
-			Grow(capacity - _pos);
-	}
-
-	public ref byte GetPinnableReference()
-	{
-		return ref MemoryMarshal.GetReference(_buffer);
-	}
-
-	public ref byte this[int index]
-	{
-		get
-		{
-			Debug.Assert(index < _pos);
-			return ref _buffer[index];
-		}
-	}
-
-	public override string ToString()
-	{
-		string s = _buffer.Slice(0, _pos).ToString();
-		Dispose();
-		return s;
-	}
-
-	public ReadOnlySpan<byte> AsSpan() => _buffer.Slice(0, _pos);
-	public ReadOnlySpan<byte> AsSpan(int start) => _buffer.Slice(start, _pos - start);
-	public ReadOnlySpan<byte> AsSpan(int start, int length) => _buffer.Slice(start, length);
-
-	public bool TryCopyTo(Span<byte> destination, out int len)
-	{
-		if (_buffer.Slice(0, _pos).TryCopyTo(destination))
-		{
-			len = _pos;
-			Dispose();
-			return true;
-		}
-		else
-		{
-			len = 0;
-			Dispose();
-			return false;
-		}
-	}
-
-	public void Insert(int index, byte value, int count)
-	{
-		if (_pos > _buffer.Length - count)
-			Grow(count);
-
-		int remaining = _pos - index;
-		_buffer.Slice(index, remaining).CopyTo(_buffer.Slice(index + count));
-		_buffer.Slice(index, count).Fill(value);
-		_pos += count;
-	}
-
-	public void Insert(int index, byte[] s)
-	{
-		if (s == null) return;
-
-		int count = s.Length;
-
-		if (_pos > (_buffer.Length - count))
-			Grow(count);
-
-		int remaining = _pos - index;
-		_buffer.Slice(index, remaining).CopyTo(_buffer.Slice(index + count));
-		s
-#if !NET6_0_OR_GREATER
-			.AsSpan()
-#endif
-			.CopyTo(_buffer.Slice(index));
-		_pos += count;
-	}
-
-	[MethodImpl(MethodImplOptions.AggressiveInlining)]
-	public void Write(byte b)
-	{
-		int pos = _pos;
-		if ((uint)pos < (uint)_buffer.Length)
-		{
-			_buffer[pos] = b;
-			_pos = pos + 1;
-		}
-		else
-			GrowAndAppend(b);
-	}
-
-	[MethodImpl(MethodImplOptions.AggressiveInlining)]
-	public void Write(byte[] b)
-	{
-		if (b == null)
-		{
-			return;
-		}
-
-		int pos = _pos;
-		if (b.Length == 1 && (uint)pos < (uint)_buffer.Length)
-		{
-			_buffer[pos] = b[0];
-			_pos++;
-		}
-		else
-		{
-			AppendSlow(b);
-		}
-	}
-
-	private void AppendSlow(byte[] b)
-	{
-		int pos = _pos;
-		if (pos > _buffer.Length - b.Length)
-		{
-			Grow(b.Length);
-		}
-
-		b
-#if !NET6_0_OR_GREATER
-			.AsSpan()
-#endif
-			.CopyTo(_buffer.Slice(pos));
-		_pos += b.Length;
-	}
-
-	public void Append(byte b, int count)
-	{
-		if (_pos > _buffer.Length - count)
-			Grow(count);
-
-		Span<byte> dst = _buffer.Slice(_pos, count);
-		for (int i = 0; i < dst.Length; i++) dst[i] = b;
-
-		_pos += count;
-	}
-
-	public unsafe void Write(byte* value, int length)
-	{
-		int pos = _pos;
-		if (pos > _buffer.Length - length)
-			Grow(length);
-
-		Span<byte> dst = _buffer.Slice(_pos, length);
-		for (int i = 0; i < dst.Length; i++) dst[i] = *value++;
-
-		_pos += length;
-	}
-
-	public void Write(ReadOnlySpan<byte> value)
-	{
-		int pos = _pos;
-		if (pos > _buffer.Length - value.Length) Grow(value.Length);
-
-		value.CopyTo(_buffer.Slice(_pos));
-		_pos += value.Length;
-	}
-
-	[MethodImpl(MethodImplOptions.AggressiveInlining)]
-	public Span<byte> AppendSpan(int length)
-	{
-		int origPos = _pos;
-		if (origPos > _buffer.Length - length) Grow(length);
-
-		_pos = origPos + length;
-		return _buffer.Slice(origPos, length);
-	}
-
-	[MethodImpl(MethodImplOptions.NoInlining)]
-	private void GrowAndAppend(byte c)
-	{
-		Grow(1);
-		Write(c);
-	}
-
-	/// <summary>
-	/// Resize the internal buffer either by doubling current buffer size or
-	/// by adding <paramref name="additionalCapacityBeyondPos"/> to
-	/// <see cref="_pos"/> whichever is greater.
-	/// </summary>
-	/// <param name="additionalCapacityBeyondPos">
-	/// Number of chars requested beyond current position.
-	/// </param>
-	[MethodImpl(MethodImplOptions.NoInlining)]
-	private void Grow(int additionalCapacityBeyondPos)
-	{
-		Debug.Assert(additionalCapacityBeyondPos > 0);
-		Debug.Assert(_pos > _buffer.Length - additionalCapacityBeyondPos, "Grow called incorrectly, no resize is needed.");
-
-		// Make sure to let Rent throw an exception if the caller has a bug and the desired capacity is negative
-       
-		IMemoryOwner<byte> poolArray = MemoryPool<byte>.Shared.Rent((int)Math.Max((uint)(_pos + additionalCapacityBeyondPos), (uint)_buffer.Length * 2));
-
-		_buffer.Slice(0, _pos).CopyTo(poolArray.Memory.Span);
-
-		IMemoryOwner<byte> toReturn = _rental;
-		_rental = poolArray;
+    public SpanBytePool(int initialCapacity)
+    {
+        _rental = MemoryPool<byte>.Shared.Rent(initialCapacity);
         _buffer = _rental.Memory.Span;
-		if (toReturn != null)
-			toReturn.Dispose();
-	}
+        _pos = 0;
+    }
 
-	[MethodImpl(MethodImplOptions.AggressiveInlining)]
-	public void Dispose()
-	{
-		IMemoryOwner<byte> toReturn = _rental;
-		this = default; // for safety, to avoid using pooled array if this instance is erroneously appended to again
-		if (toReturn != null)
-			toReturn.Dispose();
-	}
-}
-ref struct SpanByteBuffer
-{
-	private byte[] _rental;
-	private Span<byte> _buffer;
-	private int _pos;
+    public int Length
+    {
+        get => _pos;
+        set
+        {
+            Debug.Assert(value >= 0);
+            Debug.Assert(value <= _buffer.Length);
+            _pos = value;
+        }
+    }
 
-	public SpanByteBuffer(Span<byte> initialBuffer)
-	{
-		_rental = null;
-		_buffer = initialBuffer;
-		_pos = 0;
-	}
+    public int Capacity => _buffer.Length;
 
-	public SpanByteBuffer(int initialCapacity)
-	{
-		_rental = ArrayPool<byte>.Shared.Rent(initialCapacity);
-		_buffer = _rental;
-		_pos = 0;
-	}
+    public void EnsureCapacity(int capacity)
+    {
+        Debug.Assert(capacity >= 0);
 
-	public int Length
-	{
-		get => _pos;
-		set
-		{
-			Debug.Assert(value >= 0);
-			Debug.Assert(value <= _buffer.Length);
-			_pos = value;
-		}
-	}
+        if ((uint)capacity > (uint)_buffer.Length)
+            Grow(capacity - _pos);
+    }
 
-	public int Capacity => _buffer.Length;
+    public ref byte GetPinnableReference()
+    {
+        return ref MemoryMarshal.GetReference(_buffer);
+    }
 
-	public void EnsureCapacity(int capacity)
-	{
-		Debug.Assert(capacity >= 0);
+    public ref byte this[int index]
+    {
+        get
+        {
+            Debug.Assert(index < _pos);
+            return ref _buffer[index];
+        }
+    }
 
-		if ((uint)capacity > (uint)_buffer.Length)
-			Grow(capacity - _pos);
-	}
+    public override string ToString()
+    {
+        string s = _buffer.Slice(0, _pos).ToString();
+        Dispose();
+        return s;
+    }
 
-	public ref byte GetPinnableReference()
-	{
-		return ref MemoryMarshal.GetReference(_buffer);
-	}
+    public ReadOnlySpan<byte> AsSpan() => _buffer.Slice(0, _pos);
+    public ReadOnlySpan<byte> AsSpan(int start) => _buffer.Slice(start, _pos - start);
+    public ReadOnlySpan<byte> AsSpan(int start, int length) => _buffer.Slice(start, length);
 
-	public ref byte this[int index]
-	{
-		get
-		{
-			Debug.Assert(index < _pos);
-			return ref _buffer[index];
-		}
-	}
+    public bool TryCopyTo(Span<byte> destination, out int len)
+    {
+        if (_buffer.Slice(0, _pos).TryCopyTo(destination))
+        {
+            len = _pos;
+            Dispose();
+            return true;
+        }
+        else
+        {
+            len = 0;
+            Dispose();
+            return false;
+        }
+    }
 
-	public override string ToString()
-	{
-		string s = _buffer.Slice(0, _pos).ToString();
-		Dispose();
-		return s;
-	}
+    public void Insert(int index, byte value, int count)
+    {
+        if (_pos > _buffer.Length - count)
+            Grow(count);
 
-	public ReadOnlySpan<byte> AsSpan() => _buffer.Slice(0, _pos);
-	public ReadOnlySpan<byte> AsSpan(int start) => _buffer.Slice(start, _pos - start);
-	public ReadOnlySpan<byte> AsSpan(int start, int length) => _buffer.Slice(start, length);
+        int remaining = _pos - index;
+        _buffer.Slice(index, remaining).CopyTo(_buffer.Slice(index + count));
+        _buffer.Slice(index, count).Fill(value);
+        _pos += count;
+    }
 
-	public bool TryCopyTo(Span<byte> destination, out int len)
-	{
-		if (_buffer.Slice(0, _pos).TryCopyTo(destination))
-		{
-			len = _pos;
-			Dispose();
-			return true;
-		}
-		else
-		{
-			len = 0;
-			Dispose();
-			return false;
-		}
-	}
+    public void Insert(int index, byte[] s)
+    {
+        if (s == null) return;
 
-	public void Insert(int index, byte value, int count)
-	{
-		if (_pos > _buffer.Length - count)
-			Grow(count);
+        int count = s.Length;
 
-		int remaining = _pos - index;
-		_buffer.Slice(index, remaining).CopyTo(_buffer.Slice(index + count));
-		_buffer.Slice(index, count).Fill(value);
-		_pos += count;
-	}
+        if (_pos > (_buffer.Length - count))
+            Grow(count);
 
-	public void Insert(int index, byte[] s)
-	{
-		if (s == null) return;
-
-		int count = s.Length;
-
-		if (_pos > (_buffer.Length - count))
-			Grow(count);
-
-		int remaining = _pos - index;
-		_buffer.Slice(index, remaining).CopyTo(_buffer.Slice(index + count));
-		s
+        int remaining = _pos - index;
+        _buffer.Slice(index, remaining).CopyTo(_buffer.Slice(index + count));
+        s
 #if !NET6_0_OR_GREATER
 			.AsSpan()
 #endif
-			.CopyTo(_buffer.Slice(index));
-		_pos += count;
-	}
+            .CopyTo(_buffer.Slice(index));
+        _pos += count;
+    }
 
-	[MethodImpl(MethodImplOptions.AggressiveInlining)]
-	public void Write(byte b)
-	{
-		int pos = _pos;
-		if ((uint)pos < (uint)_buffer.Length)
-		{
-			_buffer[pos] = b;
-			_pos = pos + 1;
-		}
-		else
-			GrowAndAppend(b);
-	}
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public void Write(byte b)
+    {
+        int pos = _pos;
+        if ((uint)pos < (uint)_buffer.Length)
+        {
+            _buffer[pos] = b;
+            _pos = pos + 1;
+        }
+        else
+            GrowAndAppend(b);
+    }
 
-	[MethodImpl(MethodImplOptions.AggressiveInlining)]
-	public void Write(byte[] b)
-	{
-		if (b == null)
-		{
-			return;
-		}
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public void Write(byte[] b)
+    {
+        if (b == null)
+        {
+            return;
+        }
 
-		int pos = _pos;
-		if (b.Length == 1 && (uint)pos < (uint)_buffer.Length)
-		{
-			_buffer[pos] = b[0];
-			_pos++;
-		}
-		else
-		{
-			AppendSlow(b);
-		}
-	}
+        int pos = _pos;
+        if (b.Length == 1 && (uint)pos < (uint)_buffer.Length)
+        {
+            _buffer[pos] = b[0];
+            _pos++;
+        }
+        else
+        {
+            AppendSlow(b);
+        }
+    }
 
-	private void AppendSlow(byte[] b)
-	{
-		int pos = _pos;
-		if (pos > _buffer.Length - b.Length)
-		{
-			Grow(b.Length);
-		}
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private void AppendSlow(byte[] b)
+    {
+        int pos = _pos;
+        if (pos > _buffer.Length - b.Length)
+        {
+            Grow(b.Length);
+        }
 
-		b
+        b
 #if !NET6_0_OR_GREATER
 			.AsSpan()
 #endif
-			.CopyTo(_buffer.Slice(pos));
-		_pos += b.Length;
-	}
+            .CopyTo(_buffer.Slice(pos));
+        _pos += b.Length;
+    }
 
-	public void Append(byte b, int count)
-	{
-		if (_pos > _buffer.Length - count)
-			Grow(count);
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public void Append(byte b, int count)
+    {
+        if (_pos > _buffer.Length - count)
+            Grow(count);
 
-		Span<byte> dst = _buffer.Slice(_pos, count);
-		for (int i = 0; i < dst.Length; i++) dst[i] = b;
+        Span<byte> dst = _buffer.Slice(_pos, count);
+        for (int i = 0; i < dst.Length; i++) dst[i] = b;
 
-		_pos += count;
-	}
+        _pos += count;
+    }
 
-	public unsafe void Write(byte* value, int length)
-	{
-		int pos = _pos;
-		if (pos > _buffer.Length - length)
-			Grow(length);
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public unsafe void Write(byte* value, int length)
+    {
+        int pos = _pos;
+        if (pos > _buffer.Length - length)
+            Grow(length);
 
-		Span<byte> dst = _buffer.Slice(_pos, length);
-		for (int i = 0; i < dst.Length; i++) dst[i] = *value++;
+        Span<byte> dst = _buffer.Slice(_pos, length);
+        for (int i = 0; i < dst.Length; i++) dst[i] = *value++;
 
-		_pos += length;
-	}
+        _pos += length;
+    }
 
-	public void Write(ReadOnlySpan<byte> value)
-	{
-		int pos = _pos;
-		if (pos > _buffer.Length - value.Length) Grow(value.Length);
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public void Write(ReadOnlySpan<byte> value)
+    {
+        int pos = _pos;
+        if (pos > _buffer.Length - value.Length) Grow(value.Length);
 
-		value.CopyTo(_buffer.Slice(_pos));
-		_pos += value.Length;
-	}
+        value.CopyTo(_buffer.Slice(_pos));
+        _pos += value.Length;
+    }
 
-	[MethodImpl(MethodImplOptions.AggressiveInlining)]
-	public Span<byte> AppendSpan(int length)
-	{
-		int origPos = _pos;
-		if (origPos > _buffer.Length - length) Grow(length);
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public Span<byte> AppendSpan(int length)
+    {
+        int origPos = _pos;
+        if (origPos > _buffer.Length - length) Grow(length);
 
-		_pos = origPos + length;
-		return _buffer.Slice(origPos, length);
-	}
+        _pos = origPos + length;
+        return _buffer.Slice(origPos, length);
+    }
 
-	[MethodImpl(MethodImplOptions.NoInlining)]
-	private void GrowAndAppend(byte c)
-	{
-		Grow(1);
-		Write(c);
-	}
+    [MethodImpl(MethodImplOptions.NoInlining)]
+    private void GrowAndAppend(byte c)
+    {
+        Grow(1);
+        Write(c);
+    }
 
-	/// <summary>
-	/// Resize the internal buffer either by doubling current buffer size or
-	/// by adding <paramref name="additionalCapacityBeyondPos"/> to
-	/// <see cref="_pos"/> whichever is greater.
-	/// </summary>
-	/// <param name="additionalCapacityBeyondPos">
-	/// Number of chars requested beyond current position.
-	/// </param>
-	[MethodImpl(MethodImplOptions.NoInlining)]
-	private void Grow(int additionalCapacityBeyondPos)
-	{
-		Debug.Assert(additionalCapacityBeyondPos > 0);
-		Debug.Assert(_pos > _buffer.Length - additionalCapacityBeyondPos, "Grow called incorrectly, no resize is needed.");
+    /// <summary>
+    /// Resize the internal buffer either by doubling current buffer size or
+    /// by adding <paramref name="additionalCapacityBeyondPos"/> to
+    /// <see cref="_pos"/> whichever is greater.
+    /// </summary>
+    /// <param name="additionalCapacityBeyondPos">
+    /// Number of chars requested beyond current position.
+    /// </param>
+    [MethodImpl(MethodImplOptions.NoInlining)]
+    private void Grow(int additionalCapacityBeyondPos)
+    {
+        Debug.Assert(additionalCapacityBeyondPos > 0);
+        Debug.Assert(_pos > _buffer.Length - additionalCapacityBeyondPos, "Grow called incorrectly, no resize is needed.");
 
-		// Make sure to let Rent throw an exception if the caller has a bug and the desired capacity is negative
-		byte[] poolArray = ArrayPool<byte>.Shared.Rent((int)Math.Max((uint)(_pos + additionalCapacityBeyondPos), (uint)_buffer.Length * 2));
+        // Make sure to let Rent throw an exception if the caller has a bug and the desired capacity is negative
 
-		_buffer.Slice(0, _pos).CopyTo(poolArray);
+        IMemoryOwner<byte> poolArray = MemoryPool<byte>.Shared.Rent((int)Math.Max((uint)(_pos + additionalCapacityBeyondPos), (uint)_buffer.Length * 2));
 
-		byte[] toReturn = _rental;
-		_buffer = _rental = poolArray;
-		if (toReturn != null)
-			ArrayPool<byte>.Shared.Return(toReturn);
-	}
+        _buffer.Slice(0, _pos).CopyTo(poolArray.Memory.Span);
 
-	[MethodImpl(MethodImplOptions.AggressiveInlining)]
-	public void Dispose()
-	{
-		byte[] toReturn = _rental;
-		this = default; // for safety, to avoid using pooled array if this instance is erroneously appended to again
-		if (toReturn != null)
-			ArrayPool<byte>.Shared.Return(toReturn);
-	}
+        IMemoryOwner<byte> toReturn = _rental;
+        _rental = poolArray;
+        _buffer = _rental.Memory.Span;
+        if (toReturn != null)
+            toReturn.Dispose();
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public void Dispose()
+    {
+        IMemoryOwner<byte> toReturn = _rental;
+        this = default; // for safety, to avoid using pooled array if this instance is erroneously appended to again
+        if (toReturn != null)
+            toReturn.Dispose();
+    }
 }
+
 public ref struct ResizableSpanByte
 {
-    private int _increment = 4096;
+    private int _increment = 1;
     private Span<byte> _buffer;
-    private int _length = 0;
     private int _offset = 0;
-    public ResizableSpanByte(int initialLength = 4096)
+    public ResizableSpanByte(int initialLength = 256)
     {
         _increment = initialLength;
         _buffer = new byte[initialLength];
-        _length = 0;
         _offset = 0;
     }
-            
-    private void Grow()
+
+    public Span<byte> Get() => _buffer;
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public void Write(Span<byte> bytes)
     {
-        Span<byte> next = new byte[_offset + _increment];
-        _buffer.CopyTo(next);
-        _buffer=next;
+        bytes.CopyTo(Slice(bytes.Length));
     }
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private void Grow(int length)
+    {
+        Span<byte> next = ArrayPool<byte>.Shared.Rent(Math.Max(_offset + _increment, _offset + length));
+        _buffer.CopyTo(next);
+        _buffer = next;
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public Span<byte> Slice(int length)
     {
-        if (_offset + length < _length)
-            Grow();
+        if (_offset + length > _buffer.Length)
+            Grow(length);
 
+        var slc = _buffer.Slice(_offset, length);
         _offset += length;
-        return _buffer.Slice(_offset, length);
+        return slc;
+    }
+}
+public struct ResizableMemByte
+{
+    private int _increment = 1;
+    private Memory<byte> _buffer;
+    private int _offset = 0;
+    public ResizableMemByte(int initialLength = 256)
+    {
+        _increment = initialLength;
+        _buffer = new byte[initialLength];
+        _offset = 0;
+    }
+
+    public Memory<byte> Get() => _buffer;
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public void Write(Memory<byte> bytes)
+    {
+        bytes.CopyTo(Slice(bytes.Length));
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private void Grow(int length)
+    {
+        Memory<byte> next = ArrayPool<byte>.Shared.Rent(Math.Max(_offset + _increment, _offset + length));
+        _buffer.CopyTo(next);
+        _buffer = next;
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public Memory<byte> Slice(int length)
+    {
+        if (_offset + length > _buffer.Length)
+            Grow(length);
+
+        var slc = _buffer.Slice(_offset, length);
+        _offset += length;
+        return slc;
+    }
+}
+
+public ref struct MemoryBuffer
+{
+    private int _increment = 512;
+    private Memory<byte> _buffer = default;
+    private List<Memory<byte>> _buffers = new();
+    private int _offset = 0;
+    public MemoryBuffer(int initialLength = 512)
+    {
+        _increment = initialLength;
+        Grow();
+    }
+
+    public Memory<byte> Get() => _buffer;
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public void Write(Memory<byte> bytes)
+    {
+        var written = 0;
+        while (written < bytes.Length)
+        {
+            var write = Math.Min(_increment - _offset, bytes.Length - written);
+            var src = bytes.Slice(written, write);
+            var dst = Slice(write);
+            src.CopyTo(dst);
+            written += write;
+        }
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private void Grow()
+    {
+        _offset = 0;
+        _buffer = ArrayPool<byte>.Shared.Rent(_increment);
+        _buffers.Add(_buffer);
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public Memory<byte> Slice(int length)
+    {
+        var remaining = _increment - _offset;
+        if (_offset + length > remaining)
+        {
+            Grow();
+        }
+        var slc = _buffer.Slice(_offset, remaining);
+        _offset += remaining;
+        return slc;
     }
 }

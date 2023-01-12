@@ -22,8 +22,8 @@ namespace Hyper
                 MetadataReference.CreateFromFile(FrameworkAssemblyPaths.System_Console),
                     MetadataReference.CreateFromFile(FrameworkAssemblyPaths.System_Private_CoreLib),
                         MetadataReference.CreateFromFile(FrameworkAssemblyPaths.System_Runtime),
-                            MetadataReference.CreateFromFile(typeof(System.Runtime.CompilerServices.Unsafe).Assembly.Location),
-                                MetadataReference.CreateFromFile(typeof(System.Linq.Enumerable).Assembly.Location),
+                            MetadataReference.CreateFromFile(typeof(Unsafe).Assembly.Location),
+                                MetadataReference.CreateFromFile(typeof(Enumerable).Assembly.Location),
                                     MetadataReference.CreateFromFile(typeof(T).GetTypeInfo().Assembly.Location),
             };
             if (includeUnsafe)
@@ -144,7 +144,7 @@ namespace Hyper
                 var offsetStr = $"+({fieldName}?.Length ?? 0)*Unsafe.SizeOf<{typeof(char)}>()";
                 return (offset, offsetStr);
             }
-            if ((type == typeof(IEnumerable<>) && type.GetElementType().IsValueType))
+            if ((type == typeof(IEnumerable<>) && type.GetElementType()!.IsValueType))
             {
                 //write length
                 sb.AppendFormat(snippets.PropertyTemplateSerializeListLen, propertyName, fieldName, type.GetElementType().FullName);
@@ -157,7 +157,7 @@ namespace Hyper
                 var offsetStr = $"+({fieldName}?.Count() ?? 0)*Unsafe.SizeOf<{type.GetElementType().FullName}>()";
                 return (offset, offsetStr);
             }
-            if ((type.IsArray && type.GetElementType().IsValueType) )
+            if ((type.IsArray && type.GetElementType()!.IsValueType) )
             {
                 //write length
                 sb.AppendFormat(snippets.PropertyTemplateSerializeArrLen, propertyName, fieldName, type.GetElementType().FullName);
@@ -175,7 +175,7 @@ namespace Hyper
             if (type.IsGenericType && (uType = Nullable.GetUnderlyingType(type)) != null)
             {
                 //write value
-                var uTypeName = uType.FullName.Replace("+", ".");
+                var uTypeName = uType.FullName?.Replace("+", ".");
                 sb.AppendFormat(snippets.PropertyTemplateSerializeNullable, propertyName, fieldName, uType.SizeOf(), uType);
                 offset += uType.SizeOf() + 1;
                 sb.AppendLine();
