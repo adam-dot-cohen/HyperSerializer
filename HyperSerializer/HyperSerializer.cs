@@ -4,8 +4,13 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Runtime.CompilerServices;
+#if NET5_0_OR_GREATER
 using System.Runtime.Loader;
+#endif
 using System.Threading.Tasks;
+using HyperSerializer.CodeGen;
+using HyperSerializer.CodeGen.Snipets;
+using HyperSerializer.Utilities;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 
@@ -28,7 +33,7 @@ namespace Hyper
 
         static HyperSerializer()
             => Compile();
-
+        
         /// <summary>
         /// Serialize <typeparam name="T"></typeparam> to binary non-async
         /// </summary>
@@ -82,12 +87,12 @@ namespace Hyper
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private static void Compile()
         {
-            var result = CodeGenV3<SnippetsSafeV3>.GenerateCode<T>();
+            var result = CodeGen<SnippetsSafeV3>.GenerateCode<T>();
             
             var compilation = CSharpCompilation.Create(
                 $"ProxyGen.SerializationProxy_{result.ClassName}_{DateTime.Now.ToFileTimeUtc()}",
                 new[] { CSharpSyntaxTree.ParseText(result.Code) },
-                CodeGenV3<SnippetsSafeV3>.GetReferences<T>(),
+                CodeGen<SnippetsSafeV3>.GetReferences<T>(),
                 new CSharpCompilationOptions(
                     OutputKind.DynamicallyLinkedLibrary, 
                     allowUnsafe: true,
@@ -95,7 +100,7 @@ namespace Hyper
                     OptimizationLevel.Release)
             );
 #if DEBUG
-            Debug.Write(generatedCode);
+            Debug.Write(result.Code);
 #endif
             
             Emit(compilation);
@@ -128,8 +133,12 @@ namespace Hyper
                 }
                 
                 ms.Seek(0, SeekOrigin.Begin);
+#if NET5_0_OR_GREATER
                 var generatedAssembly = AssemblyLoadContext.Default.LoadFromStream(ms);
-
+#else
+                var generatedAssembly = Assembly.Load(ms.ToArray());
+                
+#endif
                 _proxyType = generatedAssembly.GetType(_proxyTypeName);
             }
         }

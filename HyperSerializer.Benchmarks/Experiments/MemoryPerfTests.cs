@@ -21,6 +21,7 @@ using System.Diagnostics;
 using BenchmarkDotNet.Jobs;
 using CommunityToolkit.HighPerformance.Buffers;
 using System.IO.Pipelines;
+using HyperSerializer.Benchmarks.Experiments.Buffers;
 
 namespace HyperSerializer.Benchmarks.Experiments;
 

@@ -17,7 +17,7 @@
 		<DelaySign>true</DelaySign>
 		<AllowUnsafeBlocks>true</AllowUnsafeBlocks>
 		<RepositoryUrl>https://github.com/Hyperlnq/HyperSerializer</RepositoryUrl>
-		<Version>1.0.13</Version>
+		<Version>1.0.14</Version>
 		<PackageReadmeFile>README.md</PackageReadmeFile>
 		<RepositoryType>git</RepositoryType>
 		<PlatformTarget>AnyCPU</PlatformTarget>
@@ -37,7 +37,7 @@
 	<ItemGroup>
 		<None Include="..\License.txt">
 			<Pack>True</Pack>
-			<PackagePath></PackagePath>
+			<PackagePath>\</PackagePath>
 		</None>
 		<None Include="..\README.md">
 		  <Pack>True</Pack>

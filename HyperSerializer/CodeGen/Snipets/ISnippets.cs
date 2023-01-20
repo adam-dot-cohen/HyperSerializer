@@ -1,4 +1,4 @@
-﻿namespace Hyper
+﻿namespace HyperSerializer.CodeGen.Snipets
 {
     internal interface ISnippets
     {

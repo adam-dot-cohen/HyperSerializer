@@ -13,6 +13,7 @@ namespace Hyper.Test
         [SetUp]
         public void Setup()
         {
+            
         }
 
         [Test]

@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace Hyper;
+﻿namespace HyperSerializer.CodeGen.Snipets;
 
 internal class SnippetsSafeVe : ISnippetsSafeV3
 {

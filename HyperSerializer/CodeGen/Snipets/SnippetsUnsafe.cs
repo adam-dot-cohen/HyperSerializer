@@ -1,8 +1,6 @@
-﻿using System.Dynamic;
-
-namespace Hyper
+﻿namespace HyperSerializer.CodeGen.Snipets
 {
-    internal class SnippetsUnsafe : ISnippets
+    internal class SnippetsUnsafe : ISnippetsSafeV3
     {
         public string PropertyTemplateSerialize { get { return "var _{0} = ({1}) {2}; fixed (byte* p = bytes.Slice(offset+=offsetWritten, offsetWritten = {3})) *(({1}*)p) = _{0};"; } }
         public string PropertyTemplateDeserialize { get { return "fixed (byte* p = bytes.Slice(offset+=offsetWritten, offsetWritten = {2})) {0} = *(({1}*)p);"; } }
@@ -11,6 +9,13 @@ namespace Hyper
         public string PropertyTemplateDeserializeNullable { get { return "offset+=offsetWritten; if(bytes[offset++] != 1) fixed (byte* p = bytes.Slice(offset+=offsetWritten, offsetWritten = {2}))  {0} = *(({1}?*)p);  else offsetWritten = 0;"; } }
         public string PropertyTemplateSerializeVarLenStr { get { return "if(_{1} >= 0 && {0} != null) MemoryMarshal.AsBytes({0}.AsSpan()).CopyTo(bytes.Slice(offset+=offsetWritten, offsetWritten = _{1}));"; } }
         public string PropertyTemplateDeserializeVarLenStr { get { return "{0} = (_{1} >= 0) ? MemoryMarshal.Cast<byte, char>(bytes.Slice(offset += offsetWritten, offsetWritten = _{1})).ToString() : null;"; } }
+
+        public string PropertyTemplateSerializeVarLenArr { get; }
+        public string PropertyTemplateDeserializeVarLenArr { get; }
+        public string PropertyTemplateDeserializeVarLenList { get; }
+        public string PropertyTemplateSerializeListLen { get; }
+        public string PropertyTemplateSerializeArrLen { get; }
+
         //public string PropertyTemplateSerialize { get { return "System.Console.WriteLine({0}+\"_\"+1.ToString());var _{0} = ({1}) {2}; fixed (byte* p = bytes.Slice(offset+=offsetWritten, offsetWritten = {3})) *(({1}*)p) = _{0};"; } }
         //public string PropertyTemplateDeserialize { get { return "System.Console.WriteLine({0}+\"_\"+2.ToString());fixed (byte* p = bytes.Slice(offset+=offsetWritten, offsetWritten = {2})) {0} = *(({1}*)p);"; } }
         //public string PropertyTemplateDeserializeLocal { get { return "System.Console.WriteLine({0}+\"_\"+3.ToString());var _{0} = ({1})default; fixed (byte* p = bytes.Slice(offset+=offsetWritten, offsetWritten = {2}))  _{0} = *(({1}*)p); "; } }

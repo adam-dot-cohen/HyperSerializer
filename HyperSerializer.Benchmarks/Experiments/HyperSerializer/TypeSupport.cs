@@ -1,15 +1,49 @@
 ﻿using System;
-using System.Collections.Concurrent;
 using System.Collections.Generic;
-using System.Linq.Expressions;
-using System.Reflection;
 using System.Reflection.Emit;
+using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 
-namespace Hyper
+namespace HyperSerializer.CodeGen;
+
+internal static class TypeSupport
 {
-    internal static class ReflectionExtensions
+    public static bool IsSupportedType<T>(bool allowNullable = true) => IsSupportedType(typeof(T), allowNullable);
+
+    public static bool IsSupportedType(Type type, bool allowNullable = true)
+    {
+        switch (type)
+        {
+            case var t when t == typeof(float): return true;
+            case var t when t == typeof(double): return true;
+            case var t when t == typeof(decimal): return true;
+            case var t when t == typeof(short): return true;
+            case var t when t == typeof(int): return true;
+            case var t when t == typeof(long): return true;
+            case var t when t == typeof(ushort): return true;
+            case var t when t == typeof(uint): return true;
+            case var t when t == typeof(ulong): return true;
+            case var t when t == typeof(sbyte): return true;
+            case var t when t == typeof(byte): return true;
+            case var t when t == typeof(char): return true;
+            case var t when t == typeof(bool): return true;
+            case var t when t == typeof(Guid): return true;
+            case var t when t == typeof(TimeSpan): return true;
+            case var t when t == typeof(DateTimeOffset): return true;
+            case var t when t == typeof(DateTime): return true;
+            case var t when t == typeof(string): return true;
+            case var t when t.IsEnum: return true;
+            case var t when t.IsPrimitive: return true;
+            case var t when t.IsValueType && Nullable.GetUnderlyingType(t) == null: return true;
+            case var t
+                when Nullable.GetUnderlyingType(t) != null && IsSupportedType(Nullable.GetUnderlyingType(t)):
+                return true;
+            default: return false;
+        };
+    }
+}
+ internal static class ReflectionExtensions
     {
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static MethodInfo As(this MethodInfo obj)
@@ -93,5 +127,3 @@ namespace Hyper
         private static Dictionary<Type, int> _typeSizes = new Dictionary<Type, int>();
        
     }
-
-}

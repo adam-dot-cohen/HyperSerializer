@@ -2,12 +2,12 @@
 using System.IO;
 using System.Linq;
 using System.Reflection;
-using Microsoft.CodeAnalysis;
+
 //using Microsoft.CodeAnalysis.Completion;
-using Microsoft.CodeAnalysis.CSharp;
+
 //using Microsoft.CodeAnalysis.Host.Mef;
 
-namespace Hyper
+namespace HyperSerializer.Benchmarks.Experiments.HyperSerializer
 {
     internal static class MyExtensions
     {

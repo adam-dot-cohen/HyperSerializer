@@ -1,5 +1,6 @@
 using System;
 using System.Runtime.InteropServices;
+using HyperSerializer.Benchmarks.Experiments.HyperSerializer;
 using NUnit.Framework;
 
 namespace Hyper.Test;

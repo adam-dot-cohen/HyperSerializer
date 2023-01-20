@@ -1,6 +1,7 @@
 using System;
 using System.Linq;
 using System.Reflection;
+using HyperSerializer.Benchmarks.Experiments.HyperSerializer;
 using NUnit.Framework;
 
 namespace Hyper.Test;

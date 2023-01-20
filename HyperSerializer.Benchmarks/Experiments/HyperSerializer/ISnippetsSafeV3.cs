@@ -1,4 +1,4 @@
-﻿namespace Hyper
+﻿namespace HyperSerializer.Benchmarks.Experiments.HyperSerializer
 {
     internal interface ISnippetsSafeV3
     {

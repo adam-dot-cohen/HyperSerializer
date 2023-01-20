@@ -1,5 +1,4 @@
-﻿using Microsoft.CodeAnalysis;
-using System;
+﻿using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
@@ -7,10 +6,14 @@ using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using System.Text;
+using Hyper;
+using HyperSerializer.CodeGen.Snipets;
+using HyperSerializer.Utilities;
+using Microsoft.CodeAnalysis;
 
-namespace Hyper
+namespace HyperSerializer.CodeGen
 {
-    internal static class CodeGenV3<TSnippets>
+    internal static class CodeGen<TSnippets>
         where TSnippets : ISnippetsSafeV3, new()
     {
         private static TSnippets snippets = new TSnippets();
@@ -83,7 +86,7 @@ namespace Hyper
                 foreach (var prop in props)
                 {
 #endif
-                    if(!(prop.CanRead && prop.CanWrite && TypeSupportV3.IsSupportedType(prop.PropertyType)))
+                    if(!(prop.CanRead && prop.CanWrite && TypeSupport.IsSupportedType(prop.PropertyType)))
                         continue;
                     var (len, str) = GenerateSerializer<T>(sb, "obj", prop);
                     offset += len;
@@ -112,7 +115,7 @@ namespace Hyper
                 foreach (var prop in props)
                 {
 #endif
-                    if(!(prop.CanRead && prop.CanWrite && TypeSupportV3.IsSupportedType(prop.PropertyType)))
+                    if(!(prop.CanRead && prop.CanWrite && TypeSupport.IsSupportedType(prop.PropertyType)))
                         continue;
                     var (len, str) = GenerateDeserializer<T>(sb, "obj", prop);
                     offset += len;

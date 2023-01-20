@@ -1,6 +1,6 @@
 # Overview
 ![]()
-[![NuGet version (HyperSerializer)](https://img.shields.io/badge/nuget-v1.0.13-blue?style=flat-square)](https://www.nuget.org/packages/HyperSerializer/)
+[![NuGet version (HyperSerializer)](https://img.shields.io/badge/nuget-v1.0.14-blue?style=flat-square)](https://www.nuget.org/packages/HyperSerializer/)
 
 If you're looking for the fastest Microsoft.Net binary serializer known to Git-kind, look no further.  HyperSerializer is up to ***18x faster than [MessagePack](https://github.com/neuecc/MessagePack-CSharp) and [Protobuf](https://github.com/protocolbuffers/protobuf), and 11x faster than [BinaryPack](https://github.com/Sergio0694/BinaryPack)***, with roughly equivelant or better memory allocation. Simply install the [Nuget package (Install-Package HyperSerializer)](https://www.nuget.org/packages/HyperSerializer/) and serialize/deserialize with just 2 lines of code.
 
@@ -17,7 +17,7 @@ BenchmarkDotNet experiment serializing and deserializing 1M "Test" classes. Time
 ![Execution Duration](http://raw.githubusercontent.com/Hyperlnq/HyperSerializer/main/BenchmarkAssets/Time.png)
  
 # Implementation and Framework Support
-HyperSerializer was built as a champion/challenger (C++ vs C#) experiment to support the nanosecond latency requirements of high frequency trading.  HyperSerializer uses the managed Span\<T\> and Memory\<T\> structs to acheive extreme speed and low memory allocation without unsafe code.  HyperSerializer is 100% thread-safe and comes with both sync and async serialization and deserialization methods.  Out of the box support for .NETCoreApp 3.1, net5.0, net6.0.
+HyperSerializer was built as a champion/challenger (C++ vs C#) experiment to support the nanosecond latency requirements of high frequency trading.  HyperSerializer uses the managed Span\<T\> and Memory\<T\> structs to acheive extreme speed and low memory allocation without unsafe code.  HyperSerializer is 100% thread-safe and comes with both sync and async serialization and deserialization methods.  Out of the box support for .NETCoreApp 3.1, net5.0, net6.0, net7.0.
     
 HyperSerializer is intended for use cases such as caching and interservice communication behind firewalls or between known parites.  It is implemented using a customer binary format (aka wire format) and uses bounding techniques to protect against buffer overflows.  As a result, attempting to deserialize a message that exceeds the size of an expected data type will result in an exception in most cases as described later in this section.  For example, the following code which can be found in SerializerTests.cs in the test project attempts to deserialize an 8 BYTE buffer as a 4 BYTE int, which results in an ArgumentOutOfRangeException:
 

@@ -5,6 +5,7 @@ using BenchmarkDotNet.Attributes;
 using BenchmarkDotNet.Engines;
 using BenchmarkDotNet.Order;
 using Hyper;
+using HyperSerializer.Benchmarks.Experiments.HyperSerializer;
 using Buffer = System.Buffer;
 
 namespace Hyper.Benchmarks.Experiments
@@ -80,17 +81,6 @@ namespace Hyper.Benchmarks.Experiments
                 Debug.Assert(obj == deserialize);
             }
         }
-        [Benchmark(Baseline = true)]
-        public void HyperSerializer_Unsafe()
-        {
-            foreach (var obj in _test)
-            {
-                var bytes = HyperSerializerLegacy<int?>.Serialize(obj);
-                var deserialize = HyperSerializerLegacy<int?>.Deserialize(bytes);
-                Debug.Assert(deserialize == obj);
-            }
-        }
-
 
     }
     //[Benchmark]

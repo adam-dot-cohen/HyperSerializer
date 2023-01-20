@@ -1,6 +1,6 @@
-﻿namespace Hyper
+﻿namespace HyperSerializer.Benchmarks.Experiments.HyperSerializer
 {
-    internal class SnippetsSafeV2 : ISnippets
+    internal class SnippetsSafeV2 : ISnippetsSafeV3
     {
         public string PropertyTemplateSerialize { get { return "var _{0} = ({1}) {2}; MemoryMarshal.Write(bytes.Slice(offset+=offsetWritten, offsetWritten = Unsafe.SizeOf<{1}>()), ref _{0});"; } }
         public string PropertyTemplateDeserialize { get { return "{0} = ({1}) MemoryMarshal.Read<{1}>(bytes.Slice(offset+=offsetWritten, offsetWritten = Unsafe.SizeOf<{1}>())));"; } }
@@ -9,6 +9,13 @@
         public string PropertyTemplateDeserializeNullable { get { return "offset+=offsetWritten; if(bytes[offset++] != 1) {0} = ({1}?) MemoryMarshal.Read<{1}>(bytes.Slice(offset, offsetWritten = Unsafe.SizeOf<{1}>())); else offsetWritten = 0;"; } }
         public string PropertyTemplateSerializeVarLenStr { get { return "if(_{1} > 0) Utf8Encoding.GetBytes({0}.AsSpan(),bytes.Slice(offset+=offsetWritten, offsetWritten = _{1}));"; } }
         public string PropertyTemplateDeserializeVarLenStr { get { return "{0} = (_{1} >= 0) ? Utf8Encoding.GetString(bytes.Slice(offset += offsetWritten, offsetWritten = _{1})) : null;"; } }
+
+        public string PropertyTemplateSerializeVarLenArr { get; }
+        public string PropertyTemplateDeserializeVarLenArr { get; }
+        public string PropertyTemplateDeserializeVarLenList { get; }
+        public string PropertyTemplateSerializeListLen { get; }
+        public string PropertyTemplateSerializeArrLen { get; }
+
         //public string PropertyTemplateSerializeVarLenStr { get { return "if(_{1} > 0) MemoryMarshal.AsBytes({0}.AsSpan(),bytes.Slice(offset+=offsetWritten, offsetWritten = _{1}));"; } }
         //public string PropertyTemplateDeserializeVarLenStr { get { return "{0} = (_{1} >= 0) ? MemoryMarshal.Cast<byte,char>(bytes.Slice(offset += offsetWritten, offsetWritten = _{1})).ToString() : null;"; } }
 		public string StringLength { get { return "({0}?.Length ?? -1)"; } }

@@ -1,15 +1,21 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <TargetFramework>net6.0</TargetFramework>
     <Nullable>enable</Nullable>
 
     <IsPackable>false</IsPackable>
+
+    <SignAssembly>True</SignAssembly>
+
+    <DelaySign>True</DelaySign>
+
+    <AssemblyOriginatorKeyFile>HyperSerializer.Test.snk</AssemblyOriginatorKeyFile>
   </PropertyGroup>
 
   <ItemGroup>
     <PackageReference Include="MessagePack.Annotations" Version="2.4.59" />
-    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.4.0" />
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.4.1" />
     <PackageReference Include="NUnit" Version="3.13.3" />
     <PackageReference Include="NUnit3TestAdapter" Version="4.3.1" />
     <PackageReference Include="coverlet.collector" Version="3.2.0">
@@ -19,7 +25,12 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\HyperSerializer.Benchmarks\HyperSerializer.Benchmarks.csproj" />
     <ProjectReference Include="..\HyperSerializer\HyperSerializer.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="Experiments\HyperSerializer\" />
   </ItemGroup>
 
 </Project>
