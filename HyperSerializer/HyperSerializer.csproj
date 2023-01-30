@@ -17,7 +17,7 @@
 		<DelaySign>true</DelaySign>
 		<AllowUnsafeBlocks>true</AllowUnsafeBlocks>
 		<RepositoryUrl>https://github.com/Hyperlnq/HyperSerializer</RepositoryUrl>
-		<Version>1.0.14</Version>
+		<Version>1.0.15</Version>
 		<PackageReadmeFile>README.md</PackageReadmeFile>
 		<RepositoryType>git</RepositoryType>
 		<PlatformTarget>AnyCPU</PlatformTarget>

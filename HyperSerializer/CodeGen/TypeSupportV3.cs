@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Windows.Markup;
 
 namespace HyperSerializer.CodeGen
 {
@@ -12,6 +13,7 @@ namespace HyperSerializer.CodeGen
         {
             switch (type)
             {
+                case var t when t == typeof(string): return true;
                 case var t when t.IsValueType: return true;
                 case var t when t.IsValueType && Nullable.GetUnderlyingType(t) == null: return true;
                 case var t when t.IsArray && (t.GetElementType()?.IsValueType ?? false): return true;

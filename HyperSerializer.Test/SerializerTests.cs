@@ -15,6 +15,12 @@ namespace Hyper.Test
         }
 
         [Test]
+        public void Test_String_Equality()
+        {
+            RoundTripEquality<string>("test");
+        }
+
+        [Test]
         public void Test_Struct_Equality()
         {
             var testSruct = new TestStruct() { T1 = 4, T2 = 4 };
