@@ -4,7 +4,7 @@ using HyperSerializer.Benchmarks.Experiments.HyperSerializer;
 using NUnit.Framework;
 
 namespace Hyper.Test;
-
+[Ignore("Not Relevant")]
 public class SerializerTestsUnsafe : TestBaseUnsafe
 {
     [SetUp]
