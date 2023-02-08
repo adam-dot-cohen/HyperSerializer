@@ -2,6 +2,13 @@ using System;
 
 namespace Hyper.Test
 {
+    public class PersonClass
+    {
+        public string Name { get; set; }
+        public long Age { get; set; }
+    }
+
+    public record PersonRecord(string Name, long Age);
     public interface ITestWithStrings
     {
         int A { get; set; }

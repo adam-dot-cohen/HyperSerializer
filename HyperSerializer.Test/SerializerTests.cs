@@ -102,7 +102,36 @@ namespace Hyper.Test
             RoundTripEquality(double.MaxValue);
             RoundTripEquality(decimal.MaxValue);
         }
+        
+        [Test]
+        public void Test_Class_Equality()
+        {
+            var i = new Random().Next(int.MaxValue);
+            var testObj = new PersonClass()
+            {
+                Name  = i.ToString(),
+                Age = i
+            };
+            RoundTripComplexTypeEquality(testObj);
+        }
 
+        [Test]
+        public void Test_Class_1000_Iterations_Equality()
+        {
+            var rand = new Random();
+
+            for(int i = 0; i < 1000; i++)
+            {
+                var val = rand.Next(int.MaxValue);
+                var testObj = new PersonClass()
+                {
+                    Name = val.ToString(),
+                    Age = val
+                };
+                RoundTripComplexTypeEquality(testObj);
+            }
+        }
+        
         [Test]
         public void Test_ComplexType_Equality()
         {
