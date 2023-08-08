@@ -23,11 +23,10 @@ namespace HyperSerializer.CodeGen
             var refPaths = new List<PortableExecutableReference> {
                 MetadataReference.CreateFromFile(FrameworkAssemblyPaths.System),
                 MetadataReference.CreateFromFile(FrameworkAssemblyPaths.System_Console),
-                    MetadataReference.CreateFromFile(FrameworkAssemblyPaths.System_Private_CoreLib),
-                        MetadataReference.CreateFromFile(FrameworkAssemblyPaths.System_Runtime),
-                            MetadataReference.CreateFromFile(typeof(Unsafe).Assembly.Location),
-                                MetadataReference.CreateFromFile(typeof(Enumerable).Assembly.Location),
-                                    MetadataReference.CreateFromFile(typeof(T).GetTypeInfo().Assembly.Location),
+                MetadataReference.CreateFromFile(FrameworkAssemblyPaths.System_Private_CoreLib),
+                MetadataReference.CreateFromFile(FrameworkAssemblyPaths.System_Runtime),
+                MetadataReference.CreateFromFile(typeof(Enumerable).Assembly.Location),
+                MetadataReference.CreateFromFile(typeof(T).GetTypeInfo().Assembly.Location),
             };
             if (includeUnsafe)
                 refPaths.Add(

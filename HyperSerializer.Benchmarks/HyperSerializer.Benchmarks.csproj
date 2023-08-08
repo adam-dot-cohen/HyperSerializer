@@ -21,6 +21,7 @@
     <PackageReference Include="MessagePack.Annotations" Version="2.4.59" />
     <PackageReference Include="Microsoft.IO.RecyclableMemoryStream" Version="2.2.1" />
     <PackageReference Include="protobuf-net" Version="3.1.26" />
+    <PackageReference Include="Volo.Abp.Serialization" Version="7.3.0" />
   </ItemGroup>
 
   <ItemGroup>

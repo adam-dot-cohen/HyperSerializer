@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Windows.Markup;
@@ -16,7 +17,7 @@ namespace HyperSerializer.CodeGen
                 case var t when t == typeof(string): return true;
                 case var t when t.IsValueType: return true;
                 case var t when t.IsValueType && Nullable.GetUnderlyingType(t) == null: return true;
-                case var t when t.IsArray && (t.GetElementType()?.IsValueType ?? false): return true;
+                case var t when t.IsAssignableFrom(typeof(IEnumerable)): return true;
                 case var t when t == typeof(IEnumerable<>) && (t.GenericTypeArguments.FirstOrDefault()?.IsValueType ?? false): return true;
                 case var t when t.IsEnum: return true;
                 case var t when t.IsPrimitive: return true;

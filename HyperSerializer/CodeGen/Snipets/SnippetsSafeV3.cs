@@ -15,7 +15,7 @@
         public string PropertyTemplateDeserializeVarLenArr { get { return "{0} = (_{1} >= 0) ? MemoryMarshal.Cast<byte,{2}>(bytes.Slice(offset += offsetWritten, offsetWritten = _{1})).ToArray() : null;"; } }
         public string PropertyTemplateDeserializeVarLenList { get { return "{0} = (_{1} >= 0) ? new List<{2}>(MemoryMarshal.Cast<byte,{2}>(bytes.Slice(offset += offsetWritten, offsetWritten = _{1}))) : null;"; } }
         public string StringLength { get { return "({0}?.Length ?? -1)"; } }
-        public string StringLengthSpan { get { return "({0}?.Length ?? 0)"; } }
+        public string StringLengthSpan { get { return "({0}?.Length ?? 0)"; } } 
         public string ClassTemplate { get { return @"
 					namespace ProxyGen
 					{{

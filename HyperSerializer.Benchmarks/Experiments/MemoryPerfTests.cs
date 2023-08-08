@@ -19,9 +19,8 @@ using Intrinsics = System.Runtime.Intrinsics;
 using System.Buffers;
 using System.Diagnostics;
 using BenchmarkDotNet.Jobs;
-using CommunityToolkit.HighPerformance.Buffers;
 using System.IO.Pipelines;
-using HyperSerializer.Benchmarks.Experiments.Buffers;
+using HyperSerializer.Utilities;
 
 namespace HyperSerializer.Benchmarks.Experiments;
 
@@ -45,7 +44,7 @@ public class MemoryStreamingBenchmark
         }
     }
 
-    private void Write(ResizableSpanByte output)
+    private void Write(ResizableSpanWriter<byte> output)
     {
         for (int remaining = TotalCount, taken; remaining > 0; remaining -= taken)
         {
@@ -102,15 +101,15 @@ public class MemoryStreamingBenchmark
             output.Write(chunk);
         }
     }
-    private unsafe void Write(SpanBytePool output)
-    {
-        for (int remaining = TotalCount, taken; remaining > 0; remaining -= taken)
-        {
-            taken = Math.Min(remaining, chunk.Length);
-            fixed (byte* b = chunk)
-                output.Write(b, taken);
-        }
-    }
+    //private unsafe void Write(SpanBytePool output)
+    //{
+    //    for (int remaining = TotalCount, taken; remaining > 0; remaining -= taken)
+    //    {
+    //        taken = Math.Min(remaining, chunk.Length);
+    //        fixed (byte* b = chunk)
+    //            output.Write(b, taken);
+    //    }
+    //}
     //[Benchmark(Description = "MemoryStream", Baseline = true)]
     //public void WriteToMemoryStream()
     //{
@@ -123,12 +122,12 @@ public class MemoryStreamingBenchmark
         var sbb = new SpanByteBuffer();
         Write(sbb);
     }
-    [Benchmark(Description = "GrowableSpan")]
-    public void WriteToGrowableSpan()
-    {
-        var gs = new GrowableSpan();
-        Write(gs);
-    }
+    //[Benchmark(Description = "GrowableSpan")]
+    //public void WriteToGrowableSpan()
+    //{
+    //    var gs = new GrowableSpan();
+    //    Write(gs);
+    //}
     //[Benchmark(Description = "SpanBytePool")]
     //public void WriteToSpanBytePool()
     //{
@@ -137,7 +136,7 @@ public class MemoryStreamingBenchmark
     //}
 
     [Benchmark(Description = "ArrayPoolBufferWriter")]
-    public void ArrayPoolBufferWriter()
+    public void ArrayPoolBufferWriterInternal()
     {
         using ArrayPoolBufferWriter<byte> writer = new();
         Write(writer);
@@ -178,11 +177,11 @@ public class MemoryStreamingBenchmark
     //    using var writer = new FileBufferingWriter(asyncIO: false);
     //    Write(writer);
     //}
-    [Benchmark(Description = "ResizableSpanByte")]
+    [Benchmark(Description = "ResizableSpanWriter")]
     public void ResizableSpanByte()
     {
         var i = sizeof(int);
-        var writer = new ResizableSpanByte(256);
+        var writer = new ResizableSpanWriter<byte>();
         Write(writer);
     }
     //[Benchmark(Description = "ResizablePipe")]
@@ -196,16 +195,16 @@ public class MemoryStreamingBenchmark
     public void ResizableMemByte()
     {
         var i = sizeof(int);
-        var writer = new ResizableMemByte(256);
+        var writer = new ResizableMemByte();
         Write(writer);
     }
-    [Benchmark(Description = "MemoryBuffer")]
-    public void MemroyBuffer()
-    {
-        var i = sizeof(int);
-        var writer = new MemoryBuffer(256);
-        Write(writer);
-    }
+    //[Benchmark(Description = "MemoryBuffer")]
+    //public void MemroyBuffer()
+    //{
+    //    var i = sizeof(int);
+    //    var writer = new MemoryBuffer(256);
+    //    Write(writer);
+    //}
 
 }
 
@@ -248,7 +247,7 @@ public ref struct ResizablePipe
 //    private int _colWritten = 0;
 //    private BitVector[] _buffer;
 //    private int _offset = 0;
-//    public ResizableSpanByte(init)
+//    public ResizableSpanWriter(init)
 //    {
 //        _buffer = new Memory<T>[initialLength];
 //        _length = 0;
@@ -439,7 +438,7 @@ ref struct GrowableSpan
         int remaining = _pos - index;
         _buffer.Slice(index, remaining).CopyTo(_buffer.Slice(index + count));
         s
-#if !NET6_0_OR_GREATER
+#if NET6_0_OR_GREATER
 			.AsSpan()
 #endif
             .CopyTo(_buffer.Slice(index));
@@ -823,42 +822,111 @@ ref struct SpanBytePool
     }
 }
 
-public ref struct ResizableSpanByte
+public class SpanByteMemoryPool : IDisposable
 {
     private int _increment = 1;
-    private Span<byte> _buffer;
+    private MemoryPool<byte> _pool;
+    private IMemoryOwner<byte> _owner;
     private int _offset = 0;
-    public ResizableSpanByte(int initialLength = 256)
+
+    public SpanByteMemoryPool(int initialLength = 1024)
     {
         _increment = initialLength;
-        _buffer = new byte[initialLength];
+        _pool = MemoryPool<byte>.Shared;
+        _owner = _pool.Rent(initialLength);
         _offset = 0;
     }
 
-    public Span<byte> Get() => _buffer;
+    public Span<byte> Get() => _owner.Memory.Span.Slice(0, _offset);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public void Write(Span<byte> bytes)
     {
-        bytes.CopyTo(Slice(bytes.Length));
+        var slice = Slice(bytes.Length);
+        slice = bytes;
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private void Grow(int length)
     {
-        Span<byte> next = ArrayPool<byte>.Shared.Rent(Math.Max(_offset + _increment, _offset + length));
-        _buffer.CopyTo(next);
-        _buffer = next;
+        var len = Math.Max(_offset + _increment, _offset + length);
+        if (len > _pool.MaxBufferSize) throw new Exception("Max buffer size exceeded.");
+        var owner = _pool.Rent(len);
+        var memcopy = owner.Memory.Span.Slice(0, length);
+        memcopy = _owner.Memory.Span;
+        _owner.Dispose();
+        _owner = owner;
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public Span<byte> Slice(int length)
     {
-        if (_offset + length > _buffer.Length)
+        if (_offset + length > _owner.Memory.Length)
             Grow(length);
 
-        var slc = _buffer.Slice(_offset, length);
+        var slc = _owner.Memory.Span.Slice(_offset, length);
         _offset += length;
+        return slc;
+    }
+
+    public void Dispose()
+    {
+        _owner?.Dispose();
+    }
+}
+
+public class ResizableSpanWriter<T> where T : struct
+{
+    private T[] _last;
+    private int _increment = 1;
+    private Memory<T> _buffer;
+    private int _offset = 0;
+    public ResizableSpanWriter(int initialLength = 1024)
+    {
+        if (RuntimeHelpers.IsReferenceOrContainsReferences<T>())
+            throw new NotSupportedException(
+                "ResizableSpanWriter only supports value types that are compatible with Span<T>");
+        _increment = initialLength;
+        _buffer = _last = ArrayPool<T>.Shared.Rent(initialLength);
+        _offset = 0;
+    }
+
+    public Span<T> Get() => _buffer.Span.Slice(0, _offset);
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public void Write(Span<T> items)
+    {
+        var slice = Slice(items.Length);
+        slice = items;
+    }
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public void Write(T item)
+    {
+        var slice = Slice(1);
+        slice[0]= item;
+    }
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private void Grow(int length)
+    {
+        if (_offset + length <= _buffer.Span.Length) return;
+		
+        var next = ArrayPool<T>.Shared.Rent(Math.Max(_offset + _increment, _offset + length));
+
+        _buffer.Span.CopyTo(next);
+
+        ArrayPool<T>.Shared.Return(_last);
+
+        _buffer = _last = next;
+    }
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public Span<T> Slice(int length)
+    {
+        Grow(length);
+
+        var slc = _buffer.Span.Slice(_offset, length);
+     
+        _offset += length;
+        
         return slc;
     }
 }
@@ -867,7 +935,7 @@ public struct ResizableMemByte
     private int _increment = 1;
     private Memory<byte> _buffer;
     private int _offset = 0;
-    public ResizableMemByte(int initialLength = 256)
+    public ResizableMemByte(int initialLength = 1024)
     {
         _increment = initialLength;
         _buffer = new byte[initialLength];
