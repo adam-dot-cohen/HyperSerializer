@@ -91,10 +91,10 @@ namespace Hyper
         private static void BuildDelegates()
         {
             var infos = _proxyType.GetMethod("Serialize");
-            SerializeDynamic = infos.CreateDelegate<Serializer>();
+            SerializeDynamic = (Serializer)infos.CreateDelegate(typeof(Serializer));
 
             var infod = _proxyType.GetMethod("Deserialize");
-            if (infod != null) DeserializeDynamic = infod.CreateDelegate<Deserializer>();
+            DeserializeDynamic = (Deserializer) infod.CreateDelegate(typeof(Deserializer));
         }
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private static void Compile()

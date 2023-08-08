@@ -128,12 +128,8 @@ namespace HyperSerializer.Benchmarks.Experiments.HyperSerializer
                 }
                 
                 ms.Seek(0, SeekOrigin.Begin);
-#if NET5_0_OR_GREATER
+
                 var generatedAssembly = AssemblyLoadContext.Default.LoadFromStream(ms);
-#else
-                var generatedAssembly = Assembly.Load(ms.ToArray());
-                
-#endif
                 _proxyType = generatedAssembly.GetType(_proxyTypeName);
             }
         }

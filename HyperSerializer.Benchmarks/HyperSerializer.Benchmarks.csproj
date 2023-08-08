@@ -1,8 +1,9 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
+    <LangVersion>latest</LangVersion>
     <OutputType>Exe</OutputType>
-	  <TargetFrameworks>net7.0;net6.0</TargetFrameworks>
+	  <TargetFrameworks>net7.0;net6.0;netcoreapp3.1</TargetFrameworks>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     <SignAssembly>true</SignAssembly>
     <DelaySign>true</DelaySign>
@@ -11,12 +12,10 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Apex.Serialization" Version="4.0.3" />
     <PackageReference Include="BenchmarkDotNet" Version="0.13.4" />
     <PackageReference Include="BenchmarkDotNet.Annotations" Version="0.13.4" />
     <PackageReference Include="BinaryPack" Version="1.0.3" />
     <PackageReference Include="CommunityToolkit.HighPerformance" Version="8.1.0" />
-    <PackageReference Include="DotNext.IO" Version="4.9.0" />
     <PackageReference Include="MessagePack" Version="2.4.59" />
     <PackageReference Include="MessagePack.Annotations" Version="2.4.59" />
     <PackageReference Include="Microsoft.IO.RecyclableMemoryStream" Version="2.2.1" />
@@ -28,5 +27,14 @@
     <ProjectReference Include="..\HyperSerializer\HyperSerializer.csproj" />
   </ItemGroup>
 
-
+  <ItemGroup Condition="'$(TargetFramework)' == 'net7.0'">
+    <PackageReference Include="Apex.Serialization">
+      <Version>4.0.3</Version>
+    </PackageReference>
+  </ItemGroup>
+  <ItemGroup Condition="'$(TargetFramework)' == 'net6.0'">
+    <PackageReference Include="Apex.Serialization">
+      <Version>4.0.3</Version>
+    </PackageReference>
+  </ItemGroup>
 </Project>

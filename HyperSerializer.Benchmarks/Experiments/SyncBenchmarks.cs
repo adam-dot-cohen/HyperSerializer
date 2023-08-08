@@ -3,7 +3,9 @@ using System.Buffers;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
+#if NET5_0_OR_GREATER
 using Apex.Serialization;
+#endif
 using BenchmarkDotNet.Attributes;
 using BenchmarkDotNet.Engines;
 using BenchmarkDotNet.Exporters;
@@ -109,6 +111,8 @@ namespace Hyper.Benchmarks.Experiments
                 Debug.Assert(deserialize.GetHashCode() == obj.GetHashCode());
             }
         }
+        
+#if NET5_0_OR_GREATER
         [Benchmark(Description="Apex")]
         public void ApexSerializer()
         {
@@ -123,6 +127,7 @@ namespace Hyper.Benchmarks.Experiments
                 Debug.Assert(deserialize.GetHashCode() == obj.GetHashCode());
             }
         }
+        #endif
         //[Benchmark]
         //public void DataContractSerializer()
         //{
