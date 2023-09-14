@@ -1,6 +1,7 @@
 using System;
 using System.Globalization;
 using System.IO;
+using System.Linq;
 using System.Runtime.InteropServices;
 using System.Text;
 using NUnit.Framework;
@@ -283,7 +284,7 @@ public class SerializerTests : TestBase
 
         var deserialized = HyperSerializer.Deserialize<ScreenshotContent>(serialized);
 
-        Assert.AreEqual(deserialized.ImageBytes.Length, content.ImageBytes.Length);
+        Assert.True(deserialized.ImageBytes.SequenceEqual(content.ImageBytes));
     }
 
     [Test]
@@ -302,7 +303,7 @@ public class SerializerTests : TestBase
                 SymbolId = 12
             };
 
-        var tickArray = HyperSerializer.Serialize(ticks).ToArray();
+        var tickArray = HyperSerializer.Serialize(ticks);
 
         var hsOut = HyperSerializer.Deserialize<SymbolTick[]>(tickArray);
 
