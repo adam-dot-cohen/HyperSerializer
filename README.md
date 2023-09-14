@@ -1,4 +1,7 @@
 # Overview
+
+Binary Serializer.  Serialization up to 18x faster than Protobuf and MessagePack
+
 ![]()
 [![NuGet version (HyperSerializer)](https://img.shields.io/badge/nuget-v1.0.17-blue?style=flat-square)](https://www.nuget.org/packages/HyperSerializer/)
 
