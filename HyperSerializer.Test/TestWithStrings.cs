@@ -96,6 +96,30 @@ namespace Hyper.Test
         public virtual TestEnum? Hn { get; set; }
         public virtual string? In { get; set; }
     }
+    /// <summary>
+    /// Issue Resolution - https://github.com/adam-dot-cohen/HyperSerializer/issues/5
+    /// </summary>
+    public sealed class ScreenshotContent
+    {
+        public int Width { get; set; }
+        public int Height { get; set; }
+        public byte[]? ImageBytes { get; set; }
+    }
+    public struct SymbolTick
+    {
+        public long Timestamp;
+        public double Bid;
+        public double Ask;
+        public int SymbolId;
+
+        public SymbolTick(long timestamp, double bid, double ask, int symbolId)
+        {
+            this.Timestamp = timestamp;
+            this.Bid = bid;
+            this.Ask = ask;
+            this.SymbolId = symbolId;
+        }
+    }
 }
 
 namespace Hyper.Test.Incompatible

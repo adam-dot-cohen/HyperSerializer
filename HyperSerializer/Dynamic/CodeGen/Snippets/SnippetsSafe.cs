@@ -1,6 +1,6 @@
-﻿namespace HyperSerializer.Benchmarks.Experiments.HyperSerializer;
+﻿namespace HyperSerializer.Dynamic.CodeGen.Snippets;
 
-internal class SnippetsSafeV2 : ISnippetsSafeV3
+internal class SnippetsSafeV2 : ISnippets
 {
     public string PropertyTemplateSerialize => "var _{0} = ({1}) {2}; MemoryMarshal.Write(bytes.Slice(offset+=offsetWritten, offsetWritten = Unsafe.SizeOf<{1}>()), ref _{0});";
     public string PropertyTemplateDeserialize => "{0} = ({1}) MemoryMarshal.Read<{1}>(bytes.Slice(offset+=offsetWritten, offsetWritten = Unsafe.SizeOf<{1}>())));";
@@ -8,13 +8,8 @@ internal class SnippetsSafeV2 : ISnippetsSafeV3
     public string PropertyTemplateSerializeNullable => "var _{0} = {1} ?? default; offset+=offsetWritten; if(((bytes[offset++] = (byte)({1}?.{0}==null ? 1 : 0)) != 1)) MemoryMarshal.Write(bytes.Slice(offset, offsetWritten = Unsafe.SizeOf<{1}>()), ref _{0}); else offsetWritten = 0;";
     public string PropertyTemplateDeserializeNullable => "offset+=offsetWritten; if(bytes[offset++] != 1) {0} = ({1}?) MemoryMarshal.Read<{1}>(bytes.Slice(offset, offsetWritten = Unsafe.SizeOf<{1}>())); else offsetWritten = 0;";
     public string PropertyTemplateSerializeVarLenStr => "if(_{1} > 0) Utf8Encoding.GetBytes({0}.AsSpan(),bytes.Slice(offset+=offsetWritten, offsetWritten = _{1}));";
-    public string PropertyTemplateDeserializeVarLenStr => "{0} = (_{1} >= 0) ? Utf8Encoding.GetString(bytes.Slice(offset += offsetWritten, offsetWritten = _{1})) : null;";
 
-    public string PropertyTemplateSerializeVarLenArr { get; }
-    public string PropertyTemplateDeserializeVarLenArr { get; }
-    public string PropertyTemplateDeserializeVarLenList { get; }
-    public string PropertyTemplateSerializeListLen { get; }
-    public string PropertyTemplateSerializeArrLen { get; }
+    public string PropertyTemplateDeserializeVarLenStr => "{0} = (_{1} >= 0) ? Utf8Encoding.GetString(bytes.Slice(offset += offsetWritten, offsetWritten = _{1})) : null;";
 
     //public string PropertyTemplateSerializeVarLenStr { get { return "if(_{1} > 0) MemoryMarshal.AsBytes({0}.AsSpan(),bytes.Slice(offset+=offsetWritten, offsetWritten = _{1}));"; } }
     //public string PropertyTemplateDeserializeVarLenStr { get { return "{0} = (_{1} >= 0) ? MemoryMarshal.Cast<byte,char>(bytes.Slice(offset += offsetWritten, offsetWritten = _{1})).ToString() : null;"; } }

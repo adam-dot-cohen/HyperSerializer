@@ -5,267 +5,308 @@ using System.Runtime.InteropServices;
 using System.Text;
 using NUnit.Framework;
 
-namespace Hyper.Test
+namespace Hyper.Test;
+
+public class SerializerTests : TestBase
 {
-    public class SerializerTests : TestBase
+    [SetUp]
+    public void Setup()
     {
-        [SetUp]
-        public void Setup()
+    }
+
+    [Test]
+    public void Test_String_Equality()
+    {
+        this.RoundTripEquality<string>("test");
+    }
+
+    [Test]
+    public void Test_Struct_Equality()
+    {
+        var testSruct = new TestStruct() { T1 = 4, T2 = 4 };
+        this.RoundTripEquality<TestStruct>(testSruct);
+    }
+
+    [Test]
+    public void Test_ObjectWithTestStruct_Equality()
+    {
+        var i = new Random().Next(int.MaxValue);
+        var testObj = new TestObjectWithTestStruct()
         {
-        }
+            A = i,
+            B = i,
+            C = DateTime.Now.Date,
+            D = (uint)i,
+            E = i,
+            F = DateTime.Now - DateTime.Now.AddDays(-1),
+            G = Guid.NewGuid(),
+            H = TestEnum.three,
+            I = i.ToString(),
+            Ts = new TestStruct() { T1 = i, T2 = i }
+        };
+        this.RoundTripComplexTypeEquality(testObj);
+    }
 
-        [Test]
-        public void Test_String_Equality()
+    [Test]
+    public void Test_SimpleType_Nullable_Equality()
+    {
+        this.RoundTripEquality<Guid?>(null);
+        this.RoundTripEquality<DateTime?>(null);
+        this.RoundTripEquality<DateTimeOffset?>(null);
+        this.RoundTripEquality<TimeSpan?>(null);
+
+        this.RoundTripEquality<ushort?>(null);
+        this.RoundTripEquality<uint?>(null);
+        this.RoundTripEquality<ulong?>(null);
+
+        this.RoundTripEquality<sbyte?>(null);
+        this.RoundTripEquality<byte?>(null);
+
+        this.RoundTripEquality<char?>(null);
+        this.RoundTripEquality<string?>(null);
+
+        this.RoundTripEquality<short?>(null);
+        this.RoundTripEquality<int?>(null);
+        this.RoundTripEquality<long?>(null);
+
+        this.RoundTripEquality<float?>(null);
+        this.RoundTripEquality<double?>(null);
+        this.RoundTripEquality<decimal?>(null);
+    }
+
+    [Test]
+    public void Test_SimpleType_Equality()
+    {
+        this.RoundTripEquality(Guid.NewGuid());
+
+        this.RoundTripEquality(DateTime.MaxValue);
+        this.RoundTripEquality(DateTimeOffset.MaxValue);
+        this.RoundTripEquality(TimeSpan.MaxValue);
+
+        this.RoundTripEquality(ushort.MaxValue);
+        this.RoundTripEquality(uint.MaxValue);
+        this.RoundTripEquality(ulong.MaxValue);
+
+        this.RoundTripEquality(sbyte.MaxValue);
+        this.RoundTripEquality(byte.MaxValue);
+
+        this.RoundTripEquality(char.MaxValue);
+        this.RoundTripEquality("Test string");
+        this.RoundTripEquality(string.Empty);
+
+        this.RoundTripEquality(short.MaxValue);
+        this.RoundTripEquality(int.MaxValue);
+        this.RoundTripEquality(long.MaxValue);
+
+        this.RoundTripEquality(float.MaxValue);
+        this.RoundTripEquality(double.MaxValue);
+        this.RoundTripEquality(decimal.MaxValue);
+    }
+
+    [Test]
+    public void Test_Class_Equality()
+    {
+        var i = new Random().Next(int.MaxValue);
+        var testObj = new PersonClass()
         {
-            RoundTripEquality<string>("test");
-        }
+            Name = i.ToString(),
+            Age = i
+        };
+        this.RoundTripComplexTypeEquality(testObj);
+    }
 
-        [Test]
-        public void Test_Struct_Equality()
+    [Test]
+    public void Test_Class_1000_Iterations_Equality()
+    {
+        var rand = new Random();
+
+        for (int i = 0; i < 1000; i++)
         {
-            var testSruct = new TestStruct() { T1 = 4, T2 = 4 };
-            RoundTripEquality<TestStruct>(testSruct);
-        }
-
-        [Test]
-        public void Test_ObjectWithTestStruct_Equality()
-        {
-            var i = new Random().Next(int.MaxValue);
-            var testObj = new TestObjectWithTestStruct()
-            {
-                A = i,
-                B = i,
-                C = DateTime.Now.Date,
-                D = (uint)i,
-                E = i,
-                F = DateTime.Now - DateTime.Now.AddDays(-1),
-                G = Guid.NewGuid(),
-                H = TestEnum.three,
-                I = i.ToString(),
-                Ts = new TestStruct() { T1 = i, T2 = i }
-            };
-            RoundTripComplexTypeEquality(testObj);
-        }
-
-        [Test]
-        public void Test_SimpleType_Nullable_Equality()
-        {
-            RoundTripEquality<Guid?>(null);
-            RoundTripEquality<DateTime?>(null);
-            RoundTripEquality<DateTimeOffset?>(null);
-            RoundTripEquality<TimeSpan?>(null);
-
-            RoundTripEquality<ushort?>(null);
-            RoundTripEquality<uint?>(null);
-            RoundTripEquality<ulong?>(null);
-
-            RoundTripEquality<sbyte?>(null);
-            RoundTripEquality<byte?>(null);
-
-            RoundTripEquality<char?>(null);
-            RoundTripEquality<string?>(null);
-
-            RoundTripEquality<short?>(null);
-            RoundTripEquality<int?>(null);
-            RoundTripEquality<long?>(null);
-
-            RoundTripEquality<float?>(null);
-            RoundTripEquality<double?>(null);
-            RoundTripEquality<decimal?>(null);
-        }
-
-        [Test]
-        public void Test_SimpleType_Equality()
-        {
-            RoundTripEquality(Guid.NewGuid());
-
-            RoundTripEquality(DateTime.MaxValue);
-            RoundTripEquality(DateTimeOffset.MaxValue);
-            RoundTripEquality(TimeSpan.MaxValue);
-
-            RoundTripEquality(ushort.MaxValue);
-            RoundTripEquality(uint.MaxValue);
-            RoundTripEquality(ulong.MaxValue);
-
-            RoundTripEquality(sbyte.MaxValue);
-            RoundTripEquality(byte.MaxValue);
-
-            RoundTripEquality(char.MaxValue);
-            RoundTripEquality("Test string");
-            RoundTripEquality(string.Empty);
-
-            RoundTripEquality(short.MaxValue);
-            RoundTripEquality(int.MaxValue);
-            RoundTripEquality(long.MaxValue);
-
-            RoundTripEquality(float.MaxValue);
-            RoundTripEquality(double.MaxValue);
-            RoundTripEquality(decimal.MaxValue);
-        }
-        
-        [Test]
-        public void Test_Class_Equality()
-        {
-            var i = new Random().Next(int.MaxValue);
+            var val = rand.Next(int.MaxValue);
             var testObj = new PersonClass()
             {
-                Name  = i.ToString(),
-                Age = i
+                Name = val.ToString(),
+                Age = val
             };
-            RoundTripComplexTypeEquality(testObj);
-        }
-
-        [Test]
-        public void Test_Class_1000_Iterations_Equality()
-        {
-            var rand = new Random();
-
-            for(int i = 0; i < 1000; i++)
-            {
-                var val = rand.Next(int.MaxValue);
-                var testObj = new PersonClass()
-                {
-                    Name = val.ToString(),
-                    Age = val
-                };
-                RoundTripComplexTypeEquality(testObj);
-            }
-        }
-        
-        [Test]
-        public void Test_ComplexType_Equality()
-        {
-            var i = new Random().Next(int.MaxValue);
-            var testObj = new TestWithStrings()
-            {
-                A = i,
-                B = i,
-                C = DateTime.Now.Date,
-                D = (uint)i,
-                E = i,
-                F = DateTime.Now - DateTime.Now.AddDays(-1),
-                G = Guid.NewGuid(),
-                H = TestEnum.three,
-                I = i.ToString()
-            };
-            RoundTripComplexTypeEquality(testObj);
-        }
-        [Test]
-        public void Test_ComplexType_Equality_With_Stream()
-        {
-            MemoryStream ms = new MemoryStream();
-            var i = new Random().Next(int.MaxValue);
-            var testObj = new TestWithStrings()
-            {
-                A = i,
-                B = i,
-                C = DateTime.Now.Date,
-                D = (uint)i,
-                E = i,
-                F = DateTime.Now - DateTime.Now.AddDays(-1),
-                G = Guid.NewGuid(),
-                H = TestEnum.three,
-                I = i.ToString()
-            };
-            //HyperSerializer.HyperBinarySerializer<TestWithStrings>.Serialize(ms, testObj);
-            //ms.Position = 0;
-            //var obj2 = HyperBinarySerializer<TestWithStrings>.Deserialize(ms);
-            //Assert.AreEqual(testObj.A, obj2.A);
-        }
-        [Test]
-        public void Test_ComplexType_TypeVersionConfict_Should_Fail()
-        {
-            var i = new Random().Next(int.MaxValue);
-            var testObj = new Test.TestWithStrings()
-            {
-                A = i,
-                B = i,
-                C = DateTime.Now.Date,
-                D = (uint)i,
-                E = i,
-                F = DateTime.Now - DateTime.Now.AddDays(-1),
-                G = Guid.NewGuid(),
-                H = TestEnum.three,
-                I = i.ToString()
-            };
-            var serialized = HyperSerializer<TestWithStrings>.Serialize(testObj);
-            var deserialize = HyperSerializer<Incompatible.TestWithStrings>.Deserialize(serialized);
-            Assert.False(AllCommonPropertiesAreEqual(testObj, deserialize));
-
-        }
-
-        [Test]
-        public void Test_ComplexType_TypeVersions_With_Same_Parameter_Order_should_pass()
-        {
-            var i = new Random().Next(int.MaxValue);
-            var testObj = new Test.TestWithStrings()
-            {
-                A = i,
-                B = i,
-                C = DateTime.Now.Date,
-                D = (uint)i,
-                E = i,
-                F = DateTime.Now - DateTime.Now.AddDays(-1),
-                G = Guid.NewGuid(),
-                H = TestEnum.three,
-                I = i.ToString()
-            };
-            var serialized = HyperSerializer<TestWithStrings>.Serialize(testObj);
-            var deserialize = HyperSerializer<TestWithStringsV2>.Deserialize(serialized) as ITestWithStrings;
-            Assert.True(AllPropertiesAreEqual((ITestWithStrings)testObj, deserialize));
-        }
-
-        [Test]
-        public void Test_AttemptedBufferOverflowShould_Throw_OutOfRangeException()
-        {
-            try
-            {
-                
-                var i = 1L << 32;
-                Span<byte> buffer = default;
-                MemoryMarshal.Write(buffer, ref i);
-                var deserialize = HyperSerializer<int>.Deserialize(buffer);
-            }
-            catch (ArgumentOutOfRangeException)
-            {
-                Assert.Pass();
-            }
-            Assert.Fail();
-        }
-
-        [Test]
-        public void Test_AttemptedBufferOverflowShould_DateTime_Throw_OutOfRangeException()
-        {
-            try
-            {
-
-                var i = 1L << 32;
-                Span<byte> buffer = default;
-                MemoryMarshal.Write(buffer, ref i);
-                var deserialize = HyperSerializer<DateTime>.Deserialize(buffer);
-            }
-            catch (ArgumentOutOfRangeException)
-            {
-                Assert.Pass();
-            }
-            Assert.Fail();
-        }
-        [Test]
-        public void Test_AttemptedBufferOverflowShould_short_Throw_OutOfRangeException()
-        {
-            try
-            {
-
-                var i = 1L << 32;
-                Span<byte> buffer = default;
-                MemoryMarshal.Write(buffer, ref i);
-                var deserialize = HyperSerializer<short>.Deserialize(buffer);
-            }
-            catch (ArgumentOutOfRangeException)
-            {
-                Assert.Pass();
-            }
-            Assert.Fail();
+            this.RoundTripComplexTypeEquality(testObj);
         }
     }
+
+    [Test]
+    public void Test_ComplexType_Equality()
+    {
+        var i = new Random().Next(int.MaxValue);
+        var testObj = new TestWithStrings()
+        {
+            A = i,
+            B = i,
+            C = DateTime.Now.Date,
+            D = (uint)i,
+            E = i,
+            F = DateTime.Now - DateTime.Now.AddDays(-1),
+            G = Guid.NewGuid(),
+            H = TestEnum.three,
+            I = i.ToString()
+        };
+        this.RoundTripComplexTypeEquality(testObj);
+    }
+    [Test]
+    public void Test_ComplexType_Equality_With_Stream()
+    {
+        MemoryStream ms = new MemoryStream();
+        var i = new Random().Next(int.MaxValue);
+        var testObj = new TestWithStrings()
+        {
+            A = i,
+            B = i,
+            C = DateTime.Now.Date,
+            D = (uint)i,
+            E = i,
+            F = DateTime.Now - DateTime.Now.AddDays(-1),
+            G = Guid.NewGuid(),
+            H = TestEnum.three,
+            I = i.ToString()
+        };
+        //HyperSerializer.HyperBinarySerializer<TestWithStrings>.Serialize(ms, testObj);
+        //ms.Position = 0;
+        //var obj2 = HyperBinarySerializer<TestWithStrings>.Deserialize(ms);
+        //Assert.AreEqual(testObj.A, obj2.A);
+    }
+    [Test]
+    public void Test_ComplexType_TypeVersionConfict_Should_Fail()
+    {
+        var i = new Random().Next(int.MaxValue);
+        var testObj = new TestWithStrings()
+        {
+            A = i,
+            B = i,
+            C = DateTime.Now.Date,
+            D = (uint)i,
+            E = i,
+            F = DateTime.Now - DateTime.Now.AddDays(-1),
+            G = Guid.NewGuid(),
+            H = TestEnum.three,
+            I = i.ToString()
+        };
+        var serialized = HyperSerializer<TestWithStrings>.Serialize(testObj);
+        var deserialize = HyperSerializer<Incompatible.TestWithStrings>.Deserialize(serialized);
+        Assert.False(this.AllCommonPropertiesAreEqual(testObj, deserialize));
+
+    }
+
+    [Test]
+    public void Test_ComplexType_TypeVersions_With_Same_Parameter_Order_should_pass()
+    {
+        var i = new Random().Next(int.MaxValue);
+        var testObj = new TestWithStrings()
+        {
+            A = i,
+            B = i,
+            C = DateTime.Now.Date,
+            D = (uint)i,
+            E = i,
+            F = DateTime.Now - DateTime.Now.AddDays(-1),
+            G = Guid.NewGuid(),
+            H = TestEnum.three,
+            I = i.ToString()
+        };
+        var serialized = HyperSerializer<TestWithStrings>.Serialize(testObj);
+        var deserialize = HyperSerializer<TestWithStringsV2>.Deserialize(serialized) as ITestWithStrings;
+        Assert.True(this.AllPropertiesAreEqual((ITestWithStrings)testObj, deserialize));
+    }
+
+    [Test]
+    public void Test_AttemptedBufferOverflowShould_Throw_OutOfRangeException()
+    {
+        try
+        {
+
+            var i = 1L << 32;
+            Span<byte> buffer = default;
+            MemoryMarshal.Write(buffer, ref i);
+            var deserialize = HyperSerializer<int>.Deserialize(buffer);
+        }
+        catch (ArgumentOutOfRangeException)
+        {
+            Assert.Pass();
+        }
+        Assert.Fail();
+    }
+
+    [Test]
+    public void Test_AttemptedBufferOverflowShould_DateTime_Throw_OutOfRangeException()
+    {
+        try
+        {
+
+            var i = 1L << 32;
+            Span<byte> buffer = default;
+            MemoryMarshal.Write(buffer, ref i);
+            var deserialize = HyperSerializer<DateTime>.Deserialize(buffer);
+        }
+        catch (ArgumentOutOfRangeException)
+        {
+            Assert.Pass();
+        }
+        Assert.Fail();
+    }
+    [Test]
+    public void Test_AttemptedBufferOverflowShould_short_Throw_OutOfRangeException()
+    {
+        try
+        {
+
+            var i = 1L << 32;
+            Span<byte> buffer = default;
+            MemoryMarshal.Write(buffer, ref i);
+            var deserialize = HyperSerializer<short>.Deserialize(buffer);
+        }
+        catch (ArgumentOutOfRangeException)
+        {
+            Assert.Pass();
+        }
+        Assert.Fail();
+    }
+
+
+    [Test]
+    public void Test_Class_With_Nullable_Byte_Array_Should_Serialize()
+    {
+        var content = new ScreenshotContent
+        {
+            Width = 100,
+            Height = 200,
+            ImageBytes = new byte[] { 1, 2, 3, 4, 5, 6, 7 }
+        };
+
+        var serialized = HyperSerializer.Serialize(content);
+
+        var deserialized = HyperSerializer.Deserialize<ScreenshotContent>(serialized);
+
+        Assert.AreEqual(deserialized.ImageBytes.Length, content.ImageBytes.Length);
+    }
+
+    [Test]
+    public void Test_Struct_Array_Should_Serialize()
+    {
+        var numRecords = 1000;
+
+        SymbolTick[] ticks = new SymbolTick[numRecords];
+
+        for (var i = 0; i < numRecords; i++)
+            ticks[i] = new SymbolTick
+            {
+                Timestamp = i,
+                Bid = 1.23456,
+                Ask = 1.12345,
+                SymbolId = 12
+            };
+
+        var tickArray = HyperSerializer.Serialize(ticks).ToArray();
+
+        var hsOut = HyperSerializer.Deserialize<SymbolTick[]>(tickArray);
+
+        for (var i = 0; i < numRecords; i++) Assert.True(base.AllCommonPropertiesAreEqual(ticks[i], hsOut[i]));
+    }
+
 }

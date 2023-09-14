@@ -31,7 +31,7 @@ public class TestBase
             .Where(g => (exclude == null || exclude.All(q => q != g.Name))))
         {
             var prop2 = typeof(TObject2).GetProperty(prop.Name);
-            if (!Object.Equals(prop.GetValue(obj), prop2?.GetValue(value)))
+            if (!Equals(prop.GetValue(obj), prop2?.GetValue(value)))
                 return false;
         }
         return true;

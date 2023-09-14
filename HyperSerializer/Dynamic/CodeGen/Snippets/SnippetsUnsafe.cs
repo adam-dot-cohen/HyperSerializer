@@ -1,4 +1,4 @@
-﻿namespace HyperSerializer.Benchmarks.Experiments.HyperSerializer;
+﻿namespace HyperSerializer.Dynamic.CodeGen.Snippets;
 
 internal class SnippetsUnsafe : ISnippetsSafeV3
 {

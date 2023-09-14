@@ -28,10 +28,10 @@ public class SyncBenchmarksWithStrings
     private int iterations = 1_000_000;
     public SyncBenchmarksWithStrings()
     {
-        _test = new List<TestWithStrings>(); ;
-        for (var i = 0; i < iterations; i++)
+        this._test = new List<TestWithStrings>(); ;
+        for (var i = 0; i < this.iterations; i++)
         {
-            _test.Add(new TestWithStrings()
+            this._test.Add(new TestWithStrings()
             {
                 A = i,
                 B = i,
@@ -48,9 +48,9 @@ public class SyncBenchmarksWithStrings
     [Benchmark(Baseline = true)]
     public void HyperSerializerExperimental()
     {
-        for (var i = 0; i < iterations; i++)
+        for (var i = 0; i < this.iterations; i++)
         {
-            var obj = _test[i];
+            var obj = this._test[i];
             var bytes = HyperSerializerExperimental<TestWithStrings>.Serialize(obj);
             TestWithStrings deserialize = HyperSerializerExperimental<TestWithStrings>.Deserialize(bytes);
             Debug.Assert(deserialize.GetHashCode() == obj.GetHashCode());
@@ -59,9 +59,9 @@ public class SyncBenchmarksWithStrings
     [Benchmark]
     public void HyperSerializerSync()
     {
-        for (var i = 0; i < iterations; i++)
+        for (var i = 0; i < this.iterations; i++)
         {
-            var obj = _test[i];
+            var obj = this._test[i];
             var bytes = HyperSerializer<TestWithStrings>.Serialize(obj);
             TestWithStrings deserialize = HyperSerializer<TestWithStrings>.Deserialize(bytes);
             Debug.Assert(deserialize.GetHashCode() == obj.GetHashCode());
@@ -70,9 +70,9 @@ public class SyncBenchmarksWithStrings
     [Benchmark]
     public void HyperSerializerUnsafe()
     {
-        for (var i = 0; i < iterations; i++)
+        for (var i = 0; i < this.iterations; i++)
         {
-            var obj = _test[i];
+            var obj = this._test[i];
             var bytes = HyperSerializerUnsafe<TestWithStrings>.Serialize(obj);
             TestWithStrings deserialize = HyperSerializerUnsafe<TestWithStrings>.Deserialize(bytes);
             Debug.Assert(deserialize.GetHashCode() == obj.GetHashCode());
@@ -83,9 +83,9 @@ public class SyncBenchmarksWithStrings
     public void ProtobufSerializer()
     {
         MemoryPool<byte>.Shared.Rent(1014);
-        for (var i = 0; i < iterations; i++)
+        for (var i = 0; i < this.iterations; i++)
         {
-            var obj = _test[i];
+            var obj = this._test[i];
             using var stream = new MemoryStream();
             Serializer.Serialize(stream, obj);
             stream.Position = 0;
@@ -97,9 +97,9 @@ public class SyncBenchmarksWithStrings
     [Benchmark]
     public void MessagePackSerializer()
     {
-        for (var i = 0; i < iterations; i++)
+        for (var i = 0; i < this.iterations; i++)
         {
-            var obj = _test[i];
+            var obj = this._test[i];
             var serialize = MessagePack.MessagePackSerializer.Serialize(obj);
             TestWithStrings deserialize = MessagePack.MessagePackSerializer.Deserialize<TestWithStrings>(serialize);
             Debug.Assert(deserialize.GetHashCode() == obj.GetHashCode());
@@ -111,9 +111,9 @@ public class SyncBenchmarksWithStrings
     {
 
         var _binary = Binary.Create(new Settings { UseSerializedVersionId = false }.MarkSerializable(x => true));
-        for (var i = 0; i < iterations; i++)
+        for (var i = 0; i < this.iterations; i++)
         {
-            var obj = _test[i];
+            var obj = this._test[i];
             using var stream = new MemoryStream();
             _binary.Write(obj, stream);
             stream.Position = 0;

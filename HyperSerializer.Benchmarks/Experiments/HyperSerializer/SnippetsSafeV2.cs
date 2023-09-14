@@ -30,13 +30,15 @@ internal class SnippetsSafeVe : ISnippetsSafeV3
     //public string PropertyTemplateSerialize => "var _{0} = ({1}) {2}; MemoryMarshal.Write(bytes.Slice(offset+=offsetWritten, offsetWritten = {3}), ref _{0});";
     //public string PropertyTemplateDeserialize => "{0} = ({1}) MemoryMarshal.Read<{1}>(bytes.Slice(offset+=offsetWritten, offsetWritten = {2}));";
     //public string PropertyTemplateDeserializeLocal => "var _{0} = ({1}) MemoryMarshal.Read<{1}>(bytes.Slice(offset+=offsetWritten, offsetWritten = {2}));";
-    public string PropertyTemplateSerialize { get { return "var _{0} = ({1}) {2}; fixed (byte* p = bytes.Slice(offset+=offsetWritten, offsetWritten = {3})) *(({1}*)p) = _{0};"; } }
-    public string PropertyTemplateDeserialize { get { return "fixed (byte* p = bytes.Slice(offset+=offsetWritten, offsetWritten = {2})) {0} = *(({1}*)p);"; } }
-    public string PropertyTemplateDeserializeLocal { get { return "var _{0} = ({1})default; fixed (byte* p = bytes.Slice(offset+=offsetWritten, offsetWritten = {2}))  _{0} = *(({1}*)p); "; } }
+    public string PropertyTemplateSerialize => "var _{0} = ({1}) {2}; fixed (byte* p = bytes.Slice(offset+=offsetWritten, offsetWritten = {3})) *(({1}*)p) = _{0};";
+    public string PropertyTemplateDeserialize => "fixed (byte* p = bytes.Slice(offset+=offsetWritten, offsetWritten = {2})) {0} = *(({1}*)p);";
+
+    public string PropertyTemplateDeserializeLocal => "var _{0} = ({1})default; fixed (byte* p = bytes.Slice(offset+=offsetWritten, offsetWritten = {2}))  _{0} = *(({1}*)p); ";
+
     //public string PropertyTemplateSerializeNullable => "var _{0} = {1} ?? default; offset+=offsetWritten; if(((bytes[offset++] = (byte)({1}==null ? 1 : 0)) != 1)) MemoryMarshal.Write(bytes.Slice(offset, offsetWritten = {2}), ref _{0}); else offsetWritten = 0;";
     //public string PropertyTemplateDeserializeNullable => "offset+=offsetWritten; if(bytes[offset++] != 1) {0} = ({1}?) MemoryMarshal.Read<{1}>(bytes.Slice(offset, offsetWritten = {2})); else offsetWritten = 0;";
-    public string PropertyTemplateSerializeNullable { get { return "var _{0} = {1} ?? default; offset+=offsetWritten; if(((bytes[offset++] = (byte)({1}==null ? 1 : 0)) != 1)) MemoryMarshal.Write(bytes.Slice(offset, offsetWritten = {2}), ref _{0}); else offsetWritten = 0;"; } }
-    public string PropertyTemplateDeserializeNullable { get { return "offset+=offsetWritten; if(bytes[offset++] != 1) {0} = ({1}?) MemoryMarshal.Read<{1}>(bytes.Slice(offset, offsetWritten = {2})); else offsetWritten = 0;"; } }
+    public string PropertyTemplateSerializeNullable => "var _{0} = {1} ?? default; offset+=offsetWritten; if(((bytes[offset++] = (byte)({1}==null ? 1 : 0)) != 1)) MemoryMarshal.Write(bytes.Slice(offset, offsetWritten = {2}), ref _{0}); else offsetWritten = 0;";
+    public string PropertyTemplateDeserializeNullable => "offset+=offsetWritten; if(bytes[offset++] != 1) {0} = ({1}?) MemoryMarshal.Read<{1}>(bytes.Slice(offset, offsetWritten = {2})); else offsetWritten = 0;";
     public string PropertyTemplateSerializeVarLenStr => "if(_{1} > 0){{ Unsafe.WriteUnaligned(ref bytes.Slice(offset+=offsetWritten, offsetWritten = _{1})[0], {0}); }}";
     public string PropertyTemplateDeserializeVarLenStr => "{0} = (_{1} >= 0) ? Unsafe.ReadUnaligned<string>(ref bytes.Slice(offset += offsetWritten, offsetWritten = _{1})[0]) : null;";
     public string PropertyTemplateSerializeArrLen => "int _{0} = ({1}?.Length ?? -1)*Unsafe.SizeOf<{2}>(); MemoryMarshal.Write(bytes.Slice(offset+=offsetWritten, offsetWritten = 4), ref _{0});";

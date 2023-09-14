@@ -2,14 +2,19 @@
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Reflection;
 using System.Runtime.CompilerServices;
+#if NET5_0_OR_GREATER
 using System.Runtime.Loader;
+#endif
 using System.Threading.Tasks;
-using HyperSerializer.CodeGen;
+using HyperSerializer.Dynamic.CodeGen;
+using HyperSerializer.Dynamic.CodeGen.Snippets;
+using HyperSerializer.Utilities;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 
-namespace HyperSerializer.Benchmarks.Experiments.HyperSerializer;
+namespace Hyper;
 
 /// <summary>
 /// HyperSerializer\<typeparam name="T"></typeparam> default implementation with support for value types, strings arrays and lists containing value types, and reference types (e.g. your DTO class).
@@ -17,16 +22,33 @@ namespace HyperSerializer.Benchmarks.Experiments.HyperSerializer;
 /// </summary>
 /// <typeparam name="T">ValueType (e.g. int, Guid, string, decimal?,etc,; arrays and lists of these types are supported as well) or heap based ref type (e.g. DTO class/object) containing properties to be serialized/deserialized.
 /// NOTE objects containing properties that are complex types (i.e. other objects with properties) and type Dictionary are ignored during serialization and deserialization.</typeparam>
-public static class HyperSerializerExperimental<T>
+public static class HyperSerializer<T>
 {
+    /// <summary>
+    /// Dynamic serialization proxy name
+    /// </summary>
     private static readonly string _proxyTypeName = $"ProxyGen.SerializationProxy_{typeof(T).GetClassName<T>()}";
+
+    /// <summary>
+    /// Dynamic serialization proxy type
+    /// </summary>
     private static Type _proxyType;
+
+    /// <summary>
+    /// Serialization proxy delegate definition for <typeparam name="T"></typeparam>
+    /// </summary>
+    /// <param name="obj">object or value type to be serialized</param>
+    /// <returns><seealso cref="Span{byte}"/></returns>
     internal delegate Span<byte> Serializer(T obj);
-    internal delegate T Deserializer(ReadOnlySpan<byte> bytes);
+
+    /// <summary>
+    /// Static serialization delegate cache
+    /// </summary>
     internal static Serializer SerializeDynamic;
+    internal delegate T Deserializer(ReadOnlySpan<byte> bytes);
     internal static Deserializer DeserializeDynamic;
 
-    static HyperSerializerExperimental()
+    static HyperSerializer()
         => Compile();
         
     /// <summary>
@@ -37,6 +59,7 @@ public static class HyperSerializerExperimental<T>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Span<byte> Serialize(T obj)
         => SerializeDynamic(obj);
+
     /// <summary>
     /// Deserialize binary to <typeparam name="T"></typeparam> non-async
     /// </summary>
@@ -45,6 +68,7 @@ public static class HyperSerializerExperimental<T>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static T Deserialize(ReadOnlySpan<byte> bytes)
         => DeserializeDynamic(bytes);
+
     /// <summary>
     /// Serialize <typeparam name="T"></typeparam> to binary async
     /// </summary>
@@ -53,6 +77,7 @@ public static class HyperSerializerExperimental<T>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static ValueTask<Memory<byte>> SerializeAsync(T obj)
         => new(Serialize(obj).ToArray());
+
     /// <summary>
     /// Deserialize binary to <typeparam name="T"></typeparam> async
     /// </summary>
@@ -65,37 +90,29 @@ public static class HyperSerializerExperimental<T>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private static void BuildDelegates()
     {
-#if NET5_0_OR_GREATER
         var infos = _proxyType.GetMethod("Serialize");
-        SerializeDynamic = infos.CreateDelegate<Serializer>();
+        SerializeDynamic = (Serializer)infos.CreateDelegate(typeof(Serializer));
 
         var infod = _proxyType.GetMethod("Deserialize");
-        if (infod != null) DeserializeDynamic = infod.CreateDelegate<Deserializer>();
-#else
-            var infos = _proxyType.GetMethod("Serialize");
-            SerializeDynamic = (Serializer)infos.CreateDelegate(typeof(Serializer));
-
-            var infod = _proxyType.GetMethod("Deserialize");
-            DeserializeDynamic = (Deserializer)infod.CreateDelegate(typeof(Deserializer));
-#endif
+        DeserializeDynamic = (Deserializer) infod.CreateDelegate(typeof(Deserializer));
     }
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private static void Compile()
     {
-        var result = CodeGen<SnippetsExperimental>.GenerateCode<T>();
-            
+        var result = CodeGen<SnippetsSafeV3>.GenerateCode<T>();
+
+        var syntaxTree = CSharpSyntaxTree.ParseText(result.Code);
+
         var compilation = CSharpCompilation.Create(
-            $"ProxyGen.SerializationProxy_{result.ClassName}_{DateTime.Now.ToFileTimeUtc()}",
-            new[] { CSharpSyntaxTree.ParseText(result.Code) },
-            CodeGen<SnippetsExperimental>.GetReferences<T>(),
-            new CSharpCompilationOptions(
-                OutputKind.DynamicallyLinkedLibrary, 
-                allowUnsafe: true,
-                optimizationLevel: 
-                OptimizationLevel.Release)
-        );
+                assemblyName: $"ProxyGen.SerializationProxy_{result.ClassName}_{DateTime.Now.ToFileTimeUtc()}")
+            .AddSyntaxTrees(syntaxTree)
+            .WithReferences(CodeGen<SnippetsSafeV3>.GetReferences<T>(includeUnsafe: true))
+            .WithOptions(new CSharpCompilationOptions(
+                outputKind: OutputKind.DynamicallyLinkedLibrary, 
+                allowUnsafe: true, 
+                optimizationLevel: OptimizationLevel.Release));
 #if DEBUG
-        Debug.Write(result.Code);
+        Debug.Write(syntaxTree.GetRoot().NormalizeWhitespace().ToFullString());
 #endif
             
         Emit(compilation);
@@ -106,32 +123,40 @@ public static class HyperSerializerExperimental<T>
     private static void Emit(CSharpCompilation _compilation)
     {
         if (_proxyType != null) return;
-        using (var ms = new MemoryStream())
+        using var ms = new MemoryStream();
+        var result = _compilation.Emit(ms);
+        if (!result.Success)
         {
-            var result = _compilation.Emit(ms);
-            if (!result.Success)
+            var compilationErrors = result.Diagnostics.Where(diagnostic =>
+                    diagnostic.IsWarningAsError ||
+                    diagnostic.Severity == DiagnosticSeverity.Error)
+                .ToList();
+            if (compilationErrors.Any())
             {
-                var compilationErrors = result.Diagnostics.Where(diagnostic =>
-                        diagnostic.IsWarningAsError ||
-                        diagnostic.Severity == DiagnosticSeverity.Error)
-                    .ToList();
-                if (compilationErrors.Any())
-                {
-                    var firstError = compilationErrors.First();
-                    var errorNumber = firstError.Id;
-                    var errorDescription = firstError.GetMessage();
-                    var firstErrorMessage = $"{errorNumber}: {errorDescription};";
-                    var exception = new Exception($"Compilation failed, first error is: {firstErrorMessage}");
-                    compilationErrors.ForEach(e => { if (!exception.Data.Contains(e.Id)) exception.Data.Add(e.Id, e.GetMessage()); });
-                    throw exception;
-                }
+                var firstError = compilationErrors.First();
+                var errorNumber = firstError.Id;
+                var errorDescription = firstError.GetMessage();
+                var firstErrorMessage = $"{errorNumber}: {errorDescription};";
+                var exception = new Exception($"Compilation failed, first error is: {firstErrorMessage}");
+                compilationErrors.ForEach(e => { if (!exception.Data.Contains(e.Id)) exception.Data.Add(e.Id, e.GetMessage()); });
+                throw exception;
             }
-                
-            ms.Seek(0, SeekOrigin.Begin);
-
-            var generatedAssembly = AssemblyLoadContext.Default.LoadFromStream(ms);
-            _proxyType = generatedAssembly.GetType(_proxyTypeName);
         }
-    }
 
+        ms.Seek(0, SeekOrigin.Begin);
+#if NET5_0_OR_GREATER
+
+                AssemblyLoadContext context = new CollectibleLoadContext();
+                var generatedAssembly = context.LoadFromStream(ms);
+#else
+        var generatedAssembly = Assembly.Load(ms.ToArray());
+
+#endif
+        _proxyType = generatedAssembly.GetType(_proxyTypeName);
+
+        Span<byte> buffer = new byte[ms.Length];
+        ms.Seek(0, SeekOrigin.Begin);
+        ms.Read(buffer);
+        AppDomain.CurrentDomain.Load(buffer.ToArray());
+    }
 }
