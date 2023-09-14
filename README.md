@@ -3,15 +3,15 @@
 Binary Serializer.  Serialization up to 18x faster than Protobuf and MessagePack
 
 ![]()
-[![NuGet version (HyperSerializer)](https://img.shields.io/badge/nuget-v1.0.17-blue?style=flat-square)](https://www.nuget.org/packages/HyperSerializer/)
+[![NuGet version (HyperSerializer)](https://img.shields.io/badge/nuget-v1.0.18-blue?style=flat-square)](https://www.nuget.org/packages/HyperSerializer/)
 
 If you're looking for the fastest binary serializer for DotNet known to Git-kind, look no further.  HyperSerializer is up to ***18x faster than [MessagePack](https://github.com/neuecc/MessagePack-CSharp) and [Protobuf](https://github.com/protocolbuffers/protobuf), and 11x faster than [BinaryPack](https://github.com/Sergio0694/BinaryPack)***, with roughly equivelant or better memory allocation. Simply install the [Nuget package (Install-Package HyperSerializer)](https://www.nuget.org/packages/HyperSerializer/) and serialize/deserialize with just 2 lines of code.
 
 ```csharp
 //Sync Example
 Test obj = new();
-Span<byte> bytes = HyperSerializer<Test>.Serialize(obj);
-Test objDeserialized = HyperSerializer<Test>.Deserialize(bytes);
+Span<byte> bytes = HyperSerializer.Serialize(obj);
+Test objDeserialized = HyperSerializer.Deserialize<Test>(bytes);
 ```
 ***Head to Head Speed Test***
 
@@ -31,7 +31,7 @@ Span<byte> buffer = default;
 MemoryMarshal.Write(buffer, ref i);
 
 //Simulate attempting to deserialize Int64 (8 bytes) to Int32 (4 bytes)
-var deserialize = HyperSerializer<int>.Deserialize(buffer);
+var deserialize = HyperSerializer.Deserialize<int>(buffer);
 
 //Result: ArguementOutOfRangeException
 ```
@@ -43,18 +43,18 @@ HyperSerializer is a contract-less serializalizer that supports serializing prim
 ```csharp
 //Sync Example
 Test obj = new();
-Span<byte> bytes = HyperSerializer<Test>.Serialize(obj);
-Test objDeserialized = HyperSerializer<Test>.Deserialize(bytes);
+Span<byte> bytes = HyperSerializer.Serialize(obj);
+Test objDeserialized = HyperSerializer.Deserialize<Test>(bytes);
     
 //Async Example
 Test obj = new();
-Memory<byte> bytes = HyperSerializer<Test>.SerializeAsync(obj);
-Test objDeserialized = HyperSerializer<Test>.DeserializeAsync(bytes);
+Memory<byte> bytes = HyperSerializer.SerializeAsync(obj);
+Test objDeserialized = HyperSerializer.Deserialize<Test>Async(bytes);
 
 //Deserialize byte array...
 byte[] bytes; // example - bytes you received over the wire, from cache etc...
-Test objDeserialized = HyperSerializer<Test>.Deserialize(bytes);
-Test objDeserialized = HyperSerializer<Test>.DeserializeAsync(bytes);
+Test objDeserialized = HyperSerializer.Deserialize<Test>(bytes);
+Test objDeserialized = HyperSerializer.Deserialize<Test>Async(bytes);
 ```
 ## Benchmarks
 Benchmarks performed using BenchmarkDotNet follow the intended usage pattern of serializing and deserializing a single instance of an object at a time (as opposed to batch collection serialization used in the benchmarks published by other libraries such as Apex).  The benchmarks charts displayed below represent 1 million syncronous serialization and deserialization operations of the following object:
@@ -97,8 +97,6 @@ Intel Core i9-10980XE CPU 3.00GHz, 1 CPU, 36 logical and 18 physical cores
 | MessagePackSerializer|  899.12 ms|   0.994 ms|  0.881 ms|  18.02|     0.16|  16000.0000|     205 MB
 |    ProtobufSerializer|  917.73 ms|  10.020 ms|  9.372 ms|  18.37|     0.17|  35000.0000|     435 MB
 ```
-## HyperSerializerUnsafe\<T\>
-The HyperSerializer project contains an unsafe implementation of the HyperSerializer\<T\>, named HyperSerializerUnsafe\<T\>.  It is an experimental version intended for benchmarking purposes and does not meaningfuly outperform HyperSerializer\<T\> in most scenarios, if at all (see table above).  As such, it is not recommended for end user consumption.
 
 ## Limitations 
 ### Unsupported types
