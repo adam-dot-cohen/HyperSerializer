@@ -2,7 +2,7 @@
 using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 
-namespace HyperSerializer;
+namespace Hyper;
 
 /// <summary>
 /// HyperSerializer convenience class that wraps <see cref="HyperSerializer{T}"/> for syntactic convenience.  HyperSerializer supports class objects (object graph Level0 properties will be serialized including structs containing

@@ -4,7 +4,7 @@ using System.Runtime.CompilerServices;
 
 namespace HyperSerializer.Dynamic.Delegates;
 
-public class DynamicDelegate<TDelegate>
+internal class DynamicDelegate<TDelegate>
     where TDelegate : System.Delegate
 {
     private TDelegate _delegate;

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.IO;
 using System.Linq;
+using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Runtime.Loader;
 using System.Threading.Tasks;
@@ -12,7 +13,7 @@ using Microsoft.CodeAnalysis.CSharp;
 #if NET5_0_OR_GREATER
 #endif
 
-namespace HyperSerializer;
+namespace Hyper;
 
 /// <summary>
 /// HyperSerializer\<typeparam name="T"></typeparam> default implementation with support for value types, strings arrays and lists containing value types, and reference types (e.g. your DTO class).

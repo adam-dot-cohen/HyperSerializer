@@ -4,6 +4,7 @@ using System.Globalization;
 using System.IO;
 using System.Runtime.InteropServices;
 using System.Text;
+using HyperSerializer;
 using NUnit.Framework;
 
 namespace Hyper.Test;

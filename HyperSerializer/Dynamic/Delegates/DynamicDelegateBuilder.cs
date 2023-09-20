@@ -8,7 +8,7 @@ namespace HyperSerializer.Dynamic.Delegates;
 /// <summary>
 /// Generator class for constructing delegates of type <typeparamref name="TDelegate"/>.
 /// </summary>
-public class DynamicDelegateBuilder<TDelegate>
+internal class DynamicDelegateBuilder<TDelegate>
     where TDelegate : System.Delegate
 {
     private DynamicMethod _method;
