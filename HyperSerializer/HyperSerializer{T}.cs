@@ -1,20 +1,18 @@
 ﻿using System;
-using System.Diagnostics;
 using System.IO;
 using System.Linq;
-using System.Reflection;
 using System.Runtime.CompilerServices;
-#if NET5_0_OR_GREATER
 using System.Runtime.Loader;
-#endif
 using System.Threading.Tasks;
-using HyperSerializer.Dynamic.CodeGen;
-using HyperSerializer.Dynamic.CodeGen.Snippets;
+using HyperSerializer.Dynamic.Syntax;
+using HyperSerializer.Dynamic.Syntax.Templates;
 using HyperSerializer.Utilities;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
+#if NET5_0_OR_GREATER
+#endif
 
-namespace Hyper;
+namespace HyperSerializer;
 
 /// <summary>
 /// HyperSerializer\<typeparam name="T"></typeparam> default implementation with support for value types, strings arrays and lists containing value types, and reference types (e.g. your DTO class).
@@ -99,14 +97,14 @@ public static class HyperSerializer<T>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private static void Compile()
     {
-        var result = CodeGen<SnippetsSafeV3>.GenerateCode<T>();
+        var result = CodeGen<ProxySyntaxTemplate>.GenerateCode<T>();
 
         var syntaxTree = CSharpSyntaxTree.ParseText(result.Code);
 
         var compilation = CSharpCompilation.Create(
                 assemblyName: $"ProxyGen.SerializationProxy_{result.ClassName}_{DateTime.Now.ToFileTimeUtc()}")
             .AddSyntaxTrees(syntaxTree)
-            .WithReferences(CodeGen<SnippetsSafeV3>.GetReferences<T>(includeUnsafe: true))
+            .WithReferences(CodeGen<ProxySyntaxTemplate>.GetReferences<T>(includeUnsafe: true))
             .WithOptions(new CSharpCompilationOptions(
                 outputKind: OutputKind.DynamicallyLinkedLibrary, 
                 allowUnsafe: true, 

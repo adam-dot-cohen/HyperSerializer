@@ -3,7 +3,7 @@ using System.Linq;
 using System.Reflection;
 using System.Reflection.Emit;
 
-namespace HyperSerializer.Dynamic.Delegate;
+namespace HyperSerializer.Dynamic.Delegates;
 
 /// <summary>
 /// Generator class for constructing delegates of type <typeparamref name="TDelegate"/>.

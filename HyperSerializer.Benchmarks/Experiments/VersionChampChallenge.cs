@@ -5,6 +5,7 @@ using BenchmarkDotNet.Attributes;
 using BenchmarkDotNet.Engines;
 using BenchmarkDotNet.Order;
 using Hyper;
+using HyperSerializer;
 using HyperSerializer.Benchmarks.Experiments.HyperSerializer;
 using Buffer = System.Buffer;
 

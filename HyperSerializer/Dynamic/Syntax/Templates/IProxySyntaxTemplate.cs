@@ -1,6 +1,6 @@
-﻿namespace HyperSerializer.Dynamic.CodeGen.Snippets;
+﻿namespace HyperSerializer.Dynamic.Syntax.Templates;
 
-internal interface ISnippetsSafeV3
+internal interface IProxySyntaxTemplate
 {
     string PropertyTemplateSerialize { get; }
     string PropertyTemplateDeserialize { get; }

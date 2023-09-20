@@ -6,15 +6,14 @@ using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using System.Text;
-using Hyper;
-using HyperSerializer.Dynamic.CodeGen.Snippets;
+using HyperSerializer.Dynamic.Syntax.Templates;
 using HyperSerializer.Utilities;
 using Microsoft.CodeAnalysis;
 
-namespace HyperSerializer.Dynamic.CodeGen;
+namespace HyperSerializer.Dynamic.Syntax;
 
 internal static class CodeGen<TSnippets>
-    where TSnippets : ISnippetsSafeV3, new()
+    where TSnippets : IProxySyntaxTemplate, new()
 {
     private static TSnippets snippets = new();
     private const BindingFlags _flags = BindingFlags.Instance | BindingFlags.GetProperty | BindingFlags.SetProperty | BindingFlags.Public;

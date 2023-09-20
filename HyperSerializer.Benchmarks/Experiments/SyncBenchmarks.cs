@@ -13,6 +13,7 @@ using BenchmarkDotNet.Exporters.Csv;
 using BenchmarkDotNet.Jobs;
 using BenchmarkDotNet.Order;
 using Hyper;
+using HyperSerializer;
 using HyperSerializer.Benchmarks.Experiments.HyperSerializer;
 using MessagePack;
 using ProtoBuf;

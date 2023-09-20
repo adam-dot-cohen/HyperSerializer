@@ -1,6 +1,6 @@
-﻿namespace HyperSerializer.Dynamic.CodeGen.Snippets;
+﻿namespace HyperSerializer.Dynamic.Syntax.Templates;
 
-internal class SnippetsSafeV3 : ISnippetsSafeV3
+internal class ProxySyntaxTemplate : IProxySyntaxTemplate
 {
     public string PropertyTemplateSerialize => "var _{0} = ({1}) {2}; MemoryMarshal.Write(bytes.Slice(offset+=offsetWritten, offsetWritten = {3}), ref _{0});";
     public string PropertyTemplateDeserialize => "{0} = ({1}) MemoryMarshal.Read<{1}>(bytes.Slice(offset+=offsetWritten, offsetWritten = {2}));";

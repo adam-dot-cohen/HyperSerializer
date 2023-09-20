@@ -2,9 +2,8 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
-using System.Windows.Markup;
 
-namespace HyperSerializer.Dynamic.CodeGen;
+namespace HyperSerializer.Dynamic.Syntax;
 
 internal static class TypeSupport
 {

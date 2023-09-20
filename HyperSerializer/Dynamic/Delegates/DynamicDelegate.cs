@@ -2,7 +2,7 @@
 using System.Reflection.Emit;
 using System.Runtime.CompilerServices;
 
-namespace HyperSerializer.Dynamic.Delegate;
+namespace HyperSerializer.Dynamic.Delegates;
 
 public class DynamicDelegate<TDelegate>
     where TDelegate : System.Delegate

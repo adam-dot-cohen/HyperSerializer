@@ -11,6 +11,7 @@ using BenchmarkDotNet.Engines;
 using BenchmarkDotNet.Jobs;
 using BenchmarkDotNet.Order;
 using Hyper;
+using HyperSerializer;
 using HyperSerializer.Benchmarks.Experiments.HyperSerializer;
 using MessagePack;
 using ProtoBuf;
