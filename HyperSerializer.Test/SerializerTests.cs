@@ -1,11 +1,14 @@
 using System;
+using System.Diagnostics;
 using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices;
 using System.Text;
 using HyperSerializer;
+using Microsoft.VisualStudio.TestPlatform.ObjectModel;
 using NUnit.Framework;
+using NUnit.Framework.Internal;
 
 namespace Hyper.Test;
 
@@ -291,6 +294,9 @@ public class SerializerTests : TestBase
     [Test]
     public void Test_Struct_Array_Should_Serialize()
     {
+
+	    HyperSerializerSettings.WriteProxyToDebugOutput = true;
+
         var numRecords = 1000;
 
         SymbolTick[] ticks = new SymbolTick[numRecords];

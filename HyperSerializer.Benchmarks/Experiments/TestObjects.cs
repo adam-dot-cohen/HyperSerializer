@@ -1,15 +1,18 @@
-﻿using MessagePack;
+﻿using MemoryPack;
+using MessagePack;
 using ProtoBuf;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading.Tasks;
 
 namespace Hyper.Benchmarks.Experiments;
 
 [MessagePackObject(), ProtoContract()]
-public class TestWithStrings
+[MemoryPackable]
+public partial class TestWithStrings
 {
     [Key(1), ProtoMember(1)]
     public virtual int A { get; set; }
@@ -51,7 +54,8 @@ public class TestWithStrings
 }
 
 [MessagePackObject(), ProtoContract()]
-public class TestObjectWithStringsAndArray
+[MemoryPackable]
+public partial class TestObjectWithStringsAndArray
 {
     [Key(1), ProtoMember(1)]
     public virtual int A { get; set; }
@@ -106,7 +110,8 @@ public enum TestEnum
 }
 [MessagePackObject(), ProtoContract()]
 [Serializable]
-public class Test
+[MemoryPackable]
+public partial class Test
 {
     [Key(1), ProtoMember(1)]
     public virtual Guid? Gn { get; set; }
@@ -126,4 +131,25 @@ public class Test
     public virtual Guid G { get; set; }
     [Key(9), ProtoMember(9)]
     public virtual TestEnum H { get; set; }
+}
+[MessagePackObject(), ProtoContract()]
+[MemoryPackable]
+public partial class SymbolTick
+{
+    public DateTime Timestamp { get; set; }
+    public double Bid { get; set; }
+    public double Ask { get; set; }
+    public int SymbolId { get; set; }
+    [MemoryPackConstructor]
+    public SymbolTick()
+    {
+    }
+
+    public SymbolTick(DateTime timestamp, double bid, double ask, int symbolId)
+    {
+        this.Timestamp = timestamp;
+        this.Bid = bid;
+        this.Ask = ask;
+        this.SymbolId = symbolId;
+    }
 }

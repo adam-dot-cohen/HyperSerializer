@@ -28,29 +28,24 @@ namespace Hyper.Benchmarks.Experiments;
 //[AsciiDocExporter]
 //[CsvMeasurementsExporter]
 //[HtmlExporter]
-public class SyncBenchmarks
+public class SyncBenchmarksSymbolTick
 {
-    private List<Test> _test;
+    private List<SymbolTick> _test;
     [Params(1_000_000)]
     public int iterations;
     [GlobalSetup]
     public void Setup()
     {
-        if(this._test == null) this._test = new List<Test>();
+        if(this._test == null) this._test = new List<SymbolTick>();
             
         for (var i = this._test.Count; i < this.iterations; i++)
         {
-            this._test.Add(new Test()
+            this._test.Add(new SymbolTick()
             {
-                A = i,
-                B = i,
-                C = DateTime.Now.Date,
-                D = (uint)i,
-                E = i,
-                F = DateTime.Now - DateTime.Now.AddDays(-1),
-                G = Guid.NewGuid(),
-                H = TestEnum.three,
-                //  I = i.ToString()
+                Timestamp = DateTime.Now,
+                Bid = i,
+                Ask = i,
+                SymbolId = i
             });
         }
     }
@@ -59,31 +54,12 @@ public class SyncBenchmarks
     {
         foreach (var obj in this._test)
         {
-            var bytes = HyperSerializer<Test>.Serialize(obj);
-            Test deserialize = HyperSerializer<Test>.Deserialize(bytes);
+            var bytes = HyperSerializer<SymbolTick>.Serialize(obj);
+            SymbolTick deserialize = HyperSerializer<SymbolTick>.Deserialize(bytes);
             Debug.Assert(deserialize.GetHashCode() == obj.GetHashCode());
         }
     }
-    [Benchmark( Description = "HyperExperimental")]
-    public void HyperSerializerLegacySync()
-    {
-        foreach (var obj in this._test)
-        {
-            var bytes = HyperSerializerExperimental<Test>.Serialize(obj);
-            Test deserialize = HyperSerializerExperimental<Test>.Deserialize(bytes);
-            Debug.Assert(deserialize.GetHashCode() == obj.GetHashCode());
-        }
-    }
-    [Benchmark(Description = "HyperUnsafe")]
-    public void HyperSerializerUnsafe()
-    {
-        foreach (var obj in this._test)
-        {
-            var bytes = HyperSerializerUnsafe<Test>.Serialize(obj);
-            Test deserialize = HyperSerializerUnsafe<Test>.Deserialize(bytes);
-            Debug.Assert(deserialize.GetHashCode() == obj.GetHashCode());
-        }
-    }
+
 
     [Benchmark(Description = "Protobuf")]
     public void ProtobufSerializer()
@@ -95,7 +71,7 @@ public class SyncBenchmarks
             using var stream = new MemoryStream();
             Serializer.Serialize(stream, obj);
             stream.Position = 0;
-            var deserialize = Serializer.Deserialize<Test>(stream);
+            SymbolTick deserialize = Serializer.Deserialize<SymbolTick>(stream);
             Debug.Assert(deserialize.GetHashCode() == obj.GetHashCode());
         }
     }
@@ -106,7 +82,7 @@ public class SyncBenchmarks
         foreach (var obj in this._test)
         {
             var serialize = MessagePack.MessagePackSerializer.Serialize(obj);
-            Test deserialize = MessagePack.MessagePackSerializer.Deserialize<Test>(serialize);
+            SymbolTick deserialize = MessagePack.MessagePackSerializer.Deserialize<SymbolTick>(serialize);
             Debug.Assert(deserialize.GetHashCode() == obj.GetHashCode());
         }
     }
@@ -118,7 +94,7 @@ public class SyncBenchmarks
         foreach (var obj in this._test)
         {
             var serialize = MemoryPack.MemoryPackSerializer.Serialize(obj);
-            Test deserialize = MemoryPack.MemoryPackSerializer.Deserialize<Test>(serialize);
+            SymbolTick deserialize = MemoryPack.MemoryPackSerializer.Deserialize<SymbolTick>(serialize);
             Debug.Assert(deserialize.GetHashCode() == obj.GetHashCode());
         }
     }
@@ -134,7 +110,7 @@ public class SyncBenchmarks
             using var stream = new MemoryStream();
             _binary.Write(obj, stream);
             stream.Position = 0;
-            var deserialize = _binary.Read<Test>(stream);
+            var deserialize = _binary.Read<SymbolTick>(stream);
             Debug.Assert(deserialize.GetHashCode() == obj.GetHashCode());
         }
     }

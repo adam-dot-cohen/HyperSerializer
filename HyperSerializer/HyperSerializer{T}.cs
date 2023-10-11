@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Reflection;
@@ -49,7 +50,7 @@ public static class HyperSerializer<T>
 
     static HyperSerializer()
         => Compile();
-        
+
     /// <summary>
     /// Serialize <typeparam name="T"></typeparam> to binary non-async
     /// </summary>
@@ -98,23 +99,28 @@ public static class HyperSerializer<T>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private static void Compile()
     {
-        var result = CodeGen<ProxySyntaxTemplate>.GenerateCode<T>();
+	    var infos = new MemberTypeInfos<T>();
+
+        var result = CodeGen<ProxySyntaxTemplate>.GenerateCode<T>(infos);
 
         var syntaxTree = CSharpSyntaxTree.ParseText(result.Code);
 
         var compilation = CSharpCompilation.Create(
                 assemblyName: $"ProxyGen.SerializationProxy_{result.ClassName}_{DateTime.Now.ToFileTimeUtc()}")
             .AddSyntaxTrees(syntaxTree)
-            .WithReferences(CodeGen<ProxySyntaxTemplate>.GetReferences<T>(includeUnsafe: true))
+            .WithReferences(CodeGen<ProxySyntaxTemplate>.GetReferences<T>(infos, includeUnsafe: true))
             .WithOptions(new CSharpCompilationOptions(
                 outputKind: OutputKind.DynamicallyLinkedLibrary, 
                 allowUnsafe: true, 
                 optimizationLevel: OptimizationLevel.Release));
-#if DEBUG
-        Debug.Write(syntaxTree.GetRoot().NormalizeWhitespace().ToFullString());
-#endif
-            
+
+        if (HyperSerializerSettings.WriteProxyToDebugOutput)
+        {
+	        Console.Write(syntaxTree.GetRoot().NormalizeWhitespace().ToFullString());
+        }
+
         Emit(compilation);
+
         BuildDelegates();
     }
 

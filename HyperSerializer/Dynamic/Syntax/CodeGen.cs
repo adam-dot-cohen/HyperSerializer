@@ -16,8 +16,8 @@ internal static class CodeGen<TSnippets>
     where TSnippets : IProxySyntaxTemplate, new()
 {
     private static TSnippets snippets = new();
-    private const BindingFlags _flags = BindingFlags.Instance | BindingFlags.GetProperty | BindingFlags.SetProperty | BindingFlags.Public;
-    internal static IEnumerable<PortableExecutableReference> GetReferences<T>(bool includeUnsafe = false)
+    private const BindingFlags _flags = BindingFlags.Instance | BindingFlags.Public;
+    internal static IEnumerable<PortableExecutableReference> GetReferences<T>(MemberTypeInfos<T> infos, bool includeUnsafe = false)
     {
         var refPaths = new List<PortableExecutableReference> {
             MetadataReference.CreateFromFile(FrameworkAssemblyPaths.System),
@@ -35,19 +35,13 @@ internal static class CodeGen<TSnippets>
 
         if (!TypeSupport.IsSupportedType<T>())
         {
-            var props = typeof(T).GetProperties(_flags).ToList();
-#if NET5_0_OR_GREATER
-            foreach (var prop in CollectionsMarshal.AsSpan(props))
-            {
-#else
-            foreach (var prop in props)
-            {
-#endif
-                if (!(prop.CanRead && prop.CanWrite && TypeSupport.IsSupportedType(prop.PropertyType)))
+	        for(int i = 0; i < infos.Length; i++)
+	        {
+                if (!(TypeSupport.IsSupportedType(infos[i].PropertyType)))
                     continue;
                 Type t = default;
-                if ((t = Nullable.GetUnderlyingType(prop.PropertyType)) == null)
-                    t = prop.PropertyType;
+                if ((t = Nullable.GetUnderlyingType(infos[i].PropertyType)) == null)
+                    t = infos[i].PropertyType;
                 refPaths.Add(MetadataReference.CreateFromFile(t.Assembly.Location));
             }
         }
@@ -55,19 +49,19 @@ internal static class CodeGen<TSnippets>
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static (string Code, string ClassName) GenerateCode<T>()
+    public static (string Code, string ClassName) GenerateCode<T>(MemberTypeInfos<T> infos)
     {
         var cType = Nullable.GetUnderlyingType(typeof(T));
         string cTypeName = typeof(T).GetClassName<T>();
         var pType = cType != null ? $"{cType.Namespace}.{cTypeName}?" : typeof(T).FullName;
-        var (length, serialize) = Serialize<T>();
-        var (length3, deserialize) = Deserialize<T>();
+        var (length, serialize) = Serialize<T>(infos);
+        var (length3, deserialize) = Deserialize<T>(infos);
         return (string.Format(snippets.ClassTemplate, cTypeName, pType.Replace("+", "."),
             length, serialize, deserialize, TypeSupport.IsSupportedType<T>() ? "default" : "new()"), cTypeName);
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    internal static (string, string) Serialize<T>()
+    internal static (string, string) Serialize<T>(MemberTypeInfos<T> infos)
     {
         var offset = 0;
         var offsetStr = string.Empty;
@@ -76,17 +70,11 @@ internal static class CodeGen<TSnippets>
             (offset, offsetStr) = GenerateSerializer<T>(sb);
         else
         {
-            var props = typeof(T).GetProperties(_flags).ToList();
-#if NET5_0_OR_GREATER
-            foreach (var prop in CollectionsMarshal.AsSpan(props))
-            {
-#else
-            foreach (var prop in props)
-            {
-#endif
-                if (!(prop.CanRead && prop.CanWrite && TypeSupport.IsSupportedType(prop.PropertyType)))
+			for(int i = 0; i < infos.Length; i++)
+			{
+                if (!(TypeSupport.IsSupportedType(infos[i].PropertyType)))
                     continue;
-                var (len, str) = GenerateSerializer<T>(sb, "obj", prop);
+                var (len, str) = GenerateSerializer<T>(sb, "obj", infos[i]);
                 offset += len;
                 offsetStr += str;
             }
@@ -95,7 +83,7 @@ internal static class CodeGen<TSnippets>
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    internal static (string, string) Deserialize<T>()
+    internal static (string, string) Deserialize<T>(MemberTypeInfos<T> infos)
     {
         var offset = 0;
         var offsetStr = string.Empty;
@@ -105,17 +93,11 @@ internal static class CodeGen<TSnippets>
         else
         {
 
-            var props = typeof(T).GetProperties(_flags).ToList();
-#if NET5_0_OR_GREATER
-            foreach (var prop in CollectionsMarshal.AsSpan(props))
-            {
-#else
-            foreach (var prop in props)
-            {
-#endif
-                if (!(prop.CanRead && prop.CanWrite && TypeSupport.IsSupportedType(prop.PropertyType)))
+	        for(int i = 0; i < infos.Length; i++)
+	        {
+                if (!(TypeSupport.IsSupportedType(infos[i].PropertyType)))
                     continue;
-                var (len, str) = GenerateDeserializer<T>(sb, "obj", prop);
+                var (len, str) = GenerateDeserializer<T>(sb, "obj", infos[i]);
                 offset += len;
                 offsetStr += str;
             }
@@ -124,7 +106,7 @@ internal static class CodeGen<TSnippets>
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private static (int, string) GenerateSerializer<T>(StringBuilder sb, string parameterName = "obj", PropertyInfo propertyType = null)
+    private static (int, string) GenerateSerializer<T>(StringBuilder sb, string parameterName = "obj", MemberTypeInfo propertyType = null)
     {
         var offset = 0;
         var fieldName = $"{parameterName}" + (propertyType != null ? $".{propertyType.Name}" : string.Empty);
@@ -192,7 +174,7 @@ internal static class CodeGen<TSnippets>
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private static (int, string) GenerateDeserializer<T>(StringBuilder sb, string parameterName = "obj", PropertyInfo propertyType = null)
+    private static (int, string) GenerateDeserializer<T>(StringBuilder sb, string parameterName = "obj", MemberTypeInfo propertyType = null)
     {
         var offset = 0;
         var fieldName = $"{parameterName}" + (propertyType != null ? $".{propertyType.Name}" : string.Empty);

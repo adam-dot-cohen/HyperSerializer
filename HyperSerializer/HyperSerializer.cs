@@ -13,14 +13,14 @@ namespace Hyper;
 /// NOTE objects containing properties that are complex types (i.e. other objects with properties) and type Dictionary are ignored during serialization and deserialization.</typeparam>
 public static class HyperSerializer
 {
-    /// <summary>
+	/// <summary>
     /// Serialize <typeparam name="T"></typeparam> to binary non-async
     /// </summary>
     /// <param name="obj">object or value type to be serialized</param>
     /// <returns><seealso cref="Span{byte}"/></returns>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Span<byte> Serialize<T>(T obj)
-        => HyperSerializer<T>.SerializeDynamic(obj);
+        => HyperSerializer<T>.Serialize(obj);
 
     /// <summary>
     /// Deserialize binary to <typeparam name="T"></typeparam> non-async
@@ -29,7 +29,7 @@ public static class HyperSerializer
     /// <returns><typeparam name="T"></typeparam></returns>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static T Deserialize<T>(ReadOnlySpan<byte> bytes)
-        => HyperSerializer<T>.DeserializeDynamic(bytes);
+        => HyperSerializer<T>.Deserialize(bytes);
 
     /// <summary>
     /// Serialize <typeparam name="T"></typeparam> to binary async
@@ -38,7 +38,7 @@ public static class HyperSerializer
     /// <returns><seealso cref="Span{byte}"/></returns>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static ValueTask<Memory<byte>> SerializeAsync<T>(T obj)
-        => new(HyperSerializer<T>.Serialize(obj).ToArray());
+        => HyperSerializer<T>.SerializeAsync(obj);
 
     /// <summary>
     /// Deserialize binary to <typeparam name="T"></typeparam> async
@@ -47,5 +47,5 @@ public static class HyperSerializer
     /// <returns><typeparam name="T"></typeparam></returns>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static ValueTask<T> DeserializeAsync<T>(ReadOnlyMemory<byte> bytes)
-        => new(HyperSerializer<T>.Deserialize(bytes.Span));
+        => HyperSerializer<T>.DeserializeAsync(bytes);
 }

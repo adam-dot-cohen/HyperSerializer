@@ -46,18 +46,8 @@ public class SyncBenchmarksWithStrings
             });
         }
     }
+
     [Benchmark(Baseline = true)]
-    public void HyperSerializerExperimental()
-    {
-        for (var i = 0; i < this.iterations; i++)
-        {
-            var obj = this._test[i];
-            var bytes = HyperSerializerExperimental<TestWithStrings>.Serialize(obj);
-            TestWithStrings deserialize = HyperSerializerExperimental<TestWithStrings>.Deserialize(bytes);
-            Debug.Assert(deserialize.GetHashCode() == obj.GetHashCode());
-        }
-    }
-    [Benchmark]
     public void HyperSerializerSync()
     {
         for (var i = 0; i < this.iterations; i++)
@@ -68,17 +58,7 @@ public class SyncBenchmarksWithStrings
             Debug.Assert(deserialize.GetHashCode() == obj.GetHashCode());
         }
     }
-    [Benchmark]
-    public void HyperSerializerUnsafe()
-    {
-        for (var i = 0; i < this.iterations; i++)
-        {
-            var obj = this._test[i];
-            var bytes = HyperSerializerUnsafe<TestWithStrings>.Serialize(obj);
-            TestWithStrings deserialize = HyperSerializerUnsafe<TestWithStrings>.Deserialize(bytes);
-            Debug.Assert(deserialize.GetHashCode() == obj.GetHashCode());
-        }
-    }
+
        
     [Benchmark]
     public void ProtobufSerializer()
@@ -103,6 +83,16 @@ public class SyncBenchmarksWithStrings
             var obj = this._test[i];
             var serialize = MessagePack.MessagePackSerializer.Serialize(obj);
             TestWithStrings deserialize = MessagePack.MessagePackSerializer.Deserialize<TestWithStrings>(serialize);
+            Debug.Assert(deserialize.GetHashCode() == obj.GetHashCode());
+        }
+    }
+    [Benchmark(Description = "MemoryPack")]
+    public void MemoryPackSerializer()
+    {
+        foreach (var obj in this._test)
+        {
+            var serialize = MemoryPack.MemoryPackSerializer.Serialize(obj);
+            var deserialize = MemoryPack.MemoryPackSerializer.Deserialize<TestWithStrings>(serialize);
             Debug.Assert(deserialize.GetHashCode() == obj.GetHashCode());
         }
     }

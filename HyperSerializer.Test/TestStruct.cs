@@ -14,7 +14,7 @@ public struct TestStruct
 }
 public class TestObjectWithTestStruct
 {
-    public virtual int A { get; set; }
+	public int A;
     public virtual long B { get; set; }
     public virtual DateTime C { get; set; }
     public virtual uint D { get; set; }
