@@ -13,6 +13,14 @@ Test obj = new();
 Span<byte> bytes = HyperSerializer.Serialize(obj);
 Test objDeserialized = HyperSerializer.Deserialize<Test>(bytes);
 ```
+***Version 1.4 Field Support Added***
+
+Version 1.4 adds support for fields (in addition to properties). To turn off for backwards compatibility with previously serialized types that contain PUBLIC fields (private fields will not impact deserialization of previously serialized types), add the following setting to the Program.cs file or prior to use of the serializer...
+
+```csharp
+//Turn off field serialization
+HyperSerializerSettings.SerializeFields = false;
+```
 ***Head to Head Speed Test***
 
 BenchmarkDotNet experiment serializing and deserializing 1M "Test" classes. Times in Milliseconds - Lower is Better.  See "Benchmarks" for serialized test object definiiton and additional stats on memory utiltization.
