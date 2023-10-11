@@ -3,7 +3,7 @@
 Binary Serializer.  Serialization up to 18x faster than Protobuf and MessagePack
 
 ![]()
-[![NuGet version (HyperSerializer)](https://img.shields.io/badge/nuget-v1.3-blue?style=flat-square)](https://www.nuget.org/packages/HyperSerializer/)
+[![NuGet version (HyperSerializer)](https://img.shields.io/badge/nuget-v1.4-blue?style=flat-square)](https://www.nuget.org/packages/HyperSerializer/)
 
 If you're looking for the fastest binary serializer for DotNet known to Git-kind, look no further.  HyperSerializer is up to ***18x faster than [MessagePack](https://github.com/neuecc/MessagePack-CSharp) and [Protobuf](https://github.com/protocolbuffers/protobuf), and 11x faster than [BinaryPack](https://github.com/Sergio0694/BinaryPack)***, with roughly equivelant or better memory allocation. Simply install the [Nuget package (Install-Package HyperSerializer)](https://www.nuget.org/packages/HyperSerializer/) and serialize/deserialize with just 2 lines of code.
 

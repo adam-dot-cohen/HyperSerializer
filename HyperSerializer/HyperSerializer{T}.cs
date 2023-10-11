@@ -114,7 +114,7 @@ public static class HyperSerializer<T>
                 allowUnsafe: true, 
                 optimizationLevel: OptimizationLevel.Release));
 
-        if (HyperSerializerSettings.WriteProxyToDebugOutput)
+        if (HyperSerializerSettings.WriteProxyToConsoleOutput)
         {
 	        Console.Write(syntaxTree.GetRoot().NormalizeWhitespace().ToFullString());
         }

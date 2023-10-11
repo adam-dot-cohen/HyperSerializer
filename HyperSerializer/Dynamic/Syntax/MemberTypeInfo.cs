@@ -1,6 +1,7 @@
 ﻿using System.Reflection;
 using System;
 using System.Linq;
+using Hyper;
 
 namespace HyperSerializer.Dynamic.Syntax;
 
@@ -15,15 +16,19 @@ internal ref struct MemberTypeInfos<T>
     public MemberTypeInfos()
     {
         var type = typeof(T);
-        var members = type.GetFields(bindingFlags).Cast<MemberInfo>()
-            .Concat(type.GetProperties(bindingFlags)).ToArray();
+        var members = type.GetFields(bindingFlags).Cast<MemberInfo>().ToArray();
+
+		if(HyperSerializerSettings.SerializeFields)
+			members = members.Concat(type.GetProperties(bindingFlags)).ToArray();
 
         this.Length = members.Length;
+
         this.Members = new MemberTypeInfo[members.Length];
 
         for (int i = 0; i < this.Length; i++)
         {
 	        this.Members[i] = new MemberTypeInfo();
+
             if (members[i] is FieldInfo field)
             {
 	            this.Members[i].PropertyType = field.FieldType;

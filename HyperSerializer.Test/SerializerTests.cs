@@ -295,7 +295,7 @@ public class SerializerTests : TestBase
     public void Test_Struct_Array_Should_Serialize()
     {
 
-	    HyperSerializerSettings.WriteProxyToDebugOutput = true;
+	    HyperSerializerSettings.WriteProxyToConsoleOutput = true;
 
         var numRecords = 1000;
 
