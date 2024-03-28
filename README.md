@@ -20,7 +20,7 @@ BenchmarkDotNet experiment serializing and deserializing 1M "Test" classes. Time
 ![Execution Duration](http://raw.githubusercontent.com/Hyperlnq/HyperSerializer/main/BenchmarkAssets/Time.png)
  
 # Implementation and Framework Support
-HyperSerializer was built as a champion/challenger (C++ vs C#) experiment to support the nanosecond latency requirements of high frequency trading.  HyperSerializer uses the managed Span\<T\> and Memory\<T\> structs to acheive extreme speed and low memory allocation without unsafe code.  HyperSerializer is 100% thread-safe and comes with both sync and async serialization and deserialization methods.  Out of the box support for .NETCoreApp 3.1, net6.0, net7.0.
+HyperSerializer was built as a champion/challenger (C++ vs C#) experiment to support the nanosecond latency requirements of high frequency trading.  HyperSerializer uses the managed Span\<T\> and Memory\<T\> structs to acheive extreme speed and low memory allocation without unsafe code.  HyperSerializer is 100% thread-safe and comes with both sync and async serialization and deserialization methods.  Out of the box support for net6.0, net7.0, net8.0.
     
 HyperSerializer is intended for use cases such as caching and interservice communication behind firewalls or between known parites.  It is implemented using a customer binary format (aka wire format) and uses bounding techniques to protect against buffer overflows.  As a result, attempting to deserialize a message that exceeds the size of an expected data type will result in an exception in most cases as described later in this section.  For example, the following code which can be found in SerializerTests.cs in the test project attempts to deserialize an 8 BYTE buffer as a 4 BYTE int, which results in an ArgumentOutOfRangeException:
 
@@ -106,7 +106,12 @@ Serialization of the following types and nested types is planned but not support
 - Dictionaries are not supported at this type (arrays, generic lists, etc. are supported). If a class contains a property of type Dictionary, the class will still be serialized but the property will be ignored.
 
 ### Property Exclusion
-If you need to exclude a property from being serialized for reasons other then performance (unless nanoseconds actually matter to you), presently your only option is a DTO.  If you would like this feature added feel free to contribute or log an issue.
-    
+If you need to exclude a property from being serialized for reasons other then performance (unless nanoseconds actually matter to you), decorate with the `[IngoreDataMember]` attribute from `System.Runtime.Serialization`.
+
+```csharp
+[IgnoreDataMember]
+public int MyProperty { get; set; }
+```
+
 ## Feedback, Suggestions and Contributions
 Are all welcome!

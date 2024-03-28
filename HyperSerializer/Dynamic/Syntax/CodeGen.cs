@@ -72,8 +72,9 @@ internal static class CodeGen<TSnippets>
         {
 			for(int i = 0; i < infos.Length; i++)
 			{
-                if (!(TypeSupport.IsSupportedType(infos[i].PropertyType)))
+                if (infos[i].Ignore || !TypeSupport.IsSupportedType(infos[i].PropertyType))
                     continue;
+
                 var (len, str) = GenerateSerializer<T>(sb, "obj", infos[i]);
                 offset += len;
                 offsetStr += str;
@@ -95,8 +96,9 @@ internal static class CodeGen<TSnippets>
 
 	        for(int i = 0; i < infos.Length; i++)
 	        {
-                if (!(TypeSupport.IsSupportedType(infos[i].PropertyType)))
-                    continue;
+		        if (infos[i].Ignore || !TypeSupport.IsSupportedType(infos[i].PropertyType))
+			        continue;
+
                 var (len, str) = GenerateDeserializer<T>(sb, "obj", infos[i]);
                 offset += len;
                 offsetStr += str;

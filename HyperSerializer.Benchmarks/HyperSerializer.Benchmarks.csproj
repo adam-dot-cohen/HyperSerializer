@@ -3,7 +3,7 @@
   <PropertyGroup>
     <LangVersion>latest</LangVersion>
     <OutputType>Exe</OutputType>
-	  <TargetFrameworks>net7.0;net6.0;netcoreapp3.1</TargetFrameworks>
+	  <TargetFrameworks>net8.0;net7.0;net6.0</TargetFrameworks>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     <SignAssembly>true</SignAssembly>
     <DelaySign>true</DelaySign>

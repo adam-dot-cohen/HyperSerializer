@@ -1,6 +1,8 @@
 ﻿using System.Reflection;
 using System;
+using System.Diagnostics.Contracts;
 using System.Linq;
+using System.Runtime.Serialization;
 using Hyper;
 
 namespace HyperSerializer.Dynamic.Syntax;
@@ -33,6 +35,7 @@ internal ref struct MemberTypeInfos<T>
             {
 	            this.Members[i].PropertyType = field.FieldType;
 	            this.Members[i].Name = field.Name;
+	            this.Members[i].Ignore = members[i].IsDefined(typeof(IgnoreDataMemberAttribute));
                 continue;
             }
 
@@ -40,6 +43,7 @@ internal ref struct MemberTypeInfos<T>
             {
 	            this.Members[i].PropertyType = property.PropertyType;
 	            this.Members[i].Name = property.Name;
+	            this.Members[i].Ignore = members[i].IsDefined(typeof(IgnoreDataMemberAttribute));
             }
         }
     }
@@ -48,5 +52,6 @@ internal ref struct MemberTypeInfos<T>
 internal class MemberTypeInfo
 {
     public Type PropertyType;
+    public bool Ignore;
     public string Name;
 }

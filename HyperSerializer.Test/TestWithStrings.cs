@@ -1,4 +1,5 @@
 using System;
+using System.Runtime.Serialization;
 
 namespace Hyper.Test
 {
@@ -134,6 +135,21 @@ namespace Hyper.Test.Incompatible
         public virtual TimeSpan F { get; set; }
         public virtual Guid G { get; set; }
         public virtual TestEnum H { get; set; }
+
+    }
+
+    public class TestWithStrings_IntoreDataMember
+    {
+	    public virtual long A { get; set; }
+		[IgnoreDataMember]
+	    public virtual int B { get; set; }
+		[IgnoreDataMember]
+	    public virtual int C { get; set; }
+	    public virtual DateTime D { get; set; }
+	    public virtual decimal E { get; set; }
+	    public virtual TimeSpan F { get; set; }
+	    public virtual Guid G { get; set; }
+	    public virtual TestEnum H { get; set; }
 
     }
 }

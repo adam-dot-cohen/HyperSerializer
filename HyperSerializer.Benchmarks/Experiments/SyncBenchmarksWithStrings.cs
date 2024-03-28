@@ -3,9 +3,6 @@ using System.Buffers;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
-#if NET5_0_OR_GREATER
-using Apex.Serialization;
-#endif
 using BenchmarkDotNet.Attributes;
 using BenchmarkDotNet.Engines;
 using BenchmarkDotNet.Jobs;
@@ -16,6 +13,9 @@ using HyperSerializer.Benchmarks.Experiments.HyperSerializer;
 using MessagePack;
 using ProtoBuf;
 using Buffer = System.Buffer;
+#if NET6_0_OR_GREATER && !NET8_0
+using Apex.Serialization;
+#endif
 
 namespace Hyper.Benchmarks.Experiments;
 
@@ -96,7 +96,7 @@ public class SyncBenchmarksWithStrings
             Debug.Assert(deserialize.GetHashCode() == obj.GetHashCode());
         }
     }
-#if NET5_0_OR_GREATER
+#if NET6_0_OR_GREATER && !NET8_0
     [Benchmark]
     public void ApexSerializer()
     {
@@ -114,38 +114,3 @@ public class SyncBenchmarksWithStrings
     }
 #endif
 }
-//[Benchmark]
-    //public void FASTERSerializerHeap_Bench()
-    //{
-    //    foreach(var obj in _test)
-    //    {
-    //        HyperSerializer.SerializeAsync(out var bytes, obj);
-    //        TestWithStrings deserialize = HyperSerializer.DeserializeAsync(bytes);
-    //        Debug.Assert(deserialize.E == obj.E);
-    //    }
-    //}
-
-    //[Benchmark]
-    //public void BinarySerializerV2Bench()
-    //{
-    //    foreach(var obj in _test)
-    //    {
-    //        HyperSerializerUnsafe<TestWithStrings>.Serialize(out Span<byte> bytes, obj);
-    //        TestWithStrings deserialize = HyperSerializerUnsafe<TestWithStrings>.Deserialize(bytes);
-    //        Debug.Assert(deserialize.E == obj.E);
-    //    }
-    //}
-
-    //[Benchmark]
-    //public void BinarySerializerAsyncV2Bench()
-    //{
-    //    foreach(var obj in _test)
-    //    {
-    //        HyperSerializerUnsafe<TestWithStrings>.SerializeAsync(out var bytes, obj);
-    //        TestWithStrings deserialize = HyperSerializerUnsafe<TestWithStrings>.DeserializeAsync(bytes);
-    //        Debug.Assert(deserialize.E == obj.E);
-    //    }
-    //}
-
-//}
-

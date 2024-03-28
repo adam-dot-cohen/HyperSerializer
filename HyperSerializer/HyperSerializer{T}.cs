@@ -101,9 +101,15 @@ public static class HyperSerializer<T>
     {
 	    var infos = new MemberTypeInfos<T>();
 
-        var result = CodeGen<ProxySyntaxTemplate>.GenerateCode<T>(infos);
+#if NET8_0
+	    var result = CodeGen<ProxySyntaxTemplate_Net8>.GenerateCode<T>(infos);
+#else
+	    var result = CodeGen<ProxySyntaxTemplate>.GenerateCode<T>(infos);
+#endif
 
         var syntaxTree = CSharpSyntaxTree.ParseText(result.Code);
+		
+
 
         var compilation = CSharpCompilation.Create(
                 assemblyName: $"ProxyGen.SerializationProxy_{result.ClassName}_{DateTime.Now.ToFileTimeUtc()}")

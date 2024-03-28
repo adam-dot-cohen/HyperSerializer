@@ -11,7 +11,7 @@ class Program
 {
     private static IConfig BenchConfig => DefaultConfig.Instance.AddJob(Job.Default.AsDefault()
         // .WithLaunchCount(1).WithInvocationCount(1).WithWarmupCount(1).WithUnrollFactor(1)
-        .WithRuntime(CoreRuntime.Core70)
+        .WithRuntime(CoreRuntime.Core80)
         .WithJit(Jit.RyuJit)
         .WithArguments(new[] { new MsBuildArgument("/p:Optimize=true") }));
     static void Main(string[] args)

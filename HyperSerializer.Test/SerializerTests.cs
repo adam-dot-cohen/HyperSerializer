@@ -5,6 +5,7 @@ using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices;
 using System.Text;
+using Hyper.Test.Incompatible;
 using HyperSerializer;
 using Microsoft.VisualStudio.TestPlatform.ObjectModel;
 using NUnit.Framework;
@@ -155,6 +156,27 @@ public class SerializerTests : TestBase
         };
         this.RoundTripComplexTypeEquality(testObj);
     }
+
+    [Test]
+    public void Test_ComplexType_With_IngoreDataMember_Equality()
+    {
+	    var i = new Random().Next(int.MaxValue);
+	    var testObj = new TestWithStrings_IntoreDataMember()
+	    {
+		    A = i,
+		    B = i,
+		    C = 1,
+		    D = DateTime.Now.Date,
+		    E = i,
+		    F = DateTime.Now - DateTime.Now.AddDays(-1),
+		    G = Guid.NewGuid(),
+		    H = TestEnum.three
+	    };
+	    var serialized = HyperSerializer.Serialize(testObj);
+	    var deserialize = HyperSerializer.Deserialize<TestWithStrings_IntoreDataMember>(serialized);
+		Assert.AreNotEqual(testObj.C, deserialize.C);
+    }
+
     [Test]
     public void Test_ComplexType_Equality_With_Stream()
     {
