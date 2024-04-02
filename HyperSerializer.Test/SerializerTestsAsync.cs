@@ -133,7 +133,7 @@ public class SerializerTestsAsync : TestBase
         };
         var serialized = HyperSerializer<TestWithStrings>.SerializeAsync(testObj).GetAwaiter().GetResult();
         var deserialize = HyperSerializer<Incompatible.TestWithStrings>.DeserializeAsync(serialized).GetAwaiter().GetResult();
-        Assert.False(this.AllCommonPropertiesAreEqual(testObj, deserialize));
+        Assert.That(!this.AllCommonPropertiesAreEqual(testObj, deserialize));
 
     }
 
@@ -155,7 +155,7 @@ public class SerializerTestsAsync : TestBase
         };
         var serialized = HyperSerializer<TestWithStrings>.SerializeAsync(testObj).GetAwaiter().GetResult();
         var deserialize = HyperSerializer<TestWithStringsV2>.DeserializeAsync(serialized).GetAwaiter().GetResult() as ITestWithStrings;
-        Assert.True(this.AllPropertiesAreEqual((ITestWithStrings)testObj, deserialize));
+        Assert.That(this.AllPropertiesAreEqual((ITestWithStrings)testObj, deserialize));
     }
 
     [Test]

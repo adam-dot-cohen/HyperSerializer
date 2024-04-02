@@ -28,14 +28,4 @@
     <ProjectReference Include="..\HyperSerializer\HyperSerializer.csproj" />
   </ItemGroup>
 
-  <ItemGroup Condition="'$(TargetFramework)' == 'net7.0'">
-    <PackageReference Include="Apex.Serialization">
-      <Version>4.0.3</Version>
-    </PackageReference>
-  </ItemGroup>
-  <ItemGroup Condition="'$(TargetFramework)' == 'net6.0'">
-    <PackageReference Include="Apex.Serialization">
-      <Version>4.0.3</Version>
-    </PackageReference>
-  </ItemGroup>
 </Project>

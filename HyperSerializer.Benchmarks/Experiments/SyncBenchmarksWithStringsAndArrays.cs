@@ -58,7 +58,7 @@
 //            {
 //                var bytes = HyperSerializer<TestObjectWithStringsAndArray>.Serialize(obj);
 //                var deserialize = HyperSerializer<TestObjectWithStringsAndArray>.Deserialize(bytes);
-//                Debug.Assert(deserialize.GetHashCode() == obj.GetHashCode());
+//                
 //            }
 //        }
        
@@ -72,7 +72,7 @@
 //                Serializer.Serialize(stream, obj);
 //                stream.Position = 0;
 //                var deserialize = Serializer.Deserialize<TestObjectWithStringsAndArray>(stream);
-//                Debug.Assert(deserialize.GetHashCode() == obj.GetHashCode());
+//                
 //            }
 //        }
 
@@ -83,7 +83,7 @@
 //            {
 //                var serialize = MessagePack.MessagePackSerializer.Serialize(obj);
 //                var deserialize = MessagePack.MessagePackSerializer.Deserialize<TestObjectWithStringsAndArray>(serialize);
-//                Debug.Assert(deserialize.GetHashCode() == obj.GetHashCode());
+//                
 //            }
 //        }
 //#if NET5_0_OR_GREATER
@@ -98,7 +98,7 @@
 //                _binary.Write(obj, stream);
 //                stream.Position = 0;
 //                var deserialize = _binary.Read<TestObjectWithStringsAndArray>(stream);
-//                Debug.Assert(deserialize.GetHashCode() == obj.GetHashCode());
+//                
 //            }
 //        }
 

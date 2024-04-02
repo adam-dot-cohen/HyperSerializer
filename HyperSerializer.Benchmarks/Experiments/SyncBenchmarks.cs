@@ -19,11 +19,6 @@ using MessagePack;
 using ProtoBuf;
 using Buffer = System.Buffer;
 
-
-#if NET6_0_OR_GREATER && !NET8_0
-using Apex.Serialization;
-#endif
-
 namespace HyperSerializer.Benchmarks.Experiments;
 
 [SimpleJob(runStrategy: RunStrategy.Throughput, launchCount: 1, invocationCount: 1, runtimeMoniker: RuntimeMoniker.Net60)]
@@ -60,19 +55,17 @@ public class SyncBenchmarks
     {
         var bytes = HyperSerializer<Test>.Serialize(_test);
 
-        Test deserialize = HyperSerializer<Test>.Deserialize(bytes);
+        _ = HyperSerializer<Test>.Deserialize(bytes);
     }
 
 
     [Benchmark(Description = "Protobuf")]
     public void ProtobufSerializer()
     {
-        MemoryPool<byte>.Shared.Rent(1024);
-        ArrayBufferWriter<byte> writer = new ArrayBufferWriter<byte>();
         using var stream = new MemoryStream();
         Serializer.Serialize(stream, _test);
         stream.Position = 0;
-        Test deserialize = Serializer.Deserialize<Test>(stream);
+        _ = Serializer.Deserialize<Test>(stream);
     }
 
     [Benchmark(Description = "MsgPack")]
@@ -80,7 +73,7 @@ public class SyncBenchmarks
     {
         var serialize = MessagePack.MessagePackSerializer.Serialize(_test);
 
-        Test deserialize = MessagePack.MessagePackSerializer.Deserialize<Test>(serialize);
+        _ = MessagePack.MessagePackSerializer.Deserialize<Test>(serialize);
     }
 
 
@@ -89,18 +82,6 @@ public class SyncBenchmarks
     {
         var serialize = MemoryPack.MemoryPackSerializer.Serialize(_test);
 
-        Test deserialize = MemoryPack.MemoryPackSerializer.Deserialize<Test>(serialize);
+        _ = MemoryPack.MemoryPackSerializer.Deserialize<Test>(serialize);
     }
-
-#if NET6_0_OR_GREATER && !NET8_0
-    [Benchmark(Description = "Apex")]
-    public void ApexSerializer()
-    {
-        var _binary = Binary.Create(new Settings { UseSerializedVersionId = false }.MarkSerializable(x => true));
-        using var stream = new MemoryStream();
-        _binary.Write(_test, stream);
-        stream.Position = 0;
-        var deserialize = _binary.Read<Test>(stream);
-    }
-#endif
 }

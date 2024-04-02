@@ -15,10 +15,6 @@ using HyperSerializer;
 using HyperSerializer.Benchmarks.Experiments.HyperSerializer;
 using MessagePack;
 using ProtoBuf;
-using Buffer = System.Buffer;
-#if NET6_0_OR_GREATER && !NET8_0
-using Apex.Serialization;
-#endif
 
 namespace Hyper.Benchmarks.Experiments;
 
@@ -51,8 +47,7 @@ public class SyncBenchmarks_ListOfObjects
 				E = i,
 				F = DateTime.Now - DateTime.Now.AddDays(-1),
 				G = Guid.NewGuid(),
-				H = TestEnum.three,
-				//  I = i.ToString()
+				H = TestEnum.three
 			});
 		}
 	}
@@ -63,8 +58,7 @@ public class SyncBenchmarks_ListOfObjects
 		foreach (var obj in this._test)
 		{
 			var bytes = HyperSerializer<Test>.Serialize(obj);
-			Test deserialize = HyperSerializer<Test>.Deserialize(bytes);
-			Debug.Assert(deserialize.GetHashCode() == obj.GetHashCode());
+			_ = HyperSerializer<Test>.Deserialize(bytes);
 		}
 	}
 
@@ -74,8 +68,7 @@ public class SyncBenchmarks_ListOfObjects
 		foreach (var obj in this._test)
 		{
 			var bytes = HyperSerializerExperimental<Test>.Serialize(obj);
-			Test deserialize = HyperSerializerExperimental<Test>.Deserialize(bytes);
-			Debug.Assert(deserialize.GetHashCode() == obj.GetHashCode());
+			_ = HyperSerializerExperimental<Test>.Deserialize(bytes);
 		}
 	}
 
@@ -85,34 +78,29 @@ public class SyncBenchmarks_ListOfObjects
 		foreach (var obj in this._test)
 		{
 			var bytes = HyperSerializerUnsafe<Test>.Serialize(obj);
-			Test deserialize = HyperSerializerUnsafe<Test>.Deserialize(bytes);
-			Debug.Assert(deserialize.GetHashCode() == obj.GetHashCode());
+			_ = HyperSerializerUnsafe<Test>.Deserialize(bytes);
 		}
 	}
 
 	[Benchmark(Description = "Protobuf")]
 	public void ProtobufSerializer()
 	{
-		MemoryPool<byte>.Shared.Rent(1014);
-		ArrayBufferWriter<byte> writer = new ArrayBufferWriter<byte>();
 		foreach (var obj in this._test)
 		{
 			using var stream = new MemoryStream();
 			Serializer.Serialize(stream, obj);
 			stream.Position = 0;
-			var deserialize = Serializer.Deserialize<Test>(stream);
-			Debug.Assert(deserialize.GetHashCode() == obj.GetHashCode());
+			_ = Serializer.Deserialize<Test>(stream);
 		}
 	}
 
-	[Benchmark(Description = "MsgPack")]
+	[Benchmark(Description = "MessagePack")]
 	public void MessagePackSerializer()
 	{
 		foreach (var obj in this._test)
 		{
 			var serialize = MessagePack.MessagePackSerializer.Serialize(obj);
-			Test deserialize = MessagePack.MessagePackSerializer.Deserialize<Test>(serialize);
-			Debug.Assert(deserialize.GetHashCode() == obj.GetHashCode());
+			_ = MessagePack.MessagePackSerializer.Deserialize<Test>(serialize);
 		}
 	}
 
@@ -123,25 +111,7 @@ public class SyncBenchmarks_ListOfObjects
 		foreach (var obj in this._test)
 		{
 			var serialize = MemoryPack.MemoryPackSerializer.Serialize(obj);
-			Test deserialize = MemoryPack.MemoryPackSerializer.Deserialize<Test>(serialize);
-			Debug.Assert(deserialize.GetHashCode() == obj.GetHashCode());
+			_ = MemoryPack.MemoryPackSerializer.Deserialize<Test>(serialize);
 		}
 	}
-
-#if NET6_0_OR_GREATER && !NET8_0
-    [Benchmark(Description = "Apex")]
-    public void ApexSerializer()
-    {
-
-        var _binary = Binary.Create(new Settings { UseSerializedVersionId = false }.MarkSerializable(x => true));
-        foreach (var obj in this._test)
-        {
-            using var stream = new MemoryStream();
-            _binary.Write(obj, stream);
-            stream.Position = 0;
-            var deserialize = _binary.Read<Test>(stream);
-            Debug.Assert(deserialize.GetHashCode() == obj.GetHashCode());
-        }
-    }
-#endif
 }

@@ -28,9 +28,11 @@ BenchmarkDotNet experiment serializing and deserializing 1M "Test" classes. Time
 ![Execution Duration](http://raw.githubusercontent.com/Hyperlnq/HyperSerializer/main/BenchmarkAssets/Time.png)
  
 # Implementation and Framework Support
-HyperSerializer was built as a champion/challenger (C++ vs C#) experiment to support the nanosecond latency requirements of high frequency trading.  HyperSerializer uses the managed Span\<T\> and Memory\<T\> structs to acheive extreme speed and low memory allocation without unsafe code.  HyperSerializer is 100% thread-safe and comes with both sync and async serialization and deserialization methods.  Out of the box support for net6.0, net7.0, net8.0.
+HyperSerializer was built as a champion/challenger (C++ vs C#) experiment to support the microsecond latency requirements of high frequency trading.  HyperSerializer leverages Span\<T\> and Memory\<T\> structs that deliver near performance parity with C++ for this use case.  HyperSerializer is 100% thread-safe and comes with both sync and async serialization and deserialization methods.  Out of the box support for net6.0, net7.0, net8.0.
     
-HyperSerializer is intended for use cases such as caching and interservice communication behind firewalls or between known parites.  It is implemented using a customer binary format (aka wire format) and uses bounding techniques to protect against buffer overflows.  As a result, attempting to deserialize a message that exceeds the size of an expected data type will result in an exception in most cases as described later in this section.  For example, the following code which can be found in SerializerTests.cs in the test project attempts to deserialize an 8 BYTE buffer as a 4 BYTE int, which results in an ArgumentOutOfRangeException:
+HyperSerializer is intended for use cases such as caching and interservice communication behind firewalls.  It serializes and deserializes the fields and properites of stack (i.e. struct) and heap (i.e. class) based types in sequential order without a contract (i.e. no inclusive attributes such `[DataMember]` required or supported...however `[IgnoreDataMember]` is supported).  So long as the source and destination types have same layout (i.e. fields/properities that share the same data type and order), serialization and deserialization will succeed.  For example, the following types may be serialized and deserialized interchangably
+
+As with all forms of binary serialization, care must be takenFor example, the following code which can be found in SerializerTests.cs in the test project attempts to deserialize an 8 BYTE buffer as a 4 BYTE int, which results in an ArgumentOutOfRangeException:
 
 ```csharp
 //Simulate foreign serialization
@@ -41,7 +43,7 @@ MemoryMarshal.Write(buffer, ref i);
 //Simulate attempting to deserialize Int64 (8 bytes) to Int32 (4 bytes)
 var deserialize = HyperSerializer.Deserialize<int>(buffer);
 
-//Result: ArguementOutOfRangeException
+//Result: ArgumentOutOfRangeException
 ```
 In the event the destiation data type was (1) 8 BYTES in length or (2) an object containing properties with an aggregate size exceeding 8 BYTES, one of the following would occur: (1) a data type specific execption, in most cases - ArguementOutOfRangeException, OR (2) no exception at all if the bytes happen to represent valid values for the destination type(s).
 

@@ -129,7 +129,7 @@
 //        };
 //        var serialized = HyperSerializerUnsafe<TestWithStrings>.Serialize(testObj);
 //        var deserialize = HyperSerializerUnsafe<Incompatible.TestWithStrings>.Deserialize(serialized);
-//        Assert.False(AllCommonPropertiesAreEqual(testObj, deserialize));
+//        Assert.That(!AllCommonPropertiesAreEqual(testObj, deserialize));
 
 //    }
 
@@ -151,7 +151,7 @@
 //        };
 //        var serialized = HyperSerializerUnsafe<TestWithStrings>.Serialize(testObj);
 //        var deserialize = HyperSerializerUnsafe<TestWithStringsV2>.Deserialize(serialized) as ITestWithStrings;
-//        Assert.True(AllPropertiesAreEqual((ITestWithStrings)testObj, deserialize));
+//        Assert.That(AllPropertiesAreEqual((ITestWithStrings)testObj, deserialize));
 //    }
 
 //    [Test]

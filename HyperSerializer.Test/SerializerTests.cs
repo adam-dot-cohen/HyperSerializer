@@ -174,7 +174,8 @@ public class SerializerTests : TestBase
 	    };
 	    var serialized = HyperSerializer.Serialize(testObj);
 	    var deserialize = HyperSerializer.Deserialize<TestWithStrings_IntoreDataMember>(serialized);
-		Assert.AreNotEqual(testObj.C, deserialize.C);
+		
+		Assert.That(testObj.C != deserialize.C);
     }
 
     [Test]
@@ -217,7 +218,7 @@ public class SerializerTests : TestBase
         };
         var serialized = HyperSerializer<TestWithStrings>.Serialize(testObj);
         var deserialize = HyperSerializer<Incompatible.TestWithStrings>.Deserialize(serialized);
-        Assert.False(this.AllCommonPropertiesAreEqual(testObj, deserialize));
+        Assert.That(!this.AllCommonPropertiesAreEqual(testObj, deserialize));
 
     }
 
@@ -239,7 +240,7 @@ public class SerializerTests : TestBase
         };
         var serialized = HyperSerializer<TestWithStrings>.Serialize(testObj);
         var deserialize = HyperSerializer<TestWithStringsV2>.Deserialize(serialized) as ITestWithStrings;
-        Assert.True(this.AllPropertiesAreEqual((ITestWithStrings)testObj, deserialize));
+        Assert.That(this.AllPropertiesAreEqual((ITestWithStrings)testObj, deserialize));
     }
 
     [Test]
@@ -310,7 +311,7 @@ public class SerializerTests : TestBase
 
         var deserialized = HyperSerializer.Deserialize<ScreenshotContent>(serialized);
 
-        Assert.True(deserialized.ImageBytes.SequenceEqual(content.ImageBytes));
+        Assert.That(deserialized.ImageBytes.SequenceEqual(content.ImageBytes));
     }
 
     [Test]
@@ -336,7 +337,7 @@ public class SerializerTests : TestBase
 
         var hsOut = HyperSerializer.Deserialize<SymbolTick[]>(tickArray);
 
-        for (var i = 0; i < numRecords; i++) Assert.True(base.AllCommonPropertiesAreEqual(ticks[i], hsOut[i]));
+        for (var i = 0; i < numRecords; i++) Assert.That(base.AllCommonPropertiesAreEqual(ticks[i], hsOut[i]));
     }
 
 }

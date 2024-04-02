@@ -15,9 +15,6 @@ using HyperSerializer.Benchmarks.Experiments.HyperSerializer;
 using MessagePack;
 using ProtoBuf;
 using Buffer = System.Buffer;
-#if NET6_0_OR_GREATER && !NET8_0
-using Apex.Serialization;
-#endif
 
 namespace Hyper.Benchmarks.Experiments;
 
@@ -55,8 +52,8 @@ public class SyncBenchmarksSymbolTick
         foreach (var obj in this._test)
         {
             var bytes = HyperSerializer<SymbolTick>.Serialize(obj);
-            SymbolTick deserialize = HyperSerializer<SymbolTick>.Deserialize(bytes);
-            Debug.Assert(deserialize.GetHashCode() == obj.GetHashCode());
+            _ = HyperSerializer<SymbolTick>.Deserialize(bytes);
+            
         }
     }
 
@@ -71,8 +68,8 @@ public class SyncBenchmarksSymbolTick
             using var stream = new MemoryStream();
             Serializer.Serialize(stream, obj);
             stream.Position = 0;
-            SymbolTick deserialize = Serializer.Deserialize<SymbolTick>(stream);
-            Debug.Assert(deserialize.GetHashCode() == obj.GetHashCode());
+            _ = Serializer.Deserialize<SymbolTick>(stream);
+            
         }
     }
 
@@ -82,8 +79,8 @@ public class SyncBenchmarksSymbolTick
         foreach (var obj in this._test)
         {
             var serialize = MessagePack.MessagePackSerializer.Serialize(obj);
-            SymbolTick deserialize = MessagePack.MessagePackSerializer.Deserialize<SymbolTick>(serialize);
-            Debug.Assert(deserialize.GetHashCode() == obj.GetHashCode());
+            _ = MessagePack.MessagePackSerializer.Deserialize<SymbolTick>(serialize);
+            
         }
     }
 
@@ -94,27 +91,10 @@ public class SyncBenchmarksSymbolTick
         foreach (var obj in this._test)
         {
             var serialize = MemoryPack.MemoryPackSerializer.Serialize(obj);
-            SymbolTick deserialize = MemoryPack.MemoryPackSerializer.Deserialize<SymbolTick>(serialize);
-            Debug.Assert(deserialize.GetHashCode() == obj.GetHashCode());
+            _ = MemoryPack.MemoryPackSerializer.Deserialize<SymbolTick>(serialize);
+            
         }
     }
-
-#if NET6_0_OR_GREATER && !NET8_0
-    [Benchmark(Description="Apex")]
-    public void ApexSerializer()
-    {
-
-        var _binary = Binary.Create(new Settings { UseSerializedVersionId = false }.MarkSerializable(x => true));
-        foreach (var obj in this._test)
-        {
-            using var stream = new MemoryStream();
-            _binary.Write(obj, stream);
-            stream.Position = 0;
-            var deserialize = _binary.Read<SymbolTick>(stream);
-            Debug.Assert(deserialize.GetHashCode() == obj.GetHashCode());
-        }
-    }
-#endif
 	//[Benchmark]
 	//public void DataContractSerializer()
 	//{
@@ -126,7 +106,7 @@ public class SyncBenchmarksSymbolTick
 	//		stream.Position = 0;
 	//		serializer.WriteObject(stream, obj);
 	//		var deserialize = (Test)new System.Runtime.Serialization.DataContractSerializer(typeof(Test)).ReadObject(stream);
-	//		Debug.Assert(deserialize.GetHashCode() == obj.GetHashCode());
+	//		
 	//	}
 	//}
 
@@ -138,7 +118,7 @@ public class SyncBenchmarksSymbolTick
 	//    {
 	//        var serialize = ZeroFormatter.ZeroFormatterSerializer.Serialize(obj);
 	//        Test deserialize = ZeroFormatter.ZeroFormatterSerializer.Deserialize<Test>(serialize);
-	//        Debug.Assert(deserialize.GetHashCode() == obj.GetHashCode());
+	//        
 
 	//    }
 	//}

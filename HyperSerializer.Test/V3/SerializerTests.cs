@@ -180,7 +180,7 @@ public class SerializerTestsV3 : TestBaseV3
         };
         var serialized = HyperSerializer<TestWithStrings>.Serialize(testObj);
         var deserialize = HyperSerializer<Incompatible.TestWithStrings>.Deserialize(serialized);
-        Assert.False(this.AllCommonPropertiesAreEqual(testObj, deserialize));
+        Assert.That(!this.AllCommonPropertiesAreEqual(testObj, deserialize));
 
     }
 
@@ -202,7 +202,7 @@ public class SerializerTestsV3 : TestBaseV3
         };
         var serialized = HyperSerializer<TestWithStrings>.Serialize(testObj);
         var deserialize = HyperSerializer<TestWithStringsV2>.Deserialize(serialized) as ITestWithStrings;
-        Assert.True(this.AllPropertiesAreEqual((ITestWithStrings)testObj, deserialize));
+        Assert.That(this.AllPropertiesAreEqual((ITestWithStrings)testObj, deserialize));
     }
 
     [Test]

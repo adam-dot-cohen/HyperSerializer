@@ -10,19 +10,19 @@ public class TestBaseAsync
     {
         var serialized = HyperSerializer<T>.SerializeAsync(value).GetAwaiter().GetResult();
         var deserialize = HyperSerializer<T>.DeserializeAsync(serialized).GetAwaiter().GetResult();
-        Assert.AreEqual(value, deserialize);
+        Assert.That(value.Equals(deserialize));
     }
     protected void RoundTripComplexTypeEquality<T>(T value)
     {
         var serialized = HyperSerializer<T>.SerializeAsync(value).GetAwaiter().GetResult();
         var deserialize = HyperSerializer<T>.DeserializeAsync(serialized).GetAwaiter().GetResult();
-        Assert.True(this.AllPropertiesAreEqual(value, deserialize));
+        Assert.That(this.AllPropertiesAreEqual(value, deserialize));
     }
     protected void RoundTripInequality<T>(T value)
     {
         var serialized = HyperSerializer<T>.SerializeAsync(value).GetAwaiter().GetResult();
         var deserialize = HyperSerializer<T>.DeserializeAsync(serialized).GetAwaiter().GetResult();
-        Assert.AreNotEqual(value, deserialize);
+        Assert.That(!value.Equals(deserialize));
     }
 
     protected bool AllPropertiesAreEqual<TObject, TObject2>(TObject obj, TObject2 value, params string[]? exclude)

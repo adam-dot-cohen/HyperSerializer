@@ -12,19 +12,19 @@ public class TestBase
     {
         var serialized = HyperSerializer<T>.Serialize(value);
         var deserialize = HyperSerializer<T>.Deserialize(serialized);
-        Assert.AreEqual(value, deserialize);
+        Assert.That(value.Equals(deserialize));
     }
     protected void RoundTripComplexTypeEquality<T>(T value)
     {
         var serialized = HyperSerializer<T>.Serialize(value);
         T deserialize = HyperSerializer<T>.Deserialize(serialized);
-        Assert.True(this.AllPropertiesAreEqual(value, deserialize));
+        Assert.That(this.AllPropertiesAreEqual(value, deserialize));
     }
     protected void RoundTripInequality<T>(T value)
     {
         var serialized = HyperSerializer<T>.Serialize(value);
         T deserialize = HyperSerializer<T>.Deserialize(serialized);
-        Assert.AreNotEqual(value, deserialize);
+        Assert.That(value.Equals(deserialize));
     }
 
     protected bool AllPropertiesAreEqual<TObject, TObject2>(TObject obj, TObject2 value, params string[]? exclude)

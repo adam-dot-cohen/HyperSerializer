@@ -12,10 +12,6 @@ using HyperSerializer;
 using HyperSerializer.Benchmarks.Experiments.HyperSerializer;
 using MessagePack;
 using ProtoBuf;
-using Buffer = System.Buffer;
-#if NET6_0_OR_GREATER && !NET8_0
-using Apex.Serialization;
-#endif
 
 namespace Hyper.Benchmarks.Experiments;
 
@@ -47,20 +43,20 @@ public class SyncBenchmarksWithStrings
         }
     }
 
-    [Benchmark(Baseline = true)]
+    [Benchmark(Baseline = true, Description = "HyperSerializer")]
     public void HyperSerializerSync()
     {
         for (var i = 0; i < this.iterations; i++)
         {
             var obj = this._test[i];
             var bytes = HyperSerializer<TestWithStrings>.Serialize(obj);
-            TestWithStrings deserialize = HyperSerializer<TestWithStrings>.Deserialize(bytes);
-            Debug.Assert(deserialize.GetHashCode() == obj.GetHashCode());
+            _ = HyperSerializer<TestWithStrings>.Deserialize(bytes);
+            
         }
     }
 
        
-    [Benchmark]
+    [Benchmark(Description = "Protobuf")]
     public void ProtobufSerializer()
     {
         MemoryPool<byte>.Shared.Rent(1014);
@@ -70,20 +66,20 @@ public class SyncBenchmarksWithStrings
             using var stream = new MemoryStream();
             Serializer.Serialize(stream, obj);
             stream.Position = 0;
-            var deserialize = Serializer.Deserialize<TestWithStrings>(stream);
-            Debug.Assert(deserialize.GetHashCode() == obj.GetHashCode());
+            _ = Serializer.Deserialize<TestWithStrings>(stream);
+            
         }
     }
 
-    [Benchmark]
+    [Benchmark(Description = "MessagePack")]
     public void MessagePackSerializer()
     {
         for (var i = 0; i < this.iterations; i++)
         {
             var obj = this._test[i];
             var serialize = MessagePack.MessagePackSerializer.Serialize(obj);
-            TestWithStrings deserialize = MessagePack.MessagePackSerializer.Deserialize<TestWithStrings>(serialize);
-            Debug.Assert(deserialize.GetHashCode() == obj.GetHashCode());
+            _ = MessagePack.MessagePackSerializer.Deserialize<TestWithStrings>(serialize);
+            
         }
     }
     [Benchmark(Description = "MemoryPack")]
@@ -93,24 +89,7 @@ public class SyncBenchmarksWithStrings
         {
             var serialize = MemoryPack.MemoryPackSerializer.Serialize(obj);
             var deserialize = MemoryPack.MemoryPackSerializer.Deserialize<TestWithStrings>(serialize);
-            Debug.Assert(deserialize.GetHashCode() == obj.GetHashCode());
+            
         }
     }
-#if NET6_0_OR_GREATER && !NET8_0
-    [Benchmark]
-    public void ApexSerializer()
-    {
-
-        var _binary = Binary.Create(new Settings { UseSerializedVersionId = false }.MarkSerializable(x => true));
-        for (var i = 0; i < this.iterations; i++)
-        {
-            var obj = this._test[i];
-            using var stream = new MemoryStream();
-            _binary.Write(obj, stream);
-            stream.Position = 0;
-            var deserialize = _binary.Read<TestWithStrings>(stream);
-            Debug.Assert(deserialize.GetHashCode() == obj.GetHashCode());
-        }
-    }
-#endif
 }

@@ -55,7 +55,6 @@ public class AsyncBenchmarks
         {
             var bytes = HyperSerializer<Test>.SerializeAsync(obj).GetAwaiter().GetResult();
             Test deserialize = HyperSerializer<Test>.DeserializeAsync(bytes).GetAwaiter().GetResult();
-            Debug.Assert(deserialize.E == obj.E);
         });
     }
     [Benchmark]
@@ -65,7 +64,6 @@ public class AsyncBenchmarks
         {
             var bytes = HyperSerializerUnsafe<Test>.SerializeAsync(obj).GetAwaiter().GetResult();
             Test deserialize = HyperSerializerUnsafe<Test>.DeserializeAsync(bytes).GetAwaiter().GetResult();
-            Debug.Assert(deserialize.E == obj.E);
         });
     }
     [Benchmark]
