@@ -5,7 +5,7 @@ Binary Serializer.  Serialization up to 18x faster than Protobuf and MessagePack
 ![]()
 [![NuGet version (HyperSerializer)](https://img.shields.io/badge/nuget-v1.5-blue?style=flat-square)](https://www.nuget.org/packages/HyperSerializer/)
 
-If you're looking for the fastest binary serializer for DotNet known to Git-kind, look no further.  HyperSerializer is up to ***18x faster than [MessagePack](https://github.com/neuecc/MessagePack-CSharp) and [Protobuf](https://github.com/protocolbuffers/protobuf), and 11x faster than [BinaryPack](https://github.com/Sergio0694/BinaryPack)***, with roughly equivelant or better memory allocation. Simply install the [Nuget package (Install-Package HyperSerializer)](https://www.nuget.org/packages/HyperSerializer/) and serialize/deserialize with just 2 lines of code.
+If you're looking for the fastest binary serializer for DotNet known to Git-kind, look no further.  HyperSerializer is up to ***16x faster than [MessagePack](https://github.com/neuecc/MessagePack-CSharp) and [Protobuf](https://github.com/protocolbuffers/protobuf), and 2x faster than [MemoryPack](https://github.com/Cysharp/MemoryPack)***, with roughly equivelant or better memory allocation. Simply install the [Nuget package (Install-Package HyperSerializer)](https://www.nuget.org/packages/HyperSerializer/) and serialize/deserialize with just 2 lines of code.
 
 ```csharp
 //Sync Example
@@ -94,18 +94,22 @@ _(Memory in Megabytes - Lower is Better)_ - HyperSerializer requres roughly the 
 ![Execution Duration](http://raw.githubusercontent.com/Hyperlnq/HyperSerializer/main/BenchmarkAssets/Space.png)
 
 ```
-BenchmarkDotNet=v0.13.1, OS=Windows 10.0.19044.1415 (21H2)
+BenchmarkDotNet=v0.13.4, OS=Windows 11 (10.0.22621.3296)
 Intel Core i9-10980XE CPU 3.00GHz, 1 CPU, 36 logical and 18 physical cores
-.NET SDK=6.0.101
-  [Host]     : .NET 6.0.1 (6.0.121.56705), X64 RyuJIT
-  Job-XTVWKK : .NET 6.0.1 (6.0.121.56705), X64 RyuJIT
+.NET SDK=8.0.203
+  [Host]     : .NET 8.0.3 (8.0.324.11423), X64 RyuJIT AVX2
+  Job-PSJYJC : .NET 8.0.3 (8.0.324.11423), X64 RyuJIT AVX2
 
-|                Method|       Mean|      Error|    StdDev|  Ratio|  RatioSD|       Gen 0|  Allocated
-|       HyperSerializer|   49.95 ms|   0.543 ms|  0.508 ms|   1.00|     0.00|  17000.0000|     214 MB
-| HyperSerializerUnsafe|   49.98 ms|   0.509 ms|  0.476 ms|   1.00|     0.01|  17000.0000|     214 MB
-|        ApexSerializer|  155.18 ms|   0.884 ms|  0.827 ms|   3.11|     0.03|  35000.0000|     437 MB
-| MessagePackSerializer|  899.12 ms|   0.994 ms|  0.881 ms|  18.02|     0.16|  16000.0000|     205 MB
-|    ProtobufSerializer|  917.73 ms|  10.020 ms|  9.372 ms|  18.37|     0.17|  35000.0000|     435 MB
+Jit=RyuJit  Runtime=.NET 8.0  Arguments=/p:Optimize=true
+InvocationCount=1  LaunchCount=1  RunStrategy=Throughput
+UnrollFactor=1
+
+|            Method | iterations |      Mean | Ratio | Allocated | Alloc Ratio |
+|------------------ |----------- |----------:|------:|----------:|------------:|
+|   HyperSerializer |    1000000 |  46.24 ms |  1.00 | 205.99 MB |        1.00 |
+|        MemoryPack |    1000000 |  98.81 ms |  2.14 | 213.62 MB |        1.04 |
+|       MessagePack |    1000000 | 768.58 ms | 16.62 | 197.86 MB |        0.96 |
+|          Protobuf |    1000000 | 769.34 ms | 16.64 | 427.25 MB |        2.07 |
 ```
 
 ## Limitations 
