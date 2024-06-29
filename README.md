@@ -66,6 +66,8 @@ byte[] bytes; // example - bytes you received over the wire, from cache etc...
 Test objDeserialized = HyperSerializer.Deserialize<Test>(bytes);
 Test objDeserialized = HyperSerializer.Deserialize<Test>Async(bytes);
 ```
+See the test project for additional examples.
+
 ## Benchmarks
 Benchmarks performed using BenchmarkDotNet follow the intended usage pattern of serializing and deserializing a single instance of an object at a time (as opposed to batch collection serialization used in the benchmarks published by other libraries such as Apex).  The benchmarks charts displayed below represent 1 million syncronous serialization and deserialization operations of the following object:
 
