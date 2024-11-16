@@ -1,6 +1,6 @@
 # Overview
 
-Binary Serializer.  Serialization up to 18x faster than Protobuf and MessagePack
+C# .NET (dotnet) Binary Serializer.  Serialization up to 18x faster than Protobuf and MessagePack
 
 ![]()
 [![NuGet version (HyperSerializer)](https://img.shields.io/badge/nuget-v1.5-blue?style=flat-square)](https://www.nuget.org/packages/HyperSerializer/)
