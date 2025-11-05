@@ -1,7 +1,9 @@
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using NUnit.Framework;
+using NUnit.Framework.Constraints;
 
 namespace Hyper.Test;
 
@@ -12,7 +14,12 @@ public class TestBase
     {
         var serialized = HyperSerializer<T>.Serialize(value);
         var deserialize = HyperSerializer<T>.Deserialize(serialized);
-        Assert.That(value.Equals(deserialize));
+        if (value is null)
+        {
+            Assert.That(deserialize == null);
+            return;
+        }
+        Assert.That(Equals(value, deserialize));
     }
     protected void RoundTripComplexTypeEquality<T>(T value)
     {
@@ -24,8 +31,11 @@ public class TestBase
     {
         var serialized = HyperSerializer<T>.Serialize(value);
         T deserialize = HyperSerializer<T>.Deserialize(serialized);
-        Assert.That(value.Equals(deserialize));
+        Assert.That(!Equals(value, deserialize));
     }
+
+    private bool Equals<T>(T val1, T val2)
+        => EqualityComparer<T>.Default.Equals(val1, val2);
 
     protected bool AllPropertiesAreEqual<TObject, TObject2>(TObject obj, TObject2 value, params string[]? exclude)
     {
@@ -37,14 +47,15 @@ public class TestBase
         {
 	        if (prop is FieldInfo field)
 	        {
+                
 		        var prop2 = typeof(TObject2).GetField(prop.Name);
-		        if (!Equals(field.GetValue(obj), prop2?.GetValue(value)))
+		        if (!Equals(field?.GetValue(obj), prop2?.GetValue(value)))
 			        return false;
 	        }
 	        if (prop is PropertyInfo property)
 	        {
 		        var prop2 = typeof(TObject2).GetProperty(prop.Name);
-		        if (!Equals(property.GetValue(obj), prop2?.GetValue(value)))
+		        if (!Equals(property?.GetValue(obj), prop2?.GetValue(value)))
 			        return false;
 	        }
         }

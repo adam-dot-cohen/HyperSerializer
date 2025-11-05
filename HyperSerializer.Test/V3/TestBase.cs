@@ -1,8 +1,9 @@
+using Newtonsoft.Json.Linq;
+using NUnit.Framework;
 using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
-using NUnit.Framework;
 
 namespace Hyper.Test;
 
@@ -12,7 +13,14 @@ public class TestBaseV3
     {
         var serialized = HyperSerializer<T>.Serialize(value);
         var deserialize = HyperSerializer<T>.Deserialize(serialized);
-        Assert.That(value.Equals(deserialize));
+
+        if (value is null)
+        {
+            Assert.That(deserialize == null);
+            return;
+        }
+
+        Assert.That(Equals(value, deserialize));
     }
     protected void RoundTripComplexTypeEquality<T>(T value)
     {
@@ -24,8 +32,11 @@ public class TestBaseV3
     {
         var serialized = HyperSerializer<T>.Serialize(value);
         T deserialize = HyperSerializer<T>.Deserialize(serialized);
-        Assert.That(!value.Equals(deserialize));
+        Assert.That(!Equals(value, deserialize));
     }
+
+    private bool Equals<T>(T val1, T val2)
+        => EqualityComparer<T>.Default.Equals(val1, val2);
 
     protected bool AllPropertiesAreEqual<TObject, TObject2>(TObject obj, TObject2 value, params string[]? exclude)
     {

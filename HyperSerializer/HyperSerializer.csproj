@@ -1,13 +1,13 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 	<PropertyGroup>
     <LangVersion>latest</LangVersion>
-    <TargetFrameworks>net8.0;net7.0;net6.0</TargetFrameworks>
+    <TargetFrameworks>net9.0;net8.0;net7.0;net6.0</TargetFrameworks>
 		<GeneratePackageOnBuild>true</GeneratePackageOnBuild>
 		<PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
 		<Authors>Adam Cohen</Authors>
 		<Company>Hyperlnq</Company>
 		<Product>HyperSerializer</Product>
-		<Copyright>2023</Copyright>
+		<Copyright>2025</Copyright>
 		<Description>The fastest dotnet binary serializer known to Git-kind.  Up to 18 times faster than MessagePack and Protobuf with roughly equivelant memory allocation. HyperSerializer uses the Span and Memory managed memory structs to acheive high speed and low memory allocation without unsafe code. HyperSerializer is 100% thread-safe and comes with both sync and async serialization and deserialization methods.</Description>
 		<PackageLicenseFile>License.txt</PackageLicenseFile>
 		<PackageProjectUrl>https://github.com/Hyperlnq/HyperSerializer</PackageProjectUrl>
@@ -18,7 +18,7 @@
 		<DelaySign>true</DelaySign>
 		<AllowUnsafeBlocks>true</AllowUnsafeBlocks>
 		<RepositoryUrl>https://github.com/Hyperlnq/HyperSerializer</RepositoryUrl>
-		<Version>1.5</Version>
+		<Version>1.6</Version>
 		<PackageReadmeFile>README.md</PackageReadmeFile>
 		<RepositoryType>git</RepositoryType>
 		<PlatformTarget>AnyCPU</PlatformTarget>

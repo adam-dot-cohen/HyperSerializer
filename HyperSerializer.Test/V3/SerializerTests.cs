@@ -67,7 +67,7 @@ public class SerializerTestsV3 : TestBaseV3
     }
 
     [Test]
-    public void Test_SimpleType_Nullable_Equality()
+    public void Test_ValueType_Nullable_Equality()
     {
         this.RoundTripEquality<Guid?>(null);
         this.RoundTripEquality<DateTime?>(null);
@@ -94,7 +94,7 @@ public class SerializerTestsV3 : TestBaseV3
     }
 
     [Test]
-    public void Test_SimpleType_Equality()
+    public void Test_ValueType_Equality()
     {
         this.RoundTripEquality(Guid.NewGuid());
 
