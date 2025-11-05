@@ -3,7 +3,7 @@
 Fastest and most memory efficient binary serializer for .NET.
 
 ![]()
-[![NuGet version (HyperSerializer)](https://img.shields.io/badge/nuget-v1.5-blue?style=flat-square)](https://www.nuget.org/packages/HyperSerializer/)
+[![NuGet version (HyperSerializer)](https://img.shields.io/badge/nuget-v1.6-blue?style=flat-square)](https://www.nuget.org/packages/HyperSerializer/)
 
 If you're looking for the fastest binary serializer for .Net, look no further.  HyperSerializer is up to ***16x faster than [MessagePack](https://github.com/neuecc/MessagePack-CSharp) and [Protobuf](https://github.com/protocolbuffers/protobuf), and 2x faster than [MemoryPack](https://github.com/Cysharp/MemoryPack)***, with roughly equivelant or better memory allocation. Simply install the [Nuget package (Install-Package HyperSerializer)](https://www.nuget.org/packages/HyperSerializer/) and serialize/deserialize with just 2 lines of code.
 
